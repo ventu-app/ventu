@@ -82,6 +82,27 @@
     .card-title { font-size: 1.4rem; margin-bottom: 10px; color: var(--text); }
     .card-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; flex: 1; }
 
+    /* Modal */
+    #modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 999; backdrop-filter: blur(5px); padding: 20px; }
+    .modal-box { background: var(--panel); border-radius: 16px; border: 1px solid var(--gold); max-width: 500px; width: 100%; padding: 30px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); position: relative; animation: fadeIn 0.3s ease; }
+    .modal-icon { font-size: 3rem; margin-bottom: 10px; }
+    .modal-title { font-family: var(--font-heading); font-size: 2rem; color: var(--text); margin-bottom: 5px; }
+    .modal-subtitle { font-size: 0.85rem; color: var(--level-color, var(--gold)); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; font-weight: bold; }
+    
+    .ventu-bubble { background: rgba(251, 191, 36, 0.1); border-left: 4px solid var(--gold); padding: 15px; border-radius: 0 8px 8px 0; text-align: left; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.5; color: var(--text); display: flex; gap: 15px; align-items: flex-start; }
+    .ventu-avatar { font-size: 1.8rem; flex-shrink: 0; }
+    
+    .modal-objectives { text-align: left; margin-bottom: 25px; background: var(--bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border); }
+    .modal-objectives h4 { color: var(--gold); font-size: 0.85rem; text-transform: uppercase; margin-bottom: 10px; }
+    .modal-objectives ul { list-style: disc; padding-left: 20px; color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; }
+
+    .modal-actions { display: flex; gap: 10px; }
+    .btn-close-modal { background: var(--border); color: var(--text); border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; transition: 0.2s; }
+    .btn-start { background: var(--gold); color: var(--bg); border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 2; transition: 0.2s; }
+    .btn-start:hover { background: var(--gold-hover); }
+
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
     /* Footer */
     .site-footer { background: var(--panel); border-top: 1px solid var(--border); padding: 30px 0; margin-top: auto; }
     .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; color: var(--text-muted); font-size: 0.85rem; }
@@ -134,11 +155,29 @@
     </section>
   </main>
 
-  <div id="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 999; backdrop-filter: blur(5px);">
-    <div style="background: var(--panel); padding: 30px; border-radius: 12px; border: 1px solid var(--gold); max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-        <h2 style="color: var(--gold); margin-bottom: 15px; font-size: 1.5rem;">🚧 Em Breve</h2>
-        <p style="color: var(--text); margin-bottom: 25px; line-height: 1.5;">O nível <strong id="modal-name"></strong> está em desenvolvimento. Continue praticando nos níveis liberados!</p>
-        <button onclick="document.getElementById('modal-overlay').style.display='none'" style="background: var(--border); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%;">Entendido</button>
+  <!-- Modal Dossiê -->
+  <div id="modal-overlay">
+    <div class="modal-box" id="modal-box">
+      <div class="modal-icon" id="modal-icon">🍔</div>
+      <h2 class="modal-title" id="modal-title">Vila Sobrevivente</h2>
+      <p class="modal-subtitle" id="modal-subtitle">NÍVEL A1 - INICIANTE</p>
+      
+      <div class="ventu-bubble">
+        <div class="ventu-avatar">🦊</div>
+        <div id="modal-ventu-says">"Bem-vindo ao caos! Aqui você vai aprender a não passar fome e não dormir na rua. O básico para sobreviver."</div>
+      </div>
+
+      <div class="modal-objectives">
+        <h4>Seus Objetivos:</h4>
+        <ul id="modal-objectives-list">
+          <!-- Preenchido via JS -->
+        </ul>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-close-modal" onclick="document.getElementById('modal-overlay').style.display='none'">Voltar</button>
+        <button class="btn-start" id="btn-start-level">Iniciar Missão →</button>
+      </div>
     </div>
   </div>
 
@@ -151,59 +190,139 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // --- 1. NÍVEIS ---
-      try {
-        const levelsData = [
-            { id: 'a1', cefr: 'A1', title: 'Vila Sobrevivente', desc: 'Pedir comida, andar pela cidade e se virar no básico.', available: true, color: '#fbbf24' },
-            { id: 'a2', cefr: 'A2', title: 'Porto Hotel', desc: 'Resolver pepinos do dia a dia, check-in e farmácia.', available: true, color: '#3b82f6' },
-            { id: 'b1', cefr: 'B1', title: 'Caos Cotidiano', desc: 'Clínica de madrugada, apartamento alagado e burocracia.', available: false, color: '#ef4444' },
-            { id: 'b2', cefr: 'B2', title: 'O Negociador', desc: 'Clientes furiosos, entrevistas de emprego e acordos.', available: false, color: '#8b5cf6' },
-            { id: 'c1', cefr: 'C1', title: 'O Mediador', desc: 'Jantares de família, ironia, sarcasmo e política.', available: false, color: '#06b6d4' },
-            { id: 'c2', cefr: 'C2', title: 'O Estrategista', desc: 'Conselhos hostis, crises de imprensa e persuasão pura.', available: false, color: '#f97316' },
-            { id: 'b1_plus', cefr: 'B1+', title: 'Bairro do Flerta', desc: 'Dates, flerte, humor e detecção de red flags.', available: false, badge: 'NOVO', color: '#ec4899' },
-            { id: 'b2_plus', cefr: 'B2+', title: 'Beco da Rua', desc: 'Conflito, insultos, palavrões e como se impor.', available: false, badge: '18+', color: '#e11d48' },
-            { id: 'exterior', cefr: 'B1+/B2+', title: 'Vida no Exterior', desc: 'Entrevistas, host family, aluguel e sobrevivência fora.', available: false, badge: 'AU PAIR', color: '#0ea5e9' }
-        ];
+      // --- DADOS DOS NÍVEIS (Com Ventu Says e Objetivos) ---
+      const levelsData = [
+        { 
+          id: 'a1', cefr: 'A1', title: 'Vila Sobrevivente', icon: '🏘️', color: '#10b981', available: true,
+          desc: 'Pedir comida, andar pela cidade e se virar no básico.',
+          ventuSays: "Bem-vindo ao caos! Aqui você vai aprender a não passar fome e não dormir na rua. O básico para sobreviver.",
+          objectives: ['Fazer pedidos simples (I want/need)', 'Pedir direções e informações', 'Usar números e horários']
+        },
+        { 
+          id: 'a2', cefr: 'A2', title: 'Porto Hotel', icon: '🏨', color: '#3b82f6', available: true,
+          desc: 'Resolver pepinos do dia a dia, check-in e farmácia.',
+          ventuSays: "O quarto tá errado? A farmácia tá fechada? Sem pânico. Hora de resolver problemas do mundo real.",
+          objectives: ['Narrar eventos no passado', 'Fazer pedidos educados (Can/Could)', 'Reclamar de problemas']
+        },
+        { 
+          id: 'b1', cefr: 'B1', title: 'Caos Cotidiano', icon: '🚑', color: '#f97316', available: true,
+          desc: 'Clínica de madrugada, apartamento alagado e burocracia.',
+          ventuSays: "Imprevistos acontecem. Você tá doente num país estranho ou o chuveiro quebrou? Hora de se virar e explicar o problema.",
+          objectives: ['Usar Present Perfect', 'Fazer condicionais simples', 'Lidar com imprevistos e burocracia']
+        },
+        { 
+          id: 'b2', cefr: 'B2', title: 'O Negociador', icon: '💼', color: '#8b5cf6', available: false,
+          desc: 'Clientes furiosos, entrevistas de emprego e acordos.',
+          ventuSays: "O cliente tá gritando e você precisa salvar o contrato? Ou o recrutador tá te pressionando? Use as palavras certas para não sair perdendo.",
+          objectives: ['Usar Condicionais Complexas', 'Voz Passiva para se esquivar', 'Argumentar e negociar']
+        },
+        { 
+          id: 'c1', cefr: 'C1', title: 'O Mediador', icon: '🎭', color: '#ef4444', available: false,
+          desc: 'Jantares de família, ironia, sarcasmo e política.',
+          ventuSays: "Jantar na casa dos sogros? O tio tá fazendo piada política ofensiva? Você precisa entender a ironia e desviar das provocações com elegância.",
+          objectives: ['Entender sarcasmo e ironia fina', 'Mediar conflitos e debates', 'Usar expressões idiomáticas']
+        },
+        { 
+          id: 'c2', cefr: 'C2', title: 'O Estrategista', icon: '♟️', color: '#eab308', available: false,
+          desc: 'Conselhos hostis, crises de imprensa e persuasão pura.',
+          ventuSays: "Uma sala cheia de tubarões querendo derrubar seu projeto? A imprensa te atacando? É aqui que o inglês de verdade entra em jogo.",
+          objectives: ['Retórica e Persuasão de alto nível', 'Uso de Humor Calculado', 'Improviso sob pressão extrema']
+        },
+        { 
+          id: 'social', cefr: 'B1+', title: 'Bairro do Flerte', icon: '💕', color: '#ec4899', available: false, badge: 'NOVO',
+          desc: 'Dates, flerte, humor e detecção de red flags.',
+          ventuSays: "Vamos falar de amor... ou algo assim. Aprenda a flertar usando humor sem parecer um robô e a fugir de gente estranha.",
+          objectives: ['Usar perguntas indiretas', 'Fazer small talk e piadas', 'Detectar red flags']
+        },
+        { 
+          id: 'street', cefr: 'B2+', title: 'Beco da Rua', icon: '🔥', color: '#e11d48', available: false, badge: '18+',
+          desc: 'Conflito, insultos, palavrões e como se impor.',
+          ventuSays: "Aqui a coisa esquenta. Palavrão, gíria e gente chata. Não tô te ensinando a ser babaca, tô te ensinando a se defender.",
+          objectives: ['Usar imperativos', 'Desescalar conflitos', 'Entender gírias e insultos']
+        },
+        { 
+          id: 'abroad', cefr: 'B1+/B2+', title: 'Vida no Exterior', icon: '✈️', color: '#06b6d4', available: false, badge: 'AU PAIR',
+          desc: 'Entrevistas, host family, aluguel e sobrevivência fora do país.',
+          ventuSays: "Au pair, trabalho ou intercâmbio? A vida real lá fora não é um conto de fadas. Vamos ver se você aguenta o tranco com a host family.",
+          objectives: ['Falar sobre experiências de vida', 'Negociar regras e rotinas', 'Resolver mal-entendidos culturais']
+        }
+      ];
 
+      let currentLevelSelected = null;
+      let isLogged = false;
+
+      // --- RENDERIZAR O GRID ---
+      try {
         const grid = document.getElementById('levels-grid');
         if (grid) {
-            levelsData.forEach(level => {
-                const card = document.createElement('div');
-                card.className = `level-card ${level.available ? '' : 'locked'}`;
-                card.style.setProperty('--level-color', level.color);
-                
-                card.innerHTML = `
-                    <div class="card-header">
-                      <span class="level-badge">${level.cefr}</span>
-                      ${level.badge ? `<span class="card-tag" style="background:var(--level-color); color:#fff;">${level.badge}</span>` : ''}
-                      ${!level.available ? `<span class="card-lock" style="font-size:1rem;">🔒</span>` : ''}
-                    </div>
-                    <h3 class="card-title">${level.title}</h3>
-                    <p class="card-desc">${level.desc}</p>
-                    <button class="play-btn" style="margin-top:15px; padding:10px; border-radius:8px; border:none; font-weight:bold; cursor:pointer; background: ${level.available ? 'var(--gold)' : 'var(--border)'}; color: ${level.available ? 'var(--bg)' : 'var(--text-muted)'};">
-                      ${level.available ? 'Jogar Agora →' : 'Aguardando Lançamento'}
-                    </button>
-                `;
+          levelsData.forEach(level => {
+            const card = document.createElement('div');
+            card.className = `level-card ${level.available ? '' : 'locked'}`;
+            card.style.setProperty('--level-color', level.color);
+            
+            card.innerHTML = `
+              <div class="card-header">
+                <span class="level-badge">${level.cefr}</span>
+                ${level.badge ? `<span class="card-tag" style="background:var(--level-color); color:#fff;">${level.badge}</span>` : ''}
+                ${!level.available ? `<span class="card-lock" style="font-size:1rem;">🔒</span>` : ''}
+              </div>
+              <h3 class="card-title">${level.title}</h3>
+              <p class="card-desc">${level.desc}</p>
+              <button class="play-btn" style="margin-top:15px; padding:10px; border-radius:8px; border:none; font-weight:bold; cursor:pointer; background: ${level.available ? 'var(--gold)' : 'var(--border)'}; color: ${level.available ? 'var(--bg)' : 'var(--text-muted)'};">
+                ${level.available ? 'Ver Dossiê →' : 'Aguardando Lançamento'}
+              </button>
+            `;
 
-                card.addEventListener('click', () => {
-                    if (level.available) {
-                        window.location.href = `jogo.html?l=${level.id}`;
-                    } else {
-                        const modal = document.getElementById('modal-overlay');
-                        const modalName = document.getElementById('modal-name');
-                        if (modal && modalName) {
-                            modalName.innerText = level.title;
-                            modal.style.display = 'flex';
-                        }
-                    }
-                });
-
-                grid.appendChild(card);
+            card.addEventListener('click', () => {
+              if (level.available) {
+                openModal(level);
+              } else {
+                alert(`O nível ${level.title} está em desenvolvimento. Continue praticando nos níveis liberados!`);
+              }
             });
+
+            grid.appendChild(card);
+          });
         }
       } catch(e) { console.error("Erro nos Níveis:", e); }
 
-      // --- 2. TEMA CLARO/ESCURO ---
+      // --- MODAL DA VENTU ---
+      function openModal(level) {
+        currentLevelSelected = level;
+        document.getElementById('modal-icon').innerText = level.icon;
+        document.getElementById('modal-title').innerText = level.title;
+        document.getElementById('modal-subtitle').innerText = `NÍVEL ${level.cefr}`;
+        document.getElementById('modal-subtitle').style.color = level.color;
+        document.getElementById('modal-ventu-says').innerText = `"${level.ventuSays}"`;
+        
+        const list = document.getElementById('modal-objectives-list');
+        list.innerHTML = '';
+        level.objectives.forEach(obj => {
+          const li = document.createElement('li');
+          li.innerText = obj;
+          list.appendChild(li);
+        });
+
+        const btnStart = document.getElementById('btn-start-level');
+        btnStart.style.background = level.color;
+        
+        document.getElementById('modal-overlay').style.display = 'flex';
+      }
+
+      // Ação do botão Iniciar Missão
+      document.getElementById('btn-start-level').addEventListener('click', () => {
+        if (!currentLevelSelected) return;
+        
+        // Se não estiver logado, vai pro Auth
+        if (!isLogged) {
+          window.location.href = `auth.html`;
+        } else {
+          // Se estiver logado, vai pro jogo passando o ID
+          window.location.href = `jogo.html?l=${currentLevelSelected.id}`;
+        }
+      });
+
+      // --- TEMA CLARO/ESCURO ---
       try {
         const themeToggle = document.getElementById('theme-toggle');
         if (themeToggle) {
@@ -216,7 +335,7 @@
         }
       } catch(e) { console.error("Erro no Tema:", e); }
 
-      // --- 3. SUPABASE ---
+      // --- SUPABASE (LOGIN E XP) ---
       try {
         const SUPABASE_URL = 'https://hbqjoadubrwuafbfykre.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_';
@@ -231,7 +350,8 @@
                 const { data: { session } } = await supabase.auth.getSession();
                 const authArea = document.getElementById('auth-area');
 
-                if (session && authArea) {
+                if (session) {
+                    isLogged = true;
                     const email = session.user.email;
                     const name = session.user.user_metadata?.full_name || email.split('@')[0];
                     const { data: profile } = await supabase.from('profiles').select('xp').eq('id', session.user.id).single();
@@ -240,6 +360,7 @@
                     authArea.innerHTML = `
                         <span style="color: var(--gold); font-weight: bold; background: rgba(251, 191, 36, 0.1); padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(251, 191, 36, 0.2);">⭐ ${userXp} XP</span>
                         <span style="font-size: 0.9rem; color: var(--text-muted);">Olá, ${name.split(' ')[0]}</span>
+                        <a href="dashboard.html" class="btn btn-ghost">Meu Dashboard</a>
                         <button class="btn btn-ghost" id="btn-logout">Sair</button>
                     `;
 
