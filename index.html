@@ -8,13 +8,88 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="src/styles/global.css">
-  <link rel="stylesheet" href="src/styles/home.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const savedTheme = localStorage.getItem('ventu-theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
   </script>
+  <style>
+    :root {
+      --bg: #0b0f19; --panel: #151b2b; --text: #e2e8f0; --text-muted: #94a3b8;
+      --gold: #fbbf24; --gold-hover: #f59e0b; --border: #1e293b; --error: #ef4444;
+      --font-heading: 'Playfair Display', serif; --font-body: 'Inter', sans-serif;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc; --panel: #ffffff; --text: #0f172a; --text-muted: #64748b;
+      --gold: #d97706; --gold-hover: #b45309; --border: #e2e8f0; --error: #dc2626;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; display: flex; flex-direction: column; transition: background-color 0.3s, color 0.3s; overflow-x: hidden; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; width: 100%; }
+    a { text-decoration: none; color: inherit; }
+
+    /* Header */
+    .site-header { background: var(--bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    .header-inner { display: flex; justify-content: space-between; align-items: center; height: 80px; }
+    .logo { display: flex; align-items: center; gap: 12px; font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; color: var(--text); }
+    .header-nav { display: flex; align-items: center; gap: 20px; }
+    .nav-link { font-weight: 600; color: var(--text); transition: 0.2s; }
+    .nav-link:hover { color: var(--gold); }
+
+    /* Botões */
+    .btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; border: none; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-primary { background: var(--gold); color: var(--bg); }
+    .btn-primary:hover { background: var(--gold-hover); transform: translateY(-2px); }
+    .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-support { background: rgba(251, 191, 36, 0.1); color: var(--gold); border: 1px solid rgba(251, 191, 36, 0.3); }
+
+    /* Theme Toggle */
+    .theme-toggle { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; padding: 8px; border-radius: 50%; transition: 0.2s; }
+    .theme-toggle:hover { background: var(--border); }
+    [data-theme="dark"] .icon-sun { display: block; } [data-theme="dark"] .icon-moon { display: none; }
+    [data-theme="light"] .icon-sun { display: none; } [data-theme="light"] .icon-moon { display: block; }
+
+    /* Hero */
+    .hero { padding: 60px 0 40px; overflow: hidden; text-align: center; }
+    .hero-title { font-family: var(--font-heading); font-size: 3rem; line-height: 1.1; margin-bottom: 15px; }
+    .text-gold { color: var(--gold); font-style: italic; }
+    .hero-subtitle { font-size: 1.1rem; color: var(--text-muted); line-height: 1.6; max-width: 600px; margin: 0 auto; }
+
+    /* Grid 3x3 */
+    .levels-section { padding: 20px 0 80px; }
+    .levels-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
+    @media (max-width: 900px) { .levels-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .levels-grid { grid-template-columns: 1fr; } }
+
+    .level-card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 25px;
+      display: flex; flex-direction: column; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative; overflow: hidden; cursor: pointer;
+    }
+    .level-card:hover:not(.locked) {
+      border-color: var(--level-color, var(--gold));
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.4), 0 0 15px var(--level-color, rgba(251, 191, 36, 0.2));
+    }
+    .level-card.locked { opacity: 0.6; filter: grayscale(0.8); cursor: not-allowed; }
+
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .level-badge { background: var(--border); color: var(--text); font-weight: 700; font-size: 0.75rem; padding: 4px 10px; border-radius: 6px; letter-spacing: 1px; }
+    .card-tag { font-size: 0.65rem; padding: 4px 8px; border-radius: 12px; font-weight: 700; text-transform: uppercase; }
+    .card-title { font-size: 1.4rem; margin-bottom: 10px; color: var(--text); }
+    .card-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; flex: 1; }
+
+    /* Footer */
+    .site-footer { background: var(--panel); border-top: 1px solid var(--border); padding: 30px 0; margin-top: auto; }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; color: var(--text-muted); font-size: 0.85rem; }
+    .creator-credit a { color: var(--gold); font-weight: 600; }
+
+    @media (max-width: 768px) {
+      .header-nav { display: none; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+    }
+  </style>
 </head>
 <body>
 
@@ -39,36 +114,29 @@
             <a href="auth.html" class="btn btn-primary" id="nav-register">Criar conta</a>
         </div>
       </nav>
-
-      <button class="menu-toggle" id="menu-toggle">☰</button>
     </div>
   </header>
 
   <main>
-    <section class="hero" style="padding-bottom: 20px;">
-      <div class="container hero-inner">
-        <div class="hero-content" style="text-align: center; max-width: 100%;">
-          <h1 class="hero-title">Você não estuda inglês.<br>Você <span class="text-gold">sobrevive</span> a ele.</h1>
-          <p class="hero-subtitle">Escolha sua missão abaixo. Do básico ao avançado, cada nível é um mundo com histórias e desafios reais.</p>
-        </div>
+    <section class="hero">
+      <div class="container">
+        <h1 class="hero-title">Você não estuda inglês.<br>Você <span class="text-gold">sobrevive</span> a ele.</h1>
+        <p class="hero-subtitle">Escolha sua missão abaixo. Do básico ao avançado, cada nível é um mundo com histórias e desafios reais.</p>
       </div>
     </section>
 
-    <section id="niveis" class="levels-section" style="border-top: none; background: var(--bg);">
+    <section id="niveis" class="levels-section">
       <div class="container">
-        <div class="levels-grid" id="levels-grid">
-          <!-- Preenchido via JS embutido -->
-        </div>
+        <div class="levels-grid" id="levels-grid"></div>
       </div>
     </section>
   </main>
 
-  <!-- Modal Em Breve -->
   <div id="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 999; backdrop-filter: blur(5px);">
-    <div style="background: var(--panel); padding: 30px; border-radius: 12px; border: 1px solid var(--gold); max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: fadeIn 0.3s ease;">
+    <div style="background: var(--panel); padding: 30px; border-radius: 12px; border: 1px solid var(--gold); max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
         <h2 style="color: var(--gold); margin-bottom: 15px; font-size: 1.5rem;">🚧 Em Breve</h2>
         <p style="color: var(--text); margin-bottom: 25px; line-height: 1.5;">O nível <strong id="modal-name"></strong> está em desenvolvimento. Continue praticando nos níveis liberados!</p>
-        <button onclick="document.getElementById('modal-overlay').style.display='none'" style="background: var(--border); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s;">Entendido</button>
+        <button onclick="document.getElementById('modal-overlay').style.display='none'" style="background: var(--border); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%;">Entendido</button>
     </div>
   </div>
 
@@ -81,17 +149,14 @@
 
   <script>
     // --- 1. TEMA CLARO/ESCURO ---
-    const themeToggle = document.getElementById('theme-toggle');
-    if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('ventu-theme', newTheme);
-        });
-    }
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('ventu-theme', newTheme);
+    });
 
-    // --- 2. NÍVEIS EMBUTIDOS (PARA NÃO QUEBRAR NA VERCEL) ---
+    // --- 2. NÍVEIS EMBUTIDOS AQUI DENTRO (BLINDADO) ---
     const levelsData = [
         { id: 'a1', cefr: 'A1', title: 'Vila Sobrevivente', desc: 'Pedir comida, andar pela cidade e se virar no básico.', available: true, color: '#fbbf24' },
         { id: 'a2', cefr: 'A2', title: 'Porto Hotel', desc: 'Resolver pepinos do dia a dia, check-in e farmácia.', available: true, color: '#3b82f6' },
@@ -105,39 +170,37 @@
     ];
 
     const grid = document.getElementById('levels-grid');
-    if (grid) {
-        levelsData.forEach(level => {
-            const card = document.createElement('div');
-            card.className = `level-card ${level.available ? '' : 'locked'}`;
-            card.style.setProperty('--level-color', level.color);
-            
-            card.innerHTML = `
-                <div class="card-header">
-                  <span class="level-badge">${level.cefr}</span>
-                  ${level.badge ? `<span class="card-tag" style="background:var(--level-color); color:#fff;">${level.badge}</span>` : ''}
-                  ${!level.available ? `<span class="card-lock" style="font-size:1rem;">🔒</span>` : ''}
-                </div>
-                <h3 class="card-title">${level.title}</h3>
-                <p class="card-desc">${level.desc}</p>
-                <button class="play-btn" style="margin-top:15px; padding:10px; border-radius:8px; border:none; font-weight:bold; cursor:pointer; background: ${level.available ? 'var(--gold)' : 'var(--border)'}; color: ${level.available ? 'var(--bg)' : 'var(--text-muted)'};">
-                  ${level.available ? 'Jogar Agora →' : 'Aguardando Lançamento'}
-                </button>
-            `;
+    levelsData.forEach(level => {
+        const card = document.createElement('div');
+        card.className = `level-card ${level.available ? '' : 'locked'}`;
+        card.style.setProperty('--level-color', level.color);
+        
+        card.innerHTML = `
+            <div class="card-header">
+              <span class="level-badge">${level.cefr}</span>
+              ${level.badge ? `<span class="card-tag" style="background:var(--level-color); color:#fff;">${level.badge}</span>` : ''}
+              ${!level.available ? `<span class="card-lock" style="font-size:1rem;">🔒</span>` : ''}
+            </div>
+            <h3 class="card-title">${level.title}</h3>
+            <p class="card-desc">${level.desc}</p>
+            <button class="play-btn" style="margin-top:15px; padding:10px; border-radius:8px; border:none; font-weight:bold; cursor:pointer; background: ${level.available ? 'var(--gold)' : 'var(--border)'}; color: ${level.available ? 'var(--bg)' : 'var(--text-muted)'};">
+              ${level.available ? 'Jogar Agora →' : 'Aguardando Lançamento'}
+            </button>
+        `;
 
-            card.addEventListener('click', () => {
-                if (level.available) {
-                    window.location.href = `jogo.html?l=${level.id}`;
-                } else {
-                    document.getElementById('modal-name').innerText = level.title;
-                    document.getElementById('modal-overlay').style.display = 'flex';
-                }
-            });
-
-            grid.appendChild(card);
+        card.addEventListener('click', () => {
+            if (level.available) {
+                window.location.href = `jogo.html?l=${level.id}`;
+            } else {
+                document.getElementById('modal-name').innerText = level.title;
+                document.getElementById('modal-overlay').style.display = 'flex';
+            }
         });
-    }
 
-    // --- 3. VERIFICAÇÃO DE LOGIN E XP ---
+        grid.appendChild(card);
+    });
+
+    // --- 3. SUPABASE E XP ---
     const SUPABASE_URL = 'https://hbqjoadubrwuafbfykre.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_';
     let supabase = null;
@@ -154,7 +217,6 @@
             if (session) {
                 const email = session.user.email;
                 const name = session.user.user_metadata?.full_name || email.split('@')[0];
-                
                 const { data: profile } = await supabase.from('profiles').select('xp').eq('id', session.user.id).single();
                 const userXp = profile?.xp || 0;
 
@@ -169,7 +231,7 @@
                     window.location.reload();
                 });
             }
-        } catch(e) { console.log('Erro no Supabase (ignorado se offline):', e); }
+        } catch(e) { console.log('Erro Supabase:', e); }
     }
     checkUser();
   </script>
