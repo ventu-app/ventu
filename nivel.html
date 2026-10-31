@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cenário — Ventu</title>
+  <title>Cenário da Missão — Ventu</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     try { document.documentElement.setAttribute('data-theme', localStorage.getItem('ventu-theme') || 'dark'); } catch(e) {}
   </script>
@@ -26,7 +27,6 @@
     .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; width: 100%; flex: 1; display: flex; flex-direction: column; justify-content: center; }
     a { text-decoration: none; color: inherit; }
 
-    /* Header agora é relative para não sobrepor */
     .site-header { background: var(--bg); border-bottom: 1px solid var(--border); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; width: 100%; z-index: 10; }
     .logo { display: flex; align-items: center; gap: 12px; font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; color: var(--text); }
     
@@ -129,7 +129,7 @@
 
   <script src="src/data/levels.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       // 1. Tema
       try {
         const themeToggle = document.getElementById('theme-toggle');
@@ -181,12 +181,28 @@
         list.appendChild(li);
       });
 
-      // 4. Botão de Jogar
+      // 4. Botão de Jogar (Com Auth Check)
       const btnPlay = document.getElementById('btn-play');
       
       if (level.available) {
-          btnPlay.addEventListener('click', () => {
-              window.location.href = `jogo.html?l=${level.id}`;
+          btnPlay.addEventListener('click', async () => {
+              btnPlay.innerText = 'Carregando...';
+              
+              try {
+                  const supabase = window.supabase.createClient('https://hbqjoadubrwuafbfykre.supabase.co', 'sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_');
+                  const { data: { session } } = await supabase.auth.getSession();
+                  
+                  if (!session) {
+                      // Se não tiver logado, vai pro Auth
+                      window.location.href = 'auth.html';
+                  } else {
+                      // Se tiver logado, vai pro Jogo
+                      window.location.href = `jogo.html?l=${level.id}`;
+                  }
+              } catch(e) {
+                  // Fallback se o Supabase falhar
+                  window.location.href = `jogo.html?l=${level.id}`;
+              }
           });
       } else {
           btnPlay.classList.add('disabled');

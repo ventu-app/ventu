@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+﻿document.addEventListener('DOMContentLoaded', () => {
   const rawData = window.currentGameData;
   const multiChar = rawData && rawData.characters;
 
@@ -184,20 +184,24 @@ document.addEventListener('DOMContentLoaded', () => {
                   const { data: profile } = await supabaseClient.from('profiles').select('xp, levels_completed').eq('id', userId).single();
                   
                   if (profile) {
-                      const newXp = (profile.xp || 0) + xpGanho;
                       const newCompleted = profile.levels_completed || {};
-                      
-                      if (!newCompleted[levelId]) newCompleted[levelId] = [];
-                      if (!newCompleted[levelId].includes(gameData.charId)) {
-                          newCompleted[levelId].push(gameData.charId);
-                      }
+                      const alreadyCompleted = newCompleted[levelId] && newCompleted[levelId].includes(gameData.charId);
 
-                      await supabaseClient.from('profiles').update({
-                          xp: newXp,
-                          levels_completed: newCompleted
-                      }).eq('id', userId);
-                      
-                      console.log(`XP salvo! +${xpGanho} XP. Total: ${newXp}`);
+                      // CORREÇÃO DO FARM: Só dá XP se ainda não concluiu antes
+                      if (!alreadyCompleted) {
+                          const newXp = (profile.xp || 0) + xpGanho;
+                          if (!newCompleted[levelId]) newCompleted[levelId] = [];
+                          newCompleted[levelId].push(gameData.charId);
+
+                          await supabaseClient.from('profiles').update({
+                              xp: newXp,
+                              levels_completed: newCompleted
+                          }).eq('id', userId);
+                          
+                          console.log(`XP salvo! +${xpGanho} XP. Total: ${newXp}`);
+                      } else {
+                          console.log(`Nível já concluído, sem XP extra.`);
+                      }
                   }
               }
           } catch (error) {
@@ -377,7 +381,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const retryBtn = gameData.charId ? `<button class="retry-btn" onclick="localStorage.removeItem('${saveKey}'); window.location.href='?l=${gameData.level}&c=${gameData.charId}';">Tentar de Novo (Reiniciar POV)</button>` : '';
       const backBtn = `<button class="retry-btn" style="background-color: var(--border); color: var(--text);" onclick="window.location.href='?l=${gameData.level}';">Voltar para as Perspectivas</button>`;
 
-      // BOTÃO DE COMPARTILHAR
       const shareText = encodeURIComponent(`Eu sobrevivi ao caos do ${gameData.title} com ${currentState.energy} de energia sobrando! Será que você consegue não ser demitido? Jogue agora no Ventu: https://ventu-nine.vercel.app`);
       const shareBtn = `<a href="https://api.whatsapp.com/send?text=${shareText}" target="_blank" class="retry-btn" style="background-color: #25D366; color: white; text-decoration: none; display: inline-block; text-align: center; margin-top: 10px;">Compartilhar no WhatsApp</a>`;
 
