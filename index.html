@@ -99,7 +99,7 @@
     }
     .modal-content {
         background: var(--panel); border: 1px solid var(--border); border-radius: 24px;
-        padding: 40px 30px; max-width: 450px; width: 100%; text-align: center;
+        padding: 40px 30px; max-width: 500px; width: 100%; text-align: center;
         position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.6); animation: fadeIn 0.3s ease;
     }
     .close-btn {
@@ -111,7 +111,7 @@
     
     .modal-fox { font-size: 4rem; margin-bottom: 15px; animation: float 3s infinite ease-in-out; }
     .modal-title { font-family: var(--font-heading); color: var(--gold); font-size: 1.8rem; margin-bottom: 10px; }
-    .modal-desc { color: var(--text-muted); font-size: 1rem; line-height: 1.5; margin-bottom: 25px; }
+    .modal-desc { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px; text-align: left; }
     
     .qr-container { background: white; padding: 15px; border-radius: 16px; display: inline-block; margin-bottom: 20px; }
     .qr-container img { display: block; width: 180px; height: 180px; }
@@ -182,9 +182,16 @@
   <div class="modal-overlay" id="modal-apoie">
       <div class="modal-content">
           <button class="close-btn" id="btn-close-apoie">✕</button>
-          <div class="modal-fox">🦊</div>
-          <h2 class="modal-title">Ajude a Ventu a sobreviver!</h2>
-          <p class="modal-desc">Manter o Ventu no ar exige servidores, domínio e muita energia. E a nossa raposinha aqui, a Ventu, vive a base de café ☕ e RU 🍽️. Se o projeto te ajuda a treinar o inglês de verdade, considere dar um apoiozinho para ela continuar com a barriga cheia e ensinando o caos!</p>
+          
+          <div class="modal-desc">
+              <p style="margin-bottom: 15px; font-size: 1.1rem;">🦊 A <strong style="color: var(--gold); font-weight: 800;">Ventu</strong> precisa de você (e de café).</p>
+              
+              <p style="margin-bottom: 15px;">Ela te joga em hotel bagunçado, voo cancelado e cliente nervoso, tudo para você aprender inglês de verdade. Mas servidor, domínio e IA não se pagam sozinhos, e a raposa já vendeu até o chapéu de explorador.</p>
+              
+              <p style="margin-bottom: 20px;">Se a <strong style="color: var(--gold); font-weight: 800;">Ventu</strong> te ajudou a falar sem travar, manda um apoio e ajuda a manter ela no ar. Qualquer valor vira café, e café vira mais cenas, mais caos e mais inglês pra todo mundo. ☕</p>
+              
+              <p style="text-align: center; font-weight: bold; color: var(--text); font-size: 1.1rem; margin-bottom: 0;">Apoie a <strong style="color: var(--gold); font-weight: 800;">Ventu</strong> 💛</p>
+          </div>
           
           <div class="qr-container">
               <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=cd5e70df-ddb5-4c74-8589-bee68ed718d0" alt="QR Code PIX">
