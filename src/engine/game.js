@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (multiChar) {
     const urlChar = new URLSearchParams(window.location.search).get('c');
     if (urlChar && multiChar[urlChar]) {
-      startGame({ ...multiChar[urlChar], level: rawData.level });
+      startGame({ ...multiChar[urlChar], level: rawData.id, title: rawData.title, shopItems: rawData.shopItems });
     } else {
       showCharSelect(rawData);
     }
@@ -18,11 +18,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const cards = document.getElementById('char-cards');
     const hint = document.getElementById('char-select-hint');
     const title = document.getElementById('char-select-title');
-    if (!overlay) { startGame({ ...data.characters[Object.keys(data.characters)[0]], level: data.level }); return; }
+    if (!overlay) { startGame({ ...data.characters[Object.keys(data.characters)[0]], level: data.id, title: data.title, shopItems: data.shopItems }); return; }
 
     overlay.hidden = false;
-    const firstPick = localStorage.getItem('ventu_' + data.level + '_firstPick');
-    const completed = JSON.parse(localStorage.getItem('ventu_' + data.level + '_completed') || '{}');
+    const firstPick = localStorage.getItem('ventu_' + data.id + '_firstPick');
+    const completed = JSON.parse(localStorage.getItem('ventu_' + data.id + '_completed') || '{}');
     const firstDone = firstPick && completed[firstPick];
 
     if (firstPick && !firstDone) {
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
       hint.textContent = 'Você já viu uma perspectiva. As outras têm callbacks novos.';
     } else {
       title.textContent = 'Escolha sua perspectiva';
-      hint.textContent = 'A mesma noite. Três ângulos. Escolha por onde começar.';
+      hint.textContent = data.hint || 'A mesma noite. Três ângulos. Escolha por onde começar.';
     }
 
     cards.innerHTML = '';
@@ -56,10 +56,10 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       card.addEventListener('click', () => {
         if (!playable) return;
-        if (!firstPick) localStorage.setItem('ventu_' + data.level + '_firstPick', charId);
+        if (!firstPick) localStorage.setItem('ventu_' + data.id + '_firstPick', charId);
         overlay.hidden = true;
-        history.replaceState(null, '', `?l=${data.level}&c=${charId}`);
-        startGame({ ...ch, level: data.level });
+        history.replaceState(null, '', `?l=${data.id}&c=${charId}`);
+        startGame({ ...ch, level: data.id, title: data.title, shopItems: data.shopItems });
       });
       cards.appendChild(card);
     });
@@ -89,17 +89,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const glossaryList = document.getElementById('glossary-list');
     const headerTitle = document.getElementById('mission-title');
 
-    if (gameData.subtitle) {
-      headerTitle.textContent = `${gameData.subtitle} — ${gameData.title || ''}`.replace(/ — $/, '');
-    } else {
-      headerTitle.textContent = gameData.title;
-    }
+    if (gameData.title) { headerTitle.textContent = gameData.title; }
 
     const saveKey = gameData.charId ? `ventu_save_${gameData.level}_${gameData.charId}` : `ventu_save_${gameData.level}`;
     const flagsKey = `ventu_flags_${gameData.level}`;
     const OFFENSIVE = /(fuck|shit|bitch|idiot|stupid|asshole|dumb|moron|hate you|shut up|go to hell|screw you)/i;
 
-    // --- SISTEMA DE IDIOMA ---
+    const SUPABASE_URL = 'https://hbqjoadubrwuafbfykre.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_';
+    let supabaseClient = null;
+    if (window.supabase) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+
     const translations = {
         pt: { money: 'Dinheiro', energy: 'Energia', glossary: 'Glossário', shop: '🛒 Loja', input: 'Digite sua resposta...', send: 'Enviar', langBtn: '🌐 EN' },
         en: { money: 'Money', energy: 'Energy', glossary: 'Glossary', shop: '🛒 Shop', input: 'Type your answer...', send: 'Send', langBtn: '🌐 PT' }
@@ -126,7 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     applyLanguage();
-    // --------------------------
 
     let currentState = { ...gameData.initialState };
     let currentSceneId = gameData.startScene;
@@ -152,22 +153,57 @@ document.addEventListener('DOMContentLoaded', () => {
     if (saved) {
       try {
         const p = JSON.parse(saved);
-        currentState = p.state || currentState;
-        currentSceneId = p.sceneId || currentSceneId;
-        currentScene = gameData.scenes[currentSceneId] || currentScene;
-      } catch (e) {}
+        if (p.sceneId && gameData.scenes[p.sceneId]) {
+            currentState = p.state || currentState;
+            currentSceneId = p.sceneId;
+            currentScene = gameData.scenes[currentSceneId];
+        } else { localStorage.removeItem(saveKey); }
+      } catch (e) { localStorage.removeItem(saveKey); }
     }
 
     function saveGame() { localStorage.setItem(saveKey, JSON.stringify({ state: currentState, sceneId: currentSceneId })); }
 
-    function markCompleted() {
+    async function markCompleted() {
       if (!gameData.charId) return;
+      
       const key = `ventu_${gameData.level}_completed`;
       try {
         const c = JSON.parse(localStorage.getItem(key) || '{}');
         c[gameData.charId] = true;
         localStorage.setItem(key, JSON.stringify(c));
       } catch (e) {}
+
+      if (supabaseClient) {
+          try {
+              const { data: { session } } = await supabaseClient.auth.getSession();
+              if (session) {
+                  const userId = session.user.id;
+                  const levelId = gameData.level;
+                  const xpGanho = currentScene.endingType === 'bom' ? 150 : 50;
+
+                  const { data: profile } = await supabaseClient.from('profiles').select('xp, levels_completed').eq('id', userId).single();
+                  
+                  if (profile) {
+                      const newXp = (profile.xp || 0) + xpGanho;
+                      const newCompleted = profile.levels_completed || {};
+                      
+                      if (!newCompleted[levelId]) newCompleted[levelId] = [];
+                      if (!newCompleted[levelId].includes(gameData.charId)) {
+                          newCompleted[levelId].push(gameData.charId);
+                      }
+
+                      await supabaseClient.from('profiles').update({
+                          xp: newXp,
+                          levels_completed: newCompleted
+                      }).eq('id', userId);
+                      
+                      console.log(`XP salvo! +${xpGanho} XP. Total: ${newXp}`);
+                  }
+              }
+          } catch (error) {
+              console.error("Erro ao salvar progresso:", error);
+          }
+      }
     }
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -182,23 +218,22 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (type === 'error') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.2); gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2); osc.start(); osc.stop(audioCtx.currentTime + 0.2); }
     }
 
-    // --- LOJA ---
     if(document.getElementById('btn-shop')) document.getElementById('btn-shop').addEventListener('click', openShop);
     if(document.getElementById('btn-close-shop')) document.getElementById('btn-close-shop').addEventListener('click', () => document.getElementById('shop-modal').style.display = 'none');
 
     function openShop() {
         const list = document.getElementById('shop-items-list');
         list.innerHTML = '';
-        const items = [
-            { id: 'coffee', name: '☕ Café Quentinho', cost: 5, desc: 'Recupera 20 de Energia.' },
-            { id: 'umbrella', name: '☂️ Guarda-chuva', cost: 10, desc: 'Evita perda de energia na chuva.' }
+        const items = gameData.shopItems || [
+            { id: 'coffee', name: '☕ Café Quentinho', price: 5, desc: 'Recupera 20 de Energia.' },
+            { id: 'umbrella', name: '☂️ Guarda-chuva', price: 10, desc: 'Evita perda de energia na chuva.' }
         ];
         let inventory = JSON.parse(localStorage.getItem('ventu_inventory') || '[]');
 
         items.forEach(item => {
             const btn = document.createElement('button');
             btn.style.cssText = "background: var(--bg); color: var(--text); padding: 10px; border: 1px solid var(--border); border-radius: 6px; text-align: left; cursor: pointer; transition: 0.2s;";
-            btn.innerHTML = `<strong style="color: var(--gold); font-size: 1.1rem;">${item.name}</strong> - <span style="color: #10b981; font-weight: bold;">$ ${item.cost.toFixed(2)}</span><br><small style="color: var(--text-muted);">${item.desc}</small>`;
+            btn.innerHTML = `<strong style="color: var(--gold); font-size: 1.1rem;">${item.name}</strong> - <span style="color: #10b981; font-weight: bold;">$ ${item.price.toFixed(2)}</span><br><small style="color: var(--text-muted);">${item.desc}</small>`;
             btn.onmouseover = () => btn.style.borderColor = 'var(--gold)';
             btn.onmouseout = () => btn.style.borderColor = 'var(--border)';
             btn.onclick = () => buyItem(item, inventory);
@@ -208,14 +243,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function buyItem(item, inventory) {
-        if (currentState.money >= item.cost) {
-            if (item.id === 'umbrella' && inventory.includes('umbrella')) { alert('Você já tem um guarda-chuva!'); return; }
-            currentState.money -= item.cost;
-            if (item.id === 'coffee') { currentState.energy = Math.min(100, currentState.energy + 20); playSound('success'); }
-            else { inventory.push(item.id); localStorage.setItem('ventu_inventory', JSON.stringify(inventory)); playSound('cash'); }
-            updateHUD();
-            saveGame();
-            document.getElementById('shop-modal').style.display = 'none';
+        if (currentState.money >= item.price) {
+            if (inventory.includes(item.id)) { alert('Você já tem esse item!'); return; }
+            currentState.money -= item.price;
+            if (item.id === 'coffee' || item.energy) {
+                currentState.energy = Math.min(100, currentState.energy + (item.energy || 20)); playSound('success'); 
+            } else {
+                inventory.push(item.id); localStorage.setItem('ventu_inventory', JSON.stringify(inventory)); playSound('cash');
+            }
+            updateHUD(); saveGame(); document.getElementById('shop-modal').style.display = 'none';
+            addMessage('Sistema', `🧾 <strong>Recibo:</strong> Você comprou <em>${item.name}</em> por $${item.price.toFixed(2)}.<br>Saldo atual: $${currentState.money.toFixed(2)}`, 'ventu', false);
         } else { playSound('error'); alert('Dinheiro insuficiente!'); }
     }
 
@@ -228,6 +265,22 @@ document.addEventListener('DOMContentLoaded', () => {
       if(statMoney) statMoney.style.color = currentState.money <= 0 ? 'var(--error)' : 'var(--gold)';
       if(statEnergy) statEnergy.style.color = currentState.energy <= 20 ? 'var(--error)' : 'var(--gold)';
     }
+    
+    function checkExhaustion() {
+        if (currentState.energy === 0) {
+          setTimeout(() => {
+            addMessage('Sistema', 'Você está exausto mentalmente e não consegue mais formular frases. A noite acaba em confusão.', 'ventu', true);
+            setTimeout(() => {
+               const exhaustionScene = { npcName: 'Narrador', npcText: 'Fim de jogo: Exaustão. O estresse foi maior que o seu preparo.', isEnd: true, endingType: 'ruim' };
+               currentScene = exhaustionScene;
+               showEndingHint();
+            }, 2000);
+          }, 1000);
+          return true;
+        }
+        return false;
+    }
+
     function toggleInputLock(lock) {
       isProcessing = lock;
       chatInput.disabled = lock;
@@ -259,6 +312,13 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!currentScene) { console.warn('Scene not found:', sceneId); return; }
 
       setFlags(currentScene.addFlags);
+      
+      if (currentScene.energyCost) {
+          currentState.energy = Math.max(0, currentState.energy - currentScene.energyCost);
+          updateHUD();
+          if (checkExhaustion()) return;
+      }
+
       saveGame();
       if (currentScene.isEnd && gameData.charId) markCompleted();
 
@@ -317,12 +377,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const retryBtn = gameData.charId ? `<button class="retry-btn" onclick="localStorage.removeItem('${saveKey}'); window.location.href='?l=${gameData.level}&c=${gameData.charId}';">Tentar de Novo (Reiniciar POV)</button>` : '';
       const backBtn = `<button class="retry-btn" style="background-color: var(--border); color: var(--text);" onclick="window.location.href='?l=${gameData.level}';">Voltar para as Perspectivas</button>`;
 
+      // BOTÃO DE COMPARTILHAR
+      const shareText = encodeURIComponent(`Eu sobrevivi ao caos do ${gameData.title} com ${currentState.energy} de energia sobrando! Será que você consegue não ser demitido? Jogue agora no Ventu: https://ventu-nine.vercel.app`);
+      const shareBtn = `<a href="https://api.whatsapp.com/send?text=${shareText}" target="_blank" class="retry-btn" style="background-color: #25D366; color: white; text-decoration: none; display: inline-block; text-align: center; margin-top: 10px;">Compartilhar no WhatsApp</a>`;
+
       let nextLevelBtn = '';
-      if (gameData.level === 'a1' && currentScene.endingType !== 'ruim') {
-         nextLevelBtn = `<button class="retry-btn" style="background-color: var(--player-bubble); color: white;" onclick="window.location.href='?l=a2&c=${gameData.charId}';">Avançar para o Nível 2 (O Café)</button>`;
+      if (currentScene.endingType !== 'ruim') {
+         if (gameData.level === 'a1') {
+             nextLevelBtn = `<button class="retry-btn" style="background-color: var(--player-bubble); color: white;" onclick="window.location.href='?l=a2&c=${gameData.charId}';">Avançar para o Nível 2 (Hotel Luxo)</button>`;
+         }
       }
 
-      hint.innerHTML = `<div class="npc-avatar ventu-avatar" style="background: transparent; border: none; width: 40px; height: 40px;"><svg viewBox="0 0 100 100" width="40" height="40"><path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/></svg></div><div class="msg-content"><span class="msg-sender">Ventu</span><div class="msg-bubble"><strong>${label}.</strong><br><div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">${nextLevelBtn} ${retryBtn} ${backBtn}</div></div></div>`;
+      hint.innerHTML = `<div class="npc-avatar ventu-avatar" style="background: transparent; border: none; width: 40px; height: 40px;"><svg viewBox="0 0 100 100" width="40" height="40"><path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/></svg></div><div class="msg-content"><span class="msg-sender">Ventu</span><div class="msg-bubble"><strong>${label}.</strong><br><div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">${nextLevelBtn} ${retryBtn} ${backBtn}</div><div style="margin-top: 15px;">${shareBtn}</div></div></div>`;
       
       chatHistory.appendChild(hint);
       chatHistory.scrollTop = chatHistory.scrollHeight;
@@ -334,14 +400,16 @@ document.addEventListener('DOMContentLoaded', () => {
       let avatar;
       
       if (type === 'npc') {
-        let emoji = '👤';
-        if (sender.includes('Emma')) emoji = '👩';
-        else if (sender.includes('Silva')) emoji = '👨‍💼';
-        else if (sender.includes('Lucas')) emoji = '🧑';
-        else if (sender.includes('Davi')) emoji = '👨‍🍳';
-        else if (sender.includes('Chloe')) emoji = '🕵️‍♀️';
-        else if (sender === 'Narrador') emoji = '📖';
-        else if (sender === 'Sistema') emoji = '⚙️';
+        let emoji = gameData.emoji || '👤';
+        if (!gameData.emoji) {
+            if (sender.includes('Emma')) emoji = '👩';
+            else if (sender.includes('Silva')) emoji = '👨‍💼';
+            else if (sender.includes('Lucas')) emoji = '🧑';
+            else if (sender.includes('Davi')) emoji = '👨‍🍳';
+            else if (sender.includes('Chloe')) emoji = '🕵️‍♀️';
+            else if (sender === 'Narrador') emoji = '📖';
+            else if (sender === 'Sistema') emoji = '⚙️';
+        }
         avatar = `<div class="npc-avatar">${emoji}</div>`;
       }
       else if (type === 'ventu') avatar = `<div class="npc-avatar ventu-avatar" style="background: transparent; border: none; width: 40px; height: 40px;"><svg viewBox="0 0 100 100" width="40" height="40"><path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/></svg></div>`;
@@ -349,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       msgDiv.innerHTML = `${avatar}<div class="msg-content"><span class="msg-sender">${sender}</span><div class="msg-bubble ${isCallback ? 'callback-bubble' : ''}"></div></div>`;
       const bubble = msgDiv.querySelector('.msg-bubble');
-      if (useTypewriter) typeWriterEffect(bubble, text); else bubble.textContent = text;
+      if (useTypewriter) typeWriterEffect(bubble, text); else bubble.innerHTML = text;
       
       chatHistory.appendChild(msgDiv);
       chatHistory.scrollTop = chatHistory.scrollHeight;
@@ -384,6 +452,36 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound('success');
         if (matchedIntent.addsFlags) setFlags(matchedIntent.addsFlags);
         
+        let usedItem = false;
+        if (matchedIntent.requiresItem) {
+            const inv = JSON.parse(localStorage.getItem('ventu_inventory') || '[]');
+            if (inv.includes(matchedIntent.requiresItem)) {
+                inv.splice(inv.indexOf(matchedIntent.requiresItem), 1);
+                localStorage.setItem('ventu_inventory', JSON.stringify(inv));
+                matchedIntent.money = 0;
+                usedItem = true;
+            }
+        }
+
+        if (usedItem) {
+             addMessage('Sistema', `✨ Você usou o item <em>${matchedIntent.requiresItem}</em> que já tinha comprado! (Nenhum dinheiro extra gasto)`, 'ventu', false);
+        } else if (matchedIntent.money) {
+             if (currentState.money < Math.abs(matchedIntent.money)) {
+                 playSound('error');
+                 addMessage('Sistema', 'Você não tem dinheiro suficiente para isso!', 'ventu', false);
+                 toggleInputLock(false);
+                 return;
+             }
+             currentState.money += matchedIntent.money;
+             updateHUD();
+        }
+
+        if (matchedIntent.energyCost) {
+            currentState.energy = Math.max(0, currentState.energy - matchedIntent.energyCost);
+            updateHUD();
+            if (checkExhaustion()) return;
+        }
+
         if (matchedIntent.response) {
           toggleInputLock(true);
           showTypingIndicator();
@@ -399,8 +497,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (matchedIntent.nextScene) { loadScene(matchedIntent.nextScene); } else { toggleInputLock(false); }
       } else {
         playSound('error');
-        let energyLoss = 10;
+        let energyLoss = 15; 
         const inv = JSON.parse(localStorage.getItem('ventu_inventory') || '[]');
+        
         if (gameData.charId === 'emma' && inv.includes('umbrella') && currentSceneId.includes('emma_a2')) {
             energyLoss = 0;
             addMessage('Sistema', '☂️ Seu guarda-chuva te protegeu da chuva! (Nenhuma energia perdida)', 'ventu', false);
@@ -411,17 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateHUD();
         saveGame();
 
-        if (currentState.energy === 0) {
-          setTimeout(() => {
-            addMessage('Sistema', 'Você está exausto mentalmente e não consegue mais formular frases. A noite acaba em confusão.', 'ventu', true);
-            setTimeout(() => {
-               const exhaustionScene = { npcName: 'Narrador', npcText: 'Fim de jogo: Exaustão. O estresse foi maior que o seu preparo.', isEnd: true, endingType: 'ruim' };
-               currentScene = exhaustionScene;
-               showEndingHint();
-            }, 2000);
-          }, 1000);
-          return;
-        }
+        if (checkExhaustion()) return;
 
         showTypingIndicator();
         setTimeout(() => {

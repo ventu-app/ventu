@@ -1,163 +1,113 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="dark">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ventu — Entrar ou Criar Conta</title>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #0b0f19; --panel: #151b2b; --text: #e2e8f0; --text-muted: #94a3b8;
-      --gold: #fbbf24; --gold-hover: #f59e0b; --error: #ef4444; --border: #1e293b;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-    body { background-color: var(--bg); color: var(--text); height: 100vh; display: flex; overflow: hidden; }
-    
-    /* Lado Esquerdo (Arte e Marca) */
-    .auth-left {
-      flex: 1; background: linear-gradient(135deg, #151b2b 0%, #0b0f19 100%);
-      display: flex; flex-direction: column; justify-content: center; align-items: center;
-      padding: 40px; position: relative; border-right: 1px solid var(--border);
-    }
-    .auth-left::before {
-      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      background: radial-gradient(circle at 50% 50%, rgba(251, 191, 36, 0.05) 0%, transparent 60%);
-    }
-    .mascot-big { width: 200px; height: 200px; margin-bottom: 20px; animation: float 4s ease-in-out infinite; z-index: 1; }
-    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-    .quote { font-family: 'Playfair Display', serif; font-size: 2rem; text-align: center; color: var(--gold); z-index: 1; margin-bottom: 10px; }
-    .sub-quote { color: var(--text-muted); z-index: 1; font-size: 1.1rem; text-align: center; }
-
-    /* Lado Direito (Formulário) */
-    .auth-right { flex: 1; display: flex; justify-content: center; align-items: center; padding: 40px; position: relative; overflow-y: auto; }
-    .auth-box { width: 100%; max-width: 400px; margin: auto; }
-    .auth-tabs { display: flex; margin-bottom: 30px; border-bottom: 1px solid var(--border); }
-    .auth-tab { flex: 1; padding: 15px; text-align: center; background: none; border: none; color: var(--text-muted); font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: 0.3s; position: relative; }
-    .auth-tab.active { color: var(--gold); }
-    .auth-tab.active::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background: var(--gold); }
-    
-    .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
-    .form-group input { width: 100%; padding: 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel); color: var(--text); font-size: 1rem; outline: none; transition: 0.2s; }
-    .form-group input:focus { border-color: var(--gold); }
-    
-    .btn-submit { width: 100%; padding: 15px; border-radius: 8px; border: none; background: var(--gold); color: var(--bg); font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-    .btn-submit:hover { background: var(--gold-hover); }
-
-    /* Responsivo */
-    @media (max-width: 768px) {
-      .auth-left { display: none; }
-      .auth-right { padding: 20px; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ventu - Entrar ou Cadastrar</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --bg: #0b0f19; --panel: #151b2b; --text: #e2e8f0; --text-muted: #94a3b8; --gold: #fbbf24; --border: #1e293b; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100dvh; margin: 0; padding: 20px; }
+        .auth-box { background: var(--panel); padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        h2 { text-align: center; color: var(--gold); margin-bottom: 25px; font-size: 1.5rem; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; outline: none; font-size: 0.95rem; }
+        input:focus { border-color: var(--gold); }
+        button { width: 100%; padding: 12px; background: var(--gold); color: var(--bg); font-weight: bold; border: none; border-radius: 8px; cursor: pointer; margin-bottom: 15px; font-size: 0.95rem; transition: 0.2s; }
+        button:hover:not(:disabled) { background: #f59e0b; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-google { background: white; color: #333; display: flex; justify-content: center; align-items: center; gap: 10px; border: 1px solid #ccc; }
+        .btn-google:hover { background: #f1f1f1; }
+        .link { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; display: block; text-align: center; margin-top: 15px; cursor: pointer; transition: 0.2s; }
+        .link:hover { color: var(--gold); }
+        .hidden { display: none; }
+    </style>
 </head>
 <body>
-  
-  <div class="auth-left">
-    <svg class="mascot-big" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/>
-      <path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/>
-      <path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/>
-      <ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/>
-      <path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/>
-    </svg>
-    <h2 class="quote">Play. Speak. Survive.</h2>
-    <p class="sub-quote">Sua jornada para dominar o inglês começa aqui.</p>
-  </div>
-
-  <div class="auth-right">
-    <div class="auth-box">
-      <div class="auth-tabs">
-        <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Entrar</button>
-        <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Criar Conta</button>
-      </div>
-
-      <!-- Form de Login -->
-      <form id="form-login" onsubmit="handleLogin(event)">
-        <div class="form-group">
-          <label>E-mail</label>
-          <input type="email" id="login-email" required placeholder="seu@email.com">
+<div class="auth-box">
+    <h2 id="titulo">Entrar no Ventu</h2>
+    
+    <form id="form-auth">
+        <div id="campos-cadastro" class="hidden">
+            <input type="text" id="nome" placeholder="Seu nome completo" required>
+            <input type="tel" id="telefone" placeholder="(11) 9 9999-9999" maxlength="16" required>
         </div>
-        <div class="form-group">
-          <label>Senha</label>
-          <input type="password" id="login-password" required placeholder="••••••••">
-        </div>
-        <button type="submit" class="btn-submit">Entrar</button>
-      </form>
+        
+        <input type="email" id="email" placeholder="Seu e-mail" required>
+        <input type="password" id="senha" placeholder="Sua senha" required>
+        
+        <button type="submit" id="btn-submit">Entrar</button>
+    </form>
 
-      <!-- Form de Cadastro -->
-      <form id="form-register" style="display: none;" onsubmit="handleRegister(event)">
-        <div class="form-group">
-          <label>Nome</label>
-          <input type="text" id="reg-name" required placeholder="Seu nome">
-        </div>
-        <div class="form-group">
-          <label>WhatsApp</label>
-          <input type="tel" id="reg-whatsapp" required placeholder="(11) 99999-9999">
-        </div>
-        <div class="form-group">
-          <label>E-mail</label>
-          <input type="email" id="reg-email" required placeholder="seu@email.com">
-        </div>
-        <div class="form-group">
-          <label>Senha</label>
-          <input type="password" id="reg-password" required placeholder="Crie uma senha segura">
-        </div>
-        <button type="submit" class="btn-submit">Criar Conta</button>
-      </form>
-    </div>
-  </div>
+    <button class="btn-google" id="btn-google" type="button">
+        <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="20" alt="Google"> Entrar com Google
+    </button>
 
-  <script>
-    // Verifica se a URL tem ?mode=register para abrir a aba certa
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('mode') === 'register') {
-      switchTab('register');
-    }
+    <a class="link" id="toggle-auth">Não tem conta? Cadastre-se</a>
+    <a class="link" id="btn-esqueci-senha">Esqueci minha senha</a>
+</div>
 
-    function switchTab(mode) {
-      document.getElementById('tab-login').classList.remove('active');
-      document.getElementById('tab-register').classList.remove('active');
-      document.getElementById('form-login').style.display = 'none';
-      document.getElementById('form-register').style.display = 'none';
+<script src="src/engine/auth.js"></script>
+<script>
+    let isLogin = true;
+    const form = document.getElementById('form-auth');
+    const camposCadastro = document.getElementById('campos-cadastro');
+    const titulo = document.getElementById('titulo');
+    const btnSubmit = document.getElementById('btn-submit');
+    const telefoneInput = document.getElementById('telefone');
 
-      if (mode === 'login') {
-        document.getElementById('tab-login').classList.add('active');
-        document.getElementById('form-login').style.display = 'block';
-      } else {
-        document.getElementById('tab-register').classList.add('active');
-        document.getElementById('form-register').style.display = 'block';
-      }
-    }
+    telefoneInput.addEventListener('input', () => aplicarMascaraTelefone(telefoneInput));
 
-    function handleLogin(e) {
-      e.preventDefault();
-      const email = document.getElementById('login-email').value;
-      const savedUser = JSON.parse(localStorage.getItem('ventu_user') || '{}');
-      
-      if (savedUser.email === email) {
-        alert(`Bem-vindo de volta, ${savedUser.name}!`);
-        window.location.href = 'index.html';
-      } else {
-        const name = email.split('@')[0];
-        localStorage.setItem('ventu_user', JSON.stringify({ name, email }));
-        alert(`Bem-vindo, ${name}!`);
-        window.location.href = 'index.html';
-      }
-    }
+    document.getElementById('toggle-auth').addEventListener('click', (e) => {
+        e.preventDefault();
+        isLogin = !isLogin;
+        camposCadastro.classList.toggle('hidden', isLogin);
+        titulo.innerText = isLogin ? 'Entrar no Ventu' : 'Criar Conta';
+        btnSubmit.innerText = isLogin ? 'Entrar' : 'Cadastrar';
+        document.getElementById('toggle-auth').innerText = isLogin ? 'Não tem conta? Cadastre-se' : 'Já tem conta? Faça login';
+    });
 
-    function handleRegister(e) {
-      e.preventDefault();
-      const name = document.getElementById('reg-name').value;
-      const whatsapp = document.getElementById('reg-whatsapp').value;
-      const email = document.getElementById('reg-email').value;
-      
-      // Simulação de Cadastro no localStorage
-      localStorage.setItem('ventu_user', JSON.stringify({ name, whatsapp, email }));
-      alert(`Conta criada com sucesso, ${name}! Seu WhatsApp ${whatsapp} foi salvo.`);
-      window.location.href = 'index.html';
-    }
-  </script>
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        btnSubmit.disabled = true;
+        btnSubmit.innerText = 'Carregando...';
+
+        const email = document.getElementById('email').value;
+        const senha = document.getElementById('senha').value;
+
+        try {
+            if (isLogin) {
+                await fazerLogin(email, senha);
+                window.location.href = 'jogo.html'; 
+            } else {
+                const nome = document.getElementById('nome').value;
+                const telefone = telefoneInput.value;
+                await fazerCadastro(email, senha, nome, telefone);
+                alert('Conta criada com sucesso!');
+                window.location.href = 'jogo.html'; 
+            }
+        } catch (error) {
+            alert('Erro: ' + error.message);
+        } finally {
+            btnSubmit.disabled = false;
+            btnSubmit.innerText = isLogin ? 'Entrar' : 'Cadastrar';
+        }
+    });
+
+    document.getElementById('btn-google').addEventListener('click', loginComGoogle);
+
+    document.getElementById('btn-esqueci-senha').addEventListener('click', async (e) => {
+        e.preventDefault();
+        const email = prompt('Digite seu e-mail para recuperar a senha:');
+        if (email) {
+            try {
+                await recuperarSenha(email);
+                alert('E-mail de recuperação enviado! Confira sua caixa de entrada.');
+            } catch (error) {
+                alert('Erro: ' + error.message);
+            }
+        }
+    });
+</script>
 </body>
 </html>

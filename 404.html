@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Raposa tirando um cochilo</title>
+    <style>
+        body { background-color: #0b0f19; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; overflow: hidden; }
+        .fox-container { font-size: 8rem; position: relative; animation: float 3s ease-in-out infinite; margin-bottom: 20px; }
+        .zzz { position: absolute; top: -20px; right: -30px; font-size: 2rem; color: #fbbf24; font-weight: bold; animation: sleep 2s ease-in-out infinite; opacity: 0; }
+        .zzz:nth-child(2) { top: -40px; right: -60px; font-size: 1.5rem; animation-delay: 1s; }
+        
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes sleep { 0%, 100% { opacity: 0; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-15px); } }
+        
+        h1 { color: #fbbf24; font-size: 4rem; margin: 0 0 10px 0; }
+        p { color: #94a3b8; font-size: 1.1rem; max-width: 550px; line-height: 1.6; margin-bottom: 30px; padding: 0 20px; }
+        .highlight { color: #e2e8f0; font-weight: bold; }
+        a { background-color: #fbbf24; color: #0b0f19; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; transition: 0.2s; }
+        a:hover { background-color: #f59e0b; }
+    </style>
+</head>
+<body>
+    <div class="fox-container">
+        🦊
+        <div class="zzz">Z</div>
+        <div class="zzz">Z</div>
+    </div>
+    
+    <h1>404</h1>
+    <p>
+        <span class="highlight">Page not found.</span> Página não encontrada.<br><br>
+        A nossa raposinha tirou uma soneca e esqueceu onde guardou essa página. 
+        <i>(Our little fox took a nap and forgot where she put this page).</i><br><br>
+        Zzz...
+    </p>
+    
+    <a href="/">Acordar a raposa e voltar ao início</a>
+</body>
+</html>
