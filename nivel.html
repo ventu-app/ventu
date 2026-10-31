@@ -117,8 +117,8 @@
       </div>
 
       <div class="actions">
-        <a href="index.html" class="btn btn-back">← Voltar para Home</a>
-        <button class="btn btn-play" id="btn-play">Iniciar Missão →</button>
+        <a href="index.html" class="btn btn-back">Voltar para Home</a>
+        <button class="btn btn-play" id="btn-play">Iniciar Missão</button>
       </div>
     </div>
   </main>
@@ -174,7 +174,6 @@
       
       if (level.available) {
           btnPlay.addEventListener('click', () => {
-              // Verifica se está logado via Supabase (se o script do Supabase estiver carregado, mas vamos simplificar e apenas mandar pro jogo, que já tem verificação de save)
               window.location.href = `jogo.html?l=${level.id}`;
           });
       } else {
