@@ -505,7 +505,7 @@
         } else if (matchedIntent.nextScene) { loadScene(matchedIntent.nextScene); } else { toggleInputLock(false); }
       } else {
         playSound('error');
-        let energyLoss = 15; 
+        let energyLoss = 5; 
         const inv = JSON.parse(localStorage.getItem('ventu_inventory') || '[]');
         
         if (gameData.charId === 'emma' && inv.includes('umbrella') && currentSceneId.includes('emma_a2')) {
