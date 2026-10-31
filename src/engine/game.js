@@ -187,7 +187,6 @@
                       const newCompleted = profile.levels_completed || {};
                       const alreadyCompleted = newCompleted[levelId] && newCompleted[levelId].includes(gameData.charId);
 
-                      // CORREÇÃO DO FARM: Só dá XP se ainda não concluiu antes
                       if (!alreadyCompleted) {
                           const newXp = (profile.xp || 0) + xpGanho;
                           if (!newCompleted[levelId]) newCompleted[levelId] = [];
@@ -483,6 +482,12 @@
             currentState.energy = Math.max(0, currentState.energy - matchedIntent.energyCost);
             updateHUD();
             if (checkExhaustion()) return;
+        }
+
+        if (matchedIntent.explanation) {
+            setTimeout(() => {
+                addMessage('Ventu', `💡 <em>${matchedIntent.explanation}</em>`, 'ventu', false);
+            }, 1000);
         }
 
         if (matchedIntent.response) {

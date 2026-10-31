@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -6,7 +6,7 @@
     <title>Ventu - Entrar ou Cadastrar</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --bg: #0b0f19; --panel: #151b2b; --text: #e2e8f0; --text-muted: #94a3b8; --gold: #fbbf24; --border: #1e293b; }
+        :root { --bg: #0b0f19; --panel: #151b2b; --text: #e2e8f0; --text-muted: #94a3b8; --gold: #fbbf24; --border: #1e293b; --error: #ef4444; --success: #10b981; }
         * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
         body { background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100dvh; margin: 0; padding: 20px; }
         .auth-box { background: var(--panel); padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
@@ -16,25 +16,30 @@
         button { width: 100%; padding: 12px; background: var(--gold); color: var(--bg); font-weight: bold; border: none; border-radius: 8px; cursor: pointer; margin-bottom: 15px; font-size: 0.95rem; transition: 0.2s; }
         button:hover:not(:disabled) { background: #f59e0b; }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-google { background: white; color: #333; display: flex; justify-content: center; align-items: center; gap: 10px; border: 1px solid #ccc; }
+        .btn-google { background: white; color: #333; display: flex; justify-content: center; align-items: center; gap: 10px; border: 1px solid #ccc; margin-top: 10px; }
         .btn-google:hover { background: #f1f1f1; }
         .link { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; display: block; text-align: center; margin-top: 15px; cursor: pointer; transition: 0.2s; }
         .link:hover { color: var(--gold); }
         .hidden { display: none; }
+        #msg-erro { color: var(--error); text-align: center; font-size: 0.9rem; margin-bottom: 15px; font-weight: bold; line-height: 1.4; }
+        .btn-resend { background: transparent; border: 1px solid var(--error); color: var(--error); padding: 8px; font-size: 0.8rem; margin-top: 5px; }
+        .btn-resend:hover { background: rgba(239, 68, 68, 0.1); }
     </style>
 </head>
 <body>
 <div class="auth-box">
     <h2 id="titulo">Entrar no Ventu</h2>
     
+    <div id="msg-erro"></div>
+
     <form id="form-auth">
         <div id="campos-cadastro" class="hidden">
-            <input type="text" id="nome" placeholder="Seu nome completo" required>
-            <input type="tel" id="telefone" placeholder="(11) 9 9999-9999" maxlength="16" required>
+            <input type="text" id="nome" placeholder="Seu nome completo">
+            <input type="tel" id="telefone" placeholder="(11) 9 9999-9999" maxlength="16">
         </div>
         
         <input type="email" id="email" placeholder="Seu e-mail" required>
-        <input type="password" id="senha" placeholder="Sua senha" required>
+        <input type="password" id="senha" placeholder="Sua senha" required minlength="6">
         
         <button type="submit" id="btn-submit">Entrar</button>
     </form>
@@ -47,28 +52,44 @@
     <a class="link" id="btn-esqueci-senha">Esqueci minha senha</a>
 </div>
 
-<script src="src/engine/auth.js"></script>
 <script>
+    const SUPABASE_URL = 'https://hbqjoadubrwuafbfykre.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     let isLogin = true;
     const form = document.getElementById('form-auth');
     const camposCadastro = document.getElementById('campos-cadastro');
     const titulo = document.getElementById('titulo');
     const btnSubmit = document.getElementById('btn-submit');
     const telefoneInput = document.getElementById('telefone');
+    const msgErro = document.getElementById('msg-erro');
 
-    telefoneInput.addEventListener('input', () => aplicarMascaraTelefone(telefoneInput));
+    function aplicarMascaraTelefone(input) {
+        let v = input.value.replace(/\D/g, '');
+        if (v.length > 11) v = v.slice(0, 11);
+        v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
+        v = v.replace(/(\d)(\d{4})$/, '$1 $2');
+        input.value = v;
+    }
+
+    if (telefoneInput) telefoneInput.addEventListener('input', () => aplicarMascaraTelefone(telefoneInput));
 
     document.getElementById('toggle-auth').addEventListener('click', (e) => {
         e.preventDefault();
         isLogin = !isLogin;
+        msgErro.innerHTML = '';
         camposCadastro.classList.toggle('hidden', isLogin);
         titulo.innerText = isLogin ? 'Entrar no Ventu' : 'Criar Conta';
         btnSubmit.innerText = isLogin ? 'Entrar' : 'Cadastrar';
         document.getElementById('toggle-auth').innerText = isLogin ? 'Não tem conta? Cadastre-se' : 'Já tem conta? Faça login';
+        document.getElementById('nome').required = !isLogin;
+        document.getElementById('telefone').required = !isLogin;
     });
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        msgErro.innerHTML = '';
         btnSubmit.disabled = true;
         btnSubmit.innerText = 'Carregando...';
 
@@ -77,31 +98,66 @@
 
         try {
             if (isLogin) {
-                await fazerLogin(email, senha);
-                window.location.href = 'index.html'; // <-- MUDOU AQUI
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: senha });
+                if (error) throw error;
+                window.location.href = 'dashboard.html';
             } else {
                 const nome = document.getElementById('nome').value;
                 const telefone = telefoneInput.value;
-                await fazerCadastro(email, senha, nome, telefone);
-                alert('Conta criada com sucesso!');
-                window.location.href = 'index.html'; // <-- MUDOU AQUI
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email: email,
+                    password: senha,
+                    options: { data: { full_name: nome, phone: telefone } }
+                });
+                if (error) throw error;
+                
+                if (data.user && !data.session) {
+                    msgErro.style.color = 'var(--gold)';
+                    msgErro.innerHTML = 'Conta criada! Verifique seu e-mail para confirmar o cadastro antes de entrar.';
+                    btnSubmit.innerText = 'Cadastrar';
+                } else {
+                    window.location.href = 'index.html';
+                }
             }
         } catch (error) {
-            alert('Erro: ' + error.message);
+            msgErro.style.color = 'var(--error)';
+            if (error.message.includes('Email not confirmed')) {
+                msgErro.innerHTML = `Você precisa confirmar seu e-mail antes de entrar.<br>
+                <button type="button" class="btn-resend" id="btn-resend-email">Reenviar e-mail de confirmação</button>`;
+                
+                document.getElementById('btn-resend-email').addEventListener('click', async () => {
+                    await supabaseClient.auth.resend({ type: 'signup', email: email });
+                    alert('E-mail reenviado! Confira sua caixa de entrada e spam.');
+                });
+            } else if (error.message.includes('Invalid login credentials')) {
+                msgErro.innerText = 'E-mail ou senha incorretos. Tente novamente.';
+            } else {
+                msgErro.innerText = error.message;
+            }
         } finally {
             btnSubmit.disabled = false;
-            btnSubmit.innerText = isLogin ? 'Entrar' : 'Cadastrar';
+            if (msgErro.style.color !== 'var(--gold)') {
+                btnSubmit.innerText = isLogin ? 'Entrar' : 'Cadastrar';
+            }
         }
     });
 
-    document.getElementById('btn-google').addEventListener('click', loginComGoogle);
+    document.getElementById('btn-google').addEventListener('click', async () => {
+        await supabaseClient.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: window.location.origin + '/dashboard.html' }
+        });
+    });
 
     document.getElementById('btn-esqueci-senha').addEventListener('click', async (e) => {
         e.preventDefault();
         const email = prompt('Digite seu e-mail para recuperar a senha:');
         if (email) {
             try {
-                await recuperarSenha(email);
+                const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.origin + '/reset-password.html'
+                });
+                if (error) throw error;
                 alert('E-mail de recuperação enviado! Confira sua caixa de entrada.');
             } catch (error) {
                 alert('Erro: ' + error.message);

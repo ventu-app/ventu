@@ -14,15 +14,16 @@ const gameDataA1 = {
       scenes: {
         emma_01: {
           npcName: 'Mr. Silva (Manager)',
-          npcText: "Emma! Ten orders are waiting. Take this bag to 41 Main Street. Now! Lucas paid for a cheeseburger and fries. Don't be late.",
+          npcText: "Hey, Emma! Ten orders are waiting. Take this bag to 41 Main Street. Now! Lucas paid for a cheeseburger and fries. Don't be late.",
+          energyCost: 5,
           glossary: [{ word: 'Street', meaning: 'Rua' }, { word: 'Late', meaning: 'Atrasada' }],
           intents: [
-            { match: /(yes|ok|sure|understood|going|right away|on it|coming)/i, response: "Good. It's raining. Take the bag and go.", nextScene: 'emma_02' },
-            { match: /(who|what|where|address|help|understand|sorry)/i, response: "No time for questions! Read the address on the bag. Go!", nextScene: 'emma_02' }
+            { match: /(yes|ok|sure|understood|going|right away|on it|coming|yeah|yep)/i, response: "Cool. It's raining. Take the bag and go.", nextScene: 'emma_02' },
+            { match: /(who|what|where|address|help|understand|sorry|dude)/i, response: "No time for questions! Read the address on the bag. Go!", nextScene: 'emma_02' }
           ],
           fallback: "Why are you still here? Go!",
           quickReplies: [
-            { label: 'Sim, senhor!', text: 'Yes, sir!' },
+            { label: 'Sim, senhor!', text: 'Yeah, sir!' },
             { label: 'Estou indo agora.', text: 'I am going now.' },
             { label: 'Desculpa, Mr. Silva.', text: 'Sorry, Mr. Silva.' }
           ]
@@ -30,9 +31,10 @@ const gameDataA1 = {
         emma_02: {
           npcName: 'Emma (Você)',
           npcText: "Okay, the address says 41 Main Street. It's raining hard and my phone has 12%. I need to find this place fast.",
+          energyCost: 5,
           glossary: [{ word: 'Rain', meaning: 'Chuva' }, { word: 'Fast', meaning: 'Rápido' }],
           intents: [
-            { match: /(excuse me|where is|how do i|directions|get to|ask)/i, response: "You ask a lady with an umbrella. She says: 'Go straight for two blocks, then turn left. It's next to the park.'", nextScene: 'emma_03' },
+            { match: /(excuse me|where is|how do i|directions|get to|ask|hey)/i, response: "You ask a lady with an umbrella. She says: 'Go straight for two blocks, then turn left. It's next to the park.'", nextScene: 'emma_03' },
             { match: /(map|gps|phone|look|app|check)/i, response: "You open your GPS. 10 minutes walking. Your battery is 12%. Let's go.", nextScene: 'emma_03' }
           ],
           fallback: "I can't just stand in the rain. Let me ask or check my phone.",
@@ -44,22 +46,24 @@ const gameDataA1 = {
         },
         emma_03: {
           npcName: 'Lucas (Customer)',
-          npcText: "Finally! I am starving. Is that my cheeseburger?",
+          npcText: "Finally! I am starving, dude. Is that my cheeseburger?",
           addFlags: ['a1_emma_met_lucas'],
+          energyCost: 5,
           glossary: [{ word: 'Starving', meaning: 'Morrendo de fome' }, { word: 'Cheeseburger', meaning: 'X-Burger' }],
           intents: [
-            { match: /(yes|here|cheeseburger|fries|order|delivery|food|your)/i, response: "Great. But wait... I asked for no onions. Did you bring it with onions?", nextScene: 'emma_04' }
+            { match: /(yes|here|cheeseburger|fries|order|delivery|food|your|yeah)/i, response: "Great. But wait... I asked for no onions. Did you bring it with onions?", nextScene: 'emma_04' }
           ],
           fallback: "Hello? Are you going to give me my food?",
           quickReplies: [
-            { label: 'Sim, aqui está.', text: 'Yes, here is your cheeseburger.' },
-            { label: 'Aqui está o pedido.', text: 'Here is your order, sir.' },
+            { label: 'Sim, aqui está.', text: 'Yeah, here is your cheeseburger.' },
+            { label: 'Aqui está o pedido.', text: 'Here is your order, dude.' },
             { label: 'Tenho sua comida.', text: 'I have your food.' }
           ]
         },
         emma_04: {
           npcName: 'Lucas',
           npcText: "I hate onions! I can't eat this. What are you going to do about it?",
+          energyCost: 5,
           glossary: [{ word: 'Hate', meaning: 'Odeio' }, { word: 'What are you going to do', meaning: 'O que você vai fazer' }],
           intents: [
             { match: /(sorry|apologize|my fault|mistake|excuse me|my bad)/i, response: "Okay. But I'm still hungry. Can you get me a new one?", nextScene: 'emma_05', addsFlags: ['a1_emma_apologized'] },
@@ -71,12 +75,13 @@ const gameDataA1 = {
           quickReplies: [
             { label: 'Mil desculpas, senhor.', text: 'I am so sorry, sir.' },
             { label: 'Posso trazer outro.', text: 'Can I bring you another one?' },
-            { label: 'Foi um erro, desculpa.', text: 'It was a mistake, I apologize.' }
+            { label: 'Foi um erro, desculpa.', text: 'My bad, I apologize.' }
           ]
         },
         emma_05: {
           npcName: 'Lucas',
           npcText: "Fine. I'll wait 10 minutes. But if it's cold, I'm giving a bad review on the app.",
+          energyCost: 5,
           glossary: [{ word: 'Wait', meaning: 'Esperar' }, { word: 'Review', meaning: 'Avaliação' }],
           intents: [
             { match: /(promise|will be|hot|fast|soon|back|hurry|run)/i, response: "I'll be here. Hurry up.", nextScene: 'emma_06' }
@@ -92,10 +97,11 @@ const gameDataA1 = {
           npcName: 'Emma (Você)',
           npcText: "I run back to the Burger Palace. The rain is worse. My phone dies. I see Davi, the cook, leaving the store. He looks angry. I go inside.",
           addFlags: ['a1_emma_saw_davi_leave'],
+          energyCost: 5,
           glossary: [{ word: 'Cook', meaning: 'Cozinheiro' }, { word: 'Leaving', meaning: 'Saindo' }],
           intents: [
-            { match: /(davi|why|what happened|angry|leaving|who)/i, response: "Mr. Silva says: 'Don't ask. Davi quit. I have no cook. I will make the burger myself. Wait here.'", nextScene: 'emma_07' },
-            { match: /(ok|wait|sure|fine|yes)/i, response: "Mr. Silva goes to the kitchen. You wait, wet and cold. He comes back with a burger. 'Here. Go. Fast.'", nextScene: 'emma_07' }
+            { match: /(davi|why|what happened|angry|leaving|who|hey)/i, response: "Mr. Silva says: 'Don't ask. Davi quit. I have no cook. I will make the burger myself. Wait here.'", nextScene: 'emma_07' },
+            { match: /(ok|wait|sure|fine|yes|yeah)/i, response: "Mr. Silva goes to the kitchen. You wait, wet and cold. He comes back with a burger. 'Here. Go. Fast.'", nextScene: 'emma_07' }
           ],
           fallback: "I need to get this burger back to Lucas.",
           quickReplies: [
@@ -107,6 +113,7 @@ const gameDataA1 = {
         emma_07: {
           npcName: 'Emma (Você)',
           npcText: "I run back to Lucas. I am soaked. The burger is warm but not hot. I knock on the door.",
+          energyCost: 5,
           glossary: [{ word: 'Soaked', meaning: 'Encharcada' }, { word: 'Warm', meaning: 'Morno' }],
           intents: [
             { match: /(here|sorry|your|burger|food|delivery|order)/i, response: "Lucas opens the door. He looks at you, then at the bag. 'You came back. I didn't think you would.'", nextScene: 'emma_08' }
@@ -124,10 +131,11 @@ const gameDataA1 = {
           npcTextVariants: [
             { ifFlag: 'a1_lucas_knows_davi_quit', text: "Let me see. No onions this time. Good. (He pauses.) I heard Davi quit. This is not your fault. Thank you for coming back." }
           ],
+          energyCost: 5,
           glossary: [{ word: 'Cold', meaning: 'Frio' }, { word: 'Quit', meaning: 'Pediu demissão' }],
           intents: [
             { match: /(sorry|apologize|rain|wait|slow|back|again)/i, response: "It's okay. You came back in the rain. That counts. Here — keep the change.", nextScene: 'emma_end_good', addsFlags: ['a1_emma_delivered', 'a1_emma_got_tip'] },
-            { match: /(yes|enjoy|eat|good|ok|sure)/i, response: "Thanks. Have a good night, Emma.", nextScene: 'emma_end_ok', addsFlags: ['a1_emma_delivered'] }
+            { match: /(yes|enjoy|eat|good|ok|sure|yeah)/i, response: "Thanks. Have a good night, Emma.", nextScene: 'emma_end_ok', addsFlags: ['a1_emma_delivered'] }
           ],
           fallback: "Say something.",
           quickReplies: [
@@ -161,7 +169,6 @@ const gameDataA1 = {
         }
       }
     },
-
     silva: {
       charId: 'silva',
       name: 'Mr. Silva',
@@ -175,6 +182,7 @@ const gameDataA1 = {
         silva_01: {
           npcName: 'Sistema',
           npcText: "6 PM, Burger Palace. The POS system freezes. A line of 6 customers. Davi, the cook, is 15 minutes late.",
+          energyCost: 5,
           glossary: [{ word: 'Freeze', meaning: 'Travar' }, { word: 'Late', meaning: 'Atrasado' }],
           intents: [
             { match: /(fix|reboot|restart|system|computer|pos|check)/i, response: "You reboot the POS. It works. The line moves. Then the phone rings.", nextScene: 'silva_02' },
@@ -189,11 +197,12 @@ const gameDataA1 = {
         },
         silva_02: {
           npcName: 'Lucas (on phone)',
-          npcText: "Hi, I ordered a cheeseburger and fries. No onions, please. I'm at 41 Main Street. Can you deliver it fast? I'm starving.",
+          npcText: "Hey, I ordered a cheeseburger and fries. No onions, please. I'm at 41 Main Street. Can you deliver it fast? I'm starving, dude.",
           addFlags: ['a1_silva_knows_lucas'],
+          energyCost: 5,
           glossary: [{ word: 'No onions', meaning: 'Sem cebola' }, { word: 'Fast', meaning: 'Rápido' }],
           intents: [
-            { match: /(ok|yes|sure|got it|understood|fine|order|written|noted|correct|right)/i, response: "Great. Thanks. 41 Main Street.", nextScene: 'silva_03', addsFlags: ['a1_silva_forgot_no_onions'] },
+            { match: /(ok|yes|sure|got it|understood|fine|order|written|noted|correct|right|yeah)/i, response: "Great. Thanks. 41 Main Street.", nextScene: 'silva_03', addsFlags: ['a1_silva_forgot_no_onions'] },
             { match: /(no onions|without|note|write|remember)/i, response: "Yes, no onions. Please. 41 Main Street.", nextScene: 'silva_03' }
           ],
           fallback: "Hello? Are you there?",
@@ -207,6 +216,7 @@ const gameDataA1 = {
           npcName: 'Davi (Cook)',
           npcText: "Boss, I'm here. The burger is ready. Here's the bag for 41 Main Street.",
           addFlags: ['a1_silva_skipped_onion_check'],
+          energyCost: 5,
           glossary: [{ word: 'Cook', meaning: 'Cozinheiro' }, { word: 'Bag', meaning: 'Sacola' }],
           npcTextVariants: [
             { ifFlag: 'a1_emma_met_lucas', text: "Boss, I'm here. The burger is ready. Here's the bag. (You glance at it. Something feels off, but you don't check. You will regret this.)" }
@@ -225,6 +235,7 @@ const gameDataA1 = {
         silva_04: {
           npcName: 'Emma',
           npcText: "Yes, sir! I'm going now. (She leaves in the rain.)",
+          energyCost: 5,
           glossary: [{ word: 'Going now', meaning: 'Indo agora' }],
           intents: [
             { match: /(ok|good|back|go|work|line)/i, response: "The line at the counter is still long. A customer is angry. The POS freezes again. It's dead. Cash only.", nextScene: 'silva_05' }
@@ -238,10 +249,11 @@ const gameDataA1 = {
         silva_05: {
           npcName: 'Cliente furioso',
           npcText: "Hey! I've been waiting 20 minutes! Is this place a joke?",
+          energyCost: 5,
           glossary: [{ word: 'Waiting', meaning: 'Esperando' }, { word: 'Joke', meaning: 'Piada' }],
           intents: [
             { match: /(sorry|apologize|wait|free|discount|on me|system|broken)/i, response: "Fine. But hurry up. (You give him a free drink. He calms down.)", nextScene: 'silva_06' },
-            { match: /(calm|wait|moment|minute|please)/i, response: "Okay, okay. But fast!", nextScene: 'silva_06' }
+            { match: /(calm|wait|moment|minute|please|dude)/i, response: "Okay, okay. But fast!", nextScene: 'silva_06' }
           ],
           fallback: "Hello? Are you going to help me or not?",
           offensiveScene: 'silva_bad_review',
@@ -254,6 +266,7 @@ const gameDataA1 = {
         silva_06: {
           npcName: 'Lucas (on phone)',
           npcText: "Hey! I'm calling about my order. There are onions in my burger! I said NO onions!",
+          energyCost: 5,
           glossary: [{ word: 'Onions', meaning: 'Cebolas' }, { word: 'Order', meaning: 'Pedido' }],
           intents: [
             { match: /(sorry|apologize|mistake|fix|remake|new|send)/i, response: "Okay. Send a new one. Fast. I'm still hungry.", nextScene: 'silva_07' },
@@ -271,13 +284,14 @@ const gameDataA1 = {
           npcName: 'Davi (Cook)',
           npcText: "Boss — I'm done. This place is chaos. I quit. Here's my apron. Good luck.",
           addFlags: ['a1_silva_heard_davi_quit'],
+          energyCost: 5,
           glossary: [{ word: 'Quit', meaning: 'Pedir demissão' }, { word: 'Apron', meaning: 'Avental' }],
           npcTextVariants: [
             { ifFlag: 'a1_lucas_knows_davi_quit', text: "Boss — I'm done. This place is chaos. I quit. (Davi is Lucas's roommate. If you knew, you would understand why Lucas is so angry.)" }
           ],
           intents: [
             { match: /(wait|stop|stay|please|talk|more money|raise)/i, response: "No. I'm sorry, boss. I can't. Good luck.", nextScene: 'silva_08' },
-            { match: /(ok|fine|go|understand|leave)/i, response: "Davi leaves. You are alone. The phone rings again. It's Emma's number.", nextScene: 'silva_08' }
+            { match: /(ok|fine|go|understand|leave|yeah)/i, response: "Davi leaves. You are alone. The phone rings again. It's Emma's number.", nextScene: 'silva_08' }
           ],
           fallback: "Davi is at the door.",
           quickReplies: [
@@ -292,6 +306,7 @@ const gameDataA1 = {
           npcTextVariants: [
             { ifFlag: 'a1_emma_met_lucas', text: "Mr. Silva! The customer is very angry. He wants a new burger. I can hear him yelling. My phone is dying —" }
           ],
+          energyCost: 5,
           glossary: [{ word: 'Dying', meaning: 'Morrendo (bateria)' }, { word: 'Angry', meaning: 'Com raiva' }],
           intents: [
             { match: /(come back|return|new|remake|wait|ok|i will)/i, response: "The line goes dead. Emma's phone died. You have no cook, no cash system, and a customer waiting for a new burger.", nextScene: 'silva_09' }
@@ -306,6 +321,7 @@ const gameDataA1 = {
         silva_09: {
           npcName: 'Mr. Silva (Você)',
           npcText: "No cook. No cash system. One angry customer. Emma is coming back for a new burger. I have to decide.",
+          energyCost: 5,
           glossary: [{ word: 'Decide', meaning: 'Decidir' }, { word: 'System', meaning: 'Sistema' }],
           intents: [
             { match: /(make|myself|cook|kitchen|burger|try)/i, response: "You go to the kitchen. You've watched Davi do this a thousand times. You make a burger. It's not pretty, but it's food.", nextScene: 'silva_10', addsFlags: ['a1_silva_refez_burger'] },
@@ -320,6 +336,7 @@ const gameDataA1 = {
         silva_10: {
           npcName: 'Emma',
           npcText: "Mr. Silva! I'm back. Give me the new burger. The customer is waiting.",
+          energyCost: 5,
           glossary: [{ word: 'Back', meaning: 'De volta' }, { word: 'Waiting', meaning: 'Esperando' }],
           intents: [
             { match: /(here|take|go|fast|hurry|burger|no onions)/i, response: "You hand her the bag. 'No onions this time. I checked. Go.' Emma runs back into the rain.", nextScene: 'silva_11', addsFlags: ['a1_silva_checked'] }
@@ -334,6 +351,7 @@ const gameDataA1 = {
         silva_11: {
           npcName: 'Mr. Silva (Você)',
           npcText: "It's 10 PM. The line is gone. The POS is dead. You count the cash. Today you lost money. Then your phone rings. It's a notification: a new Google review.",
+          energyCost: 5,
           glossary: [{ word: 'Lost money', meaning: 'Perdeu dinheiro' }, { word: 'Review', meaning: 'Avaliação' }],
           intents: [
             { match: /(read|open|check|review|look|see)/i, response: "You open the review. Lucas wrote it: 'Great service from the delivery girl. Emma. 5 stars. The manager needs a better cook.'", nextScene: 'silva_end_good', addsFlags: ['a1_silva_completed'] },
@@ -368,7 +386,6 @@ const gameDataA1 = {
         }
       }
     },
-
     lucas: {
       charId: 'lucas',
       name: 'Lucas',
@@ -383,21 +400,23 @@ const gameDataA1 = {
           npcName: 'Davi (seu colega de quarto)',
           npcText: "I can't do this anymore. That Burger Palace is chaos. I'm quitting tonight. Don't wait up.",
           addFlags: ['a1_lucas_met_davi'],
+          energyCost: 5,
           glossary: [{ word: 'Quitting', meaning: 'Pedindo demissão' }, { word: 'Chaos', meaning: 'Caos' }],
           intents: [
             { match: /(why|what|happened|boss|silva|pay|problem)/i, response: "The manager is nice but the place is falling apart. I'm done. See you later.", nextScene: 'lucas_02' },
-            { match: /(ok|good luck|fine|understand|sorry)/i, response: "Thanks, man. Good luck with your exam tomorrow.", nextScene: 'lucas_02' }
+            { match: /(ok|good luck|fine|understand|sorry|dude|yeah)/i, response: "Thanks, man. Good luck with your exam tomorrow.", nextScene: 'lucas_02' }
           ],
           fallback: "Davi is at the door.",
           quickReplies: [
             { label: 'Por quê? O que aconteceu?', text: 'Why? What happened?' },
-            { label: 'Boa sorte, cara.', text: 'Good luck, man.' },
+            { label: 'Boa sorte, cara.', text: 'Good luck, dude.' },
             { label: 'Entendo, até mais.', text: 'I understand, see you later.' }
           ]
         },
         lucas_02: {
           npcName: 'Lucas (Você)',
           npcText: "Great. My roommate leaves, I have an exam tomorrow, and I'm starving. Let me order food.",
+          energyCost: 5,
           glossary: [{ word: 'Starving', meaning: 'Morrendo de fome' }, { word: 'Exam', meaning: 'Prova' }],
           intents: [
             { match: /(order|burger|food|pizza|delivery|app|eat)/i, response: "You open the app. Burger Palace. Cheeseburger and fries. No onions. 'Order placed. 30 minutes.'", nextScene: 'lucas_03' }
@@ -412,6 +431,7 @@ const gameDataA1 = {
         lucas_03: {
           npcName: 'Sistema',
           npcText: "45 minutes later. Your food is still not here. The app says 'on the way' but nothing. You're getting angry.",
+          energyCost: 5,
           glossary: [{ word: 'On the way', meaning: 'A caminho' }, { word: 'Angry', meaning: 'Com raiva' }],
           intents: [
             { match: /(call|phone|complain|where|late|silva|burger|check)/i, response: "You call Burger Palace. A man answers: 'Burger Palace, Mr. Silva speaking.'", nextScene: 'lucas_04' },
@@ -427,6 +447,7 @@ const gameDataA1 = {
         lucas_04: {
           npcName: 'Mr. Silva',
           npcText: "Burger Palace, Mr. Silva speaking. How can I help you?",
+          energyCost: 5,
           glossary: [{ word: 'How can I help', meaning: 'Como posso ajudar' }],
           intents: [
             { match: /(where|food|late|burger|order|waiting|angry)/i, response: "I'm sorry, sir. The delivery girl is on her way. The rain is very bad tonight. Please wait a little more.", nextScene: 'lucas_05' },
@@ -443,14 +464,15 @@ const gameDataA1 = {
         lucas_05: {
           npcName: 'Sistema',
           npcText: "10 minutes later. The doorbell rings. You open the door. It's your neighbor, not the food.",
+          energyCost: 5,
           glossary: [{ word: 'Doorbell', meaning: 'Campainha' }, { word: 'Neighbor', meaning: 'Vizinho' }],
           intents: [
-            { match: /(hi|hello|neighbor|not now|busy|waiting)/i, response: "Your neighbor asks for sugar. You give it. He leaves. You go back to waiting.", nextScene: 'lucas_06' },
+            { match: /(hi|hello|neighbor|not now|busy|waiting|hey)/i, response: "Your neighbor asks for sugar. You give it. He leaves. You go back to waiting.", nextScene: 'lucas_06' },
             { match: /(food|burger|not you|sorry|busy)/i, response: "Your neighbor laughs: 'Waiting for food? Good luck.' He leaves.", nextScene: 'lucas_06' }
           ],
           fallback: "Your neighbor is waiting.",
           quickReplies: [
-            { label: 'Oi, vizinho.', text: 'Hi, neighbor.' },
+            { label: 'Oi, vizinho.', text: 'Hey, neighbor.' },
             { label: 'Desculpa, estou esperando comida.', text: 'Sorry, I am waiting for food.' },
             { label: 'O que você quer?', text: 'What do you want?' }
           ]
@@ -459,9 +481,10 @@ const gameDataA1 = {
           npcName: 'Sistema',
           npcText: "Finally! The doorbell rings again. This time it's a girl, wet from the rain, holding a bag. 'Burger Palace,' she says. 'I am so sorry for the wait.'",
           addFlags: ['a1_lucas_met_emma'],
+          energyCost: 5,
           glossary: [{ word: 'Wet', meaning: 'Molhada' }, { word: 'Wait', meaning: 'Espera' }],
           intents: [
-            { match: /(finally|thanks|food|here|give|ok|hungry)/i, response: "You take the bag. 'It's about time.' You open it. The burger has... onions.", nextScene: 'lucas_07' }
+            { match: /(finally|thanks|food|here|give|ok|hungry|yeah)/i, response: "You take the bag. 'It's about time.' You open it. The burger has... onions.", nextScene: 'lucas_07' }
           ],
           fallback: "Take the bag.",
           quickReplies: [
@@ -473,6 +496,7 @@ const gameDataA1 = {
         lucas_07: {
           npcName: 'Lucas (Você)',
           npcText: "Onions. I said NO onions. I hate onions. I'm tired, hungry, and my exam is tomorrow. What do I do?",
+          energyCost: 5,
           glossary: [{ word: 'Hate', meaning: 'Odeio' }, { word: 'Tired', meaning: 'Cansado' }],
           npcTextVariants: [
             { ifFlag: 'a1_emma_met_lucas', text: "Onions. I said NO onions. (You look at the girl. She looks scared, not malicious. This is not her fault. Maybe.)" }
@@ -492,6 +516,7 @@ const gameDataA1 = {
         lucas_08: {
           npcName: 'Emma',
           npcText: "I'm so sorry. I will go back and get you a new one. I promise. Please wait a little more.",
+          energyCost: 5,
           glossary: [{ word: 'Promise', meaning: 'Prometer' }, { word: 'Wait', meaning: 'Esperar' }],
           intents: [
             { match: /(ok|go|wait|fine|hurry|please|fast)/i, response: "She runs back into the rain. You close the door. You wait. Again.", nextScene: 'lucas_09' },
@@ -508,6 +533,7 @@ const gameDataA1 = {
           npcName: 'Sistema',
           npcText: "20 minutes pass. The doorbell rings. You open it. It's Davi, your roommate. He looks tired. 'Hey. I quit my job tonight.'",
           addFlags: ['a1_lucas_knows_davi_quit'],
+          energyCost: 5,
           glossary: [{ word: 'Roommate', meaning: 'Colega de quarto' }, { word: 'Quit', meaning: 'Pediu demissão' }],
           npcTextVariants: [
             { ifFlag: 'a1_silva_heard_davi_quit', text: "20 minutes pass. Davi comes home. He looks tired. 'Hey. I quit tonight. The manager is a mess. But he tried to fix everything alone.'" }
@@ -526,6 +552,7 @@ const gameDataA1 = {
         lucas_10: {
           npcName: 'Sistema',
           npcText: "The doorbell rings one more time. You open it. The girl is back. She's soaked, holding a new bag. 'Here. No onions this time. I checked.'",
+          energyCost: 5,
           glossary: [{ word: 'Soaked', meaning: 'Encharcada' }, { word: 'Checked', meaning: 'Conferi' }],
           intents: [
             { match: /(thanks|sorry|come in|towel|rain|wow|really)/i, response: "You look at her. She came back in the rain. Twice. You remember Davi's words. 'Thank you. Really. You didn't have to come back.'", nextScene: 'lucas_11' },
@@ -541,6 +568,7 @@ const gameDataA1 = {
         lucas_11: {
           npcName: 'Lucas (Você)',
           npcText: "The burger is hot. No onions. The girl is still at the door, waiting. Davi is in his room. My exam is tomorrow. What do I do?",
+          energyCost: 5,
           glossary: [{ word: 'Hot', meaning: 'Quente' }, { word: 'Waiting', meaning: 'Esperando' }],
           intents: [
             { match: /(tip|money|thank|sorry|app|review|good|5 stars)/i, response: "You give her a $5 tip and open the app. 5 stars for Burger Palace. 'The delivery girl, Emma, saved my night.' You eat. The burger is good.", nextScene: 'lucas_end_good', addsFlags: ['a1_lucas_completed', 'a1_lucas_gave_tip'] },
