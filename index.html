@@ -39,6 +39,7 @@
     .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
     .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
     .btn-support { background: rgba(251, 191, 36, 0.1); color: var(--gold); border: 1px solid rgba(251, 191, 36, 0.3); }
+    .btn-support:hover { background: rgba(251, 191, 36, 0.2); }
 
     .theme-toggle { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; padding: 8px; border-radius: 50%; }
     .theme-toggle:hover { background: var(--border); }
@@ -70,10 +71,8 @@
     
     .card-top { width: 100%; display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
     .level-badge { background: var(--border); color: var(--text); font-weight: 700; font-size: 0.75rem; padding: 4px 10px; border-radius: 6px; letter-spacing: 1px; }
-    
     .card-tag { font-size: 0.65rem; padding: 4px 8px; border-radius: 12px; font-weight: 800; text-transform: uppercase; box-shadow: 0 0 10px rgba(255,255,255,0.2); animation: pulse 2s infinite; }
     @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
-
     .lock-icon { font-size: 1.2rem; }
     
     .card-icon-wrapper {
@@ -86,27 +85,51 @@
     
     .card-title { font-size: 1.5rem; margin-bottom: 10px; color: var(--text); font-family: var(--font-heading); }
     .card-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; flex: 1; margin-bottom: 20px; }
-    
     .play-btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; text-align: center; transition: 0.2s; font-size: 1rem; }
     
     .site-footer { background: var(--panel); border-top: 1px solid var(--border); padding: 30px 0; margin-top: auto; }
     .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; color: var(--text-muted); font-size: 0.85rem; }
     .creator-credit a { color: var(--gold); font-weight: 600; }
 
-    /* --- AQUI ESTÁ O CONSERTO DO MOBILE HEADER --- */
+    /* --- ESTILO DO MODAL DE APOIO --- */
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
+        display: none; justify-content: center; align-items: center; z-index: 9999; padding: 20px;
+    }
+    .modal-content {
+        background: var(--panel); border: 1px solid var(--border); border-radius: 24px;
+        padding: 40px 30px; max-width: 450px; width: 100%; text-align: center;
+        position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.6); animation: fadeIn 0.3s ease;
+    }
+    .close-btn {
+        position: absolute; top: 15px; right: 15px; background: var(--bg); border: none;
+        width: 35px; height: 35px; border-radius: 50%; color: var(--text-muted); font-size: 1.2rem;
+        cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s;
+    }
+    .close-btn:hover { background: var(--border); color: var(--text); }
+    
+    .modal-fox { font-size: 4rem; margin-bottom: 15px; animation: float 3s infinite ease-in-out; }
+    .modal-title { font-family: var(--font-heading); color: var(--gold); font-size: 1.8rem; margin-bottom: 10px; }
+    .modal-desc { color: var(--text-muted); font-size: 1rem; line-height: 1.5; margin-bottom: 25px; }
+    
+    .qr-container { background: white; padding: 15px; border-radius: 16px; display: inline-block; margin-bottom: 20px; }
+    .qr-container img { display: block; width: 180px; height: 180px; }
+    
+    .pix-box { 
+        background: var(--bg); border: 1px dashed var(--gold); padding: 12px; 
+        border-radius: 12px; font-family: monospace; font-size: 0.85rem; 
+        color: var(--gold); word-break: break-all; cursor: pointer; 
+        display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
+    }
+    .pix-box:hover { background: rgba(251, 191, 36, 0.1); }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* --- CONSERTO DO MOBILE --- */
     @media (max-width: 768px) {
-      .header-inner { 
-          height: auto; 
-          padding: 15px 0; 
-          flex-direction: column; 
-          gap: 15px; 
-      }
-      .header-nav { 
-          width: 100%; 
-          justify-content: center; 
-          flex-wrap: wrap; 
-          gap: 10px;
-      }
+      .header-inner { height: auto; padding: 15px 0; flex-direction: column; gap: 15px; }
+      .header-nav { width: 100%; justify-content: center; flex-wrap: wrap; gap: 10px; }
       .btn { padding: 8px 12px; font-size: 0.85rem; }
       .nav-link { font-size: 0.85rem; }
       .footer-bottom { flex-direction: column; text-align: center; }
@@ -123,7 +146,8 @@
       </a>
       <nav class="header-nav">
         <button id="theme-toggle" class="theme-toggle"><span class="icon-sun">☀️</span><span class="icon-moon">🌙</span></button>
-        <a href="apoie.html" class="btn btn-support">Apoiar <span>🦊</span></a>
+        <button class="btn btn-support" id="btn-apoie">Apoiar <span>🦊</span></button>
+        
         <div id="auth-area" style="display:flex; align-items:center; gap:10px;">
             <a href="auth.html" class="nav-link" id="nav-login">Entrar</a>
             <a href="auth.html" class="btn btn-primary" id="nav-register">Criar conta</a>
@@ -153,6 +177,26 @@
       <p class="creator-credit">Desenvolvido com <span class="heart">❤️</span> por <a href="https://instagram.com/porphirio.brayam" target="_blank" rel="noopener">Brayam Porphirio</a></p>
     </div>
   </footer>
+
+  <!-- MODAL APOIE -->
+  <div class="modal-overlay" id="modal-apoie">
+      <div class="modal-content">
+          <button class="close-btn" id="btn-close-apoie">✕</button>
+          <div class="modal-fox">🦊</div>
+          <h2 class="modal-title">Ajude a Ventu a sobreviver!</h2>
+          <p class="modal-desc">Manter o Ventu no ar exige servidores, domínio e muita energia. E a nossa raposinha aqui, a Ventu, vive a base de café ☕ e RU 🍽️. Se o projeto te ajuda a treinar o inglês de verdade, considere dar um apoiozinho para ela continuar com a barriga cheia e ensinando o caos!</p>
+          
+          <div class="qr-container">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=cd5e70df-ddb5-4c74-8589-bee68ed718d0" alt="QR Code PIX">
+          </div>
+          
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Ou copie a chave PIX:</p>
+          <div class="pix-box" id="btn-copy-pix">
+              <span>cd5e70df-ddb5-4c74-8589-bee68ed718d0</span>
+              <span style="font-size: 1.1rem;">📋</span>
+          </div>
+      </div>
+  </div>
 
   <script src="src/data/levels.js"></script>
   <script>
@@ -202,6 +246,31 @@
             });
         }
       } catch(e) {}
+
+      // Modal Apoie
+      const modalApoie = document.getElementById('modal-apoie');
+      const btnApoie = document.getElementById('btn-apoie');
+      const btnClose = document.getElementById('btn-close-apoie');
+      const btnCopy = document.getElementById('btn-copy-pix');
+
+      if (btnApoie) {
+          btnApoie.addEventListener('click', () => { modalApoie.style.display = 'flex'; });
+      }
+      if (btnClose) {
+          btnClose.addEventListener('click', () => { modalApoie.style.display = 'none'; });
+      }
+      if (modalApoie) {
+          modalApoie.addEventListener('click', (e) => {
+              if (e.target === modalApoie) modalApoie.style.display = 'none'; // Fecha ao clicar fora
+          });
+      }
+      if (btnCopy) {
+          btnCopy.addEventListener('click', () => {
+              navigator.clipboard.writeText("cd5e70df-ddb5-4c74-8589-bee68ed718d0");
+              btnCopy.innerHTML = `<span style="color: #10b981;">Copiado!</span><span>✅</span>`;
+              setTimeout(() => { btnCopy.innerHTML = `<span>cd5e70df-ddb5-4c74-8589-bee68ed718d0</span><span style="font-size: 1.1rem;">📋</span>`; }, 2000);
+          });
+      }
 
       // Supabase
       try {
