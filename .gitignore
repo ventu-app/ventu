@@ -1,0 +1,14 @@
+# System
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Node (se usar no futuro)
+node_modules/
+npm-debug.log
+
+# Arquivos de teste locais
+preview-brand.html

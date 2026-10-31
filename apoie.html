@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apoie o Ventu — Play. Speak. Survive.</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="src/styles/global.css">
+  <link rel="stylesheet" href="src/styles/home.css">
+  <link rel="stylesheet" href="src/styles/apoie.css">
+  <script>
+    const savedTheme = localStorage.getItem('ventu-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">
+        <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 22 46 L 25 22 L 36 38 Z" fill="#ea580c"/><path d="M 78 46 L 75 22 L 64 38 Z" fill="#ea580c"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><circle cx="36" cy="56" r="1.2" fill="#fff"/><circle cx="66" cy="56" r="1.2" fill="#fff"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/>
+        </svg>
+        <span class="logo-text">VENTU</span>
+      </a>
+      
+      <nav class="header-nav">
+        <button id="theme-toggle" class="theme-toggle" aria-label="Alternar tema">
+          <span class="icon-sun">☀️</span>
+          <span class="icon-moon">🌙</span>
+        </button>
+        <a href="index.html" class="nav-link">Voltar</a>
+      </nav>
+
+      <button class="menu-toggle" id="menu-toggle">☰</button>
+    </div>
+  </header>
+
+  <!-- Menu Mobile -->
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="index.html" class="btn btn-ghost">Voltar para a Home</a>
+  </div>
+
+  <main class="support-main">
+    <div class="container">
+      <div class="support-card">
+        
+        <div class="support-header">
+          <div class="mascot-container">
+            <svg viewBox="0 0 240 240" width="120" height="120">
+              <g transform="translate(40, 40) scale(1.6)">
+                <path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 22 46 L 25 22 L 36 38 Z" fill="#ea580c"/><path d="M 78 46 L 75 22 L 64 38 Z" fill="#ea580c"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><circle cx="36" cy="56" r="1.2" fill="#fff"/><circle cx="66" cy="56" r="1.2" fill="#fff"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/>
+              </g>
+            </svg>
+            <div class="heart-badge">❤️</div>
+          </div>
+          <h1>Apoie o Ventu</h1>
+          <p>O Ventu nasceu com a missão de tornar o inglês real acessível a todos. <strong>Neste momento, todo o conteúdo é aberto e gratuito.</strong></p>
+          <p>Se o projeto te ajudou e você quiser apoiar a manutenção dos servidores, o domínio e a raposa (ela come muito!), você pode fazer um Pix de qualquer valor. É totalmente opcional, mas deixa a Ventu muito feliz! 🦊</p>
+        </div>
+
+        <div class="pix-section">
+          <div class="qr-code-container">
+            <img id="pix-qr-code" src="" alt="QR Code Pix">
+          </div>
+          
+          <div class="pix-action">
+            <h3>Ou use o Pix Copia e Cola:</h3>
+            <div class="input-group">
+              <input type="text" id="pix-key-display" readonly>
+              <button id="copy-pix-btn" class="btn btn-primary">Copiar</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <div id="toast" class="toast">Código Pix copiado!</div>
+
+  <script>
+    // Theme Toggle
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('ventu-theme', newTheme);
+    });
+
+    // Mobile Menu Toggle
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    menuToggle.addEventListener('click', () => {
+      mobileMenu.classList.toggle('active');
+      menuToggle.textContent = mobileMenu.classList.contains('active') ? '✕' : '☰';
+    });
+
+    // ==========================================
+    // GERADOR DE PIX (EMV BR Code)
+    // ==========================================
+    const pixKey = "cd5e70df-ddb5-4c74-8589-bee68ed718d0";
+    const merchantName = "VENTU";
+    const merchantCity = "SAO PAULO";
+
+    function crc16(str) {
+      let crc = 0xFFFF;
+      for (let i = 0; i < str.length; i++) {
+        crc ^= str.charCodeAt(i) << 8;
+        for (let j = 0; j < 8; j++) {
+          if (crc & 0x8000) { crc = (crc << 1) ^ 0x1021; } else { crc <<= 1; }
+        }
+      }
+      return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+    }
+
+    function format(id, value) {
+      const len = value.length.toString().padStart(2, '0');
+      return id + len + value;
+    }
+
+    function generatePixPayload() {
+      let payload = 
+        "000201" + 
+        "26580014BR.GOV.BCB.PIX0136" + pixKey + 
+        "52040000" + 
+        "5303986" + 
+        "5802BR" + 
+        format("59", merchantName) + 
+        format("60", merchantCity) + 
+        "62070503***" + 
+        "6304";
+      return payload + crc16(payload);
+    }
+
+    const pixPayload = generatePixPayload();
+    const qrCodeImg = document.getElementById('pix-qr-code');
+    qrCodeImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + encodeURIComponent(pixPayload) + "&color=0b0f19&bgcolor=ffffff";
+    
+    const pixInput = document.getElementById('pix-key-display');
+    pixInput.value = pixPayload;
+
+    const copyBtn = document.getElementById('copy-pix-btn');
+    const toast = document.getElementById('toast');
+
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(pixPayload).then(() => {
+        toast.classList.add('show');
+        setTimeout(() => { toast.classList.remove('show'); }, 3000);
+      });
+    });
+  </script>
+</body>
+</html>

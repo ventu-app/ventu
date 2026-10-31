@@ -1,0 +1,20 @@
+.dossier-main { padding-top: 120px; padding-bottom: 80px; min-height: 100vh; background: radial-gradient(circle at top right, rgba(139, 92, 246, 0.05) 0%, transparent 40%), var(--bg-base); transition: background var(--duration-base); }
+.dossier-header { text-align: center; margin-bottom: var(--space-12); max-width: 700px; margin-left: auto; margin-right: auto; }
+.dossier-header .level-badge { display: inline-block; margin-bottom: var(--space-4); padding: 6px 16px; font-size: var(--text-sm); }
+.dossier-title { font-family: var(--font-display); font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 900; margin-bottom: var(--space-4); color: var(--text-primary); }
+.dossier-desc { font-size: var(--text-xl); color: var(--text-secondary); }
+.dossier-content { max-width: 800px; margin: 0 auto; }
+.briefing-section { display: flex; flex-direction: column; gap: var(--space-6); margin-bottom: var(--space-12); }
+.briefing-card { background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: var(--space-8); transition: all var(--duration-base); }
+.ventu-card { display: flex; gap: var(--space-6); align-items: flex-start; background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, var(--bg-elevated) 100%); border-color: rgba(139, 92, 246, 0.3); position: relative; overflow: hidden; }
+.ventu-avatar { background: var(--bg-base); width: 80px; height: 80px; border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 2px solid var(--gold); box-shadow: var(--shadow-gold); }
+.ventu-speech h3 { font-family: var(--font-body); font-size: var(--text-sm); text-transform: uppercase; letter-spacing: 1px; color: var(--purple); margin-bottom: var(--space-2); }
+.ventu-speech p { font-size: var(--text-lg); color: var(--text-primary); font-style: italic; line-height: 1.6; }
+.briefing-card h3 { font-family: var(--font-display); font-size: var(--text-2xl); margin-bottom: var(--space-4); color: var(--text-primary); }
+.objectives-list { display: flex; flex-direction: column; gap: var(--space-3); }
+.objectives-list li { display: flex; align-items: center; gap: var(--space-3); font-size: var(--text-base); color: var(--text-secondary); }
+.objectives-list li::before { content: '✓'; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: var(--current-level-color, var(--gold)); color: var(--bg-base); border-radius: var(--radius-full); font-weight: bold; font-size: 12px; flex-shrink: 0; }
+.action-section { text-align: center; }
+.btn-lg { padding: 16px 48px; font-size: var(--text-lg); width: 100%; max-width: 400px; }
+.action-hint { margin-top: var(--space-4); font-size: var(--text-sm); color: var(--text-tertiary); }
+@media (max-width: 600px) { .ventu-card { flex-direction: column; align-items: center; text-align: center; } }

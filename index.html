@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ventu — Play. Speak. Survive.</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="src/styles/global.css">
+  <link rel="stylesheet" href="src/styles/home.css">
+  <script>
+    const savedTheme = localStorage.getItem('ventu-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">
+        <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 22 46 L 25 22 L 36 38 Z" fill="#ea580c"/><path d="M 78 46 L 75 22 L 64 38 Z" fill="#ea580c"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><circle cx="36" cy="56" r="1.2" fill="#fff"/><circle cx="66" cy="56" r="1.2" fill="#fff"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/>
+        </svg>
+        <span class="logo-text">VENTU</span>
+      </a>
+      
+      <nav class="header-nav">
+        <button id="theme-toggle" class="theme-toggle" aria-label="Alternar tema">
+          <span class="icon-sun">☀️</span>
+          <span class="icon-moon">🌙</span>
+        </button>
+        <a href="apoie.html" class="btn btn-support">Apoiar <span>🦊</span></a>
+        <a href="#" class="nav-link">Entrar</a>
+        <a href="#" class="btn btn-primary">Criar conta</a>
+      </nav>
+
+      <button class="menu-toggle" id="menu-toggle">☰</button>
+    </div>
+  </header>
+
+  <!-- Menu Mobile -->
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="apoie.html" class="btn btn-support">Apoiar Projeto 🦊</a>
+    <a href="#" class="btn btn-ghost">Entrar</a>
+    <a href="#" class="btn btn-primary">Criar conta</a>
+  </div>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-inner">
+        <div class="hero-content">
+          <h1 class="hero-title">Você não estuda inglês.<br>Você <span class="text-gold">vive</span> situações em inglês.</h1>
+          <p class="hero-subtitle">Esqueça lições chatas. Entre em histórias reais, tome decisões, erre, aprenda e sobreviva. O inglês que você realmente vai usar lá fora.</p>
+          <div class="hero-actions">
+            <a href="#niveis" class="btn btn-primary">Começar de graça</a>
+            <a href="#" class="btn btn-ghost">Fazer teste de nível</a>
+          </div>
+        </div>
+        <div class="hero-mascot">
+          <svg width="280" height="280" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(40, 40) scale(1.6)">
+              <path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 22 46 L 25 22 L 36 38 Z" fill="#ea580c"/><path d="M 78 46 L 75 22 L 64 38 Z" fill="#ea580c"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><circle cx="36" cy="56" r="1.2" fill="#fff"/><circle cx="66" cy="56" r="1.2" fill="#fff"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/>
+            </g>
+            <g class="speech-bubble"><rect x="135" y="15" width="75" height="52" rx="16" fill="#8b5cf6"/><path d="M 145 67 L 135 90 L 165 67 Z" fill="#8b5cf6"/><text x="172" y="48" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700" font-size="22" fill="#ffffff">Hi!</text></g>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section id="niveis" class="levels-section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Escolha sua missão</h2>
+          <p class="section-desc">Do sobrevivente iniciante ao mestre da persuasão. Cada nível é um mundo com histórias e desafios reais.</p>
+        </div>
+        <div class="levels-grid" id="levels-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <span class="logo-text">VENTU</span>
+        <p>Play. Speak. Survive.</p>
+      </div>
+      <div class="footer-links">
+        <a href="apoie.html" style="color: var(--gold); font-weight: 600;">Apoie o Projeto 🦊</a>
+        <a href="#">Sobre</a>
+        <a href="#">Termos de Uso</a>
+        <a href="#">Privacidade</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <p>&copy; 2026 Ventu. Todos os direitos reservados.</p>
+      <p class="creator-credit">Desenvolvido com <span class="heart">❤️</span> por <a href="https://instagram.com/porphirio.brayam" target="_blank" rel="noopener">Brayam Porphirio</a></p>
+    </div>
+  </footer>
+
+  <script src="src/data/levels.js"></script>
+  <script>
+    // Theme Toggle
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('ventu-theme', newTheme);
+    });
+
+    // Mobile Menu Toggle
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    menuToggle.addEventListener('click', () => {
+      mobileMenu.classList.toggle('active');
+      menuToggle.textContent = mobileMenu.classList.contains('active') ? '✕' : '☰';
+    });
+
+    // Render Levels
+    const grid = document.getElementById('levels-grid');
+    levelsData.forEach(level => {
+      const card = document.createElement('a');
+      card.href = level.available ? `nivel.html?l=${level.id}` : '#';
+      card.className = `level-card ${level.available ? '' : 'locked'}`;
+      card.style.setProperty('--level-color', level.color);
+      if (!level.available) card.addEventListener('click', (e) => e.preventDefault());
+      
+      card.innerHTML = `
+        <div class="card-header">
+          <span class="level-badge">${level.cefr}</span>
+          ${level.badge ? `<span class="card-tag">${level.badge}</span>` : ''}
+          ${!level.available ? `<span class="card-lock">🔒</span>` : ''}
+        </div>
+        <h3 class="card-title">${level.title}</h3>
+        <p class="card-desc">${level.desc}</p>
+      `;
+      grid.appendChild(card);
+    });
+  </script>
+</body>
+</html>
