@@ -34,7 +34,6 @@
         </button>
         <a href="apoie.html" class="btn btn-support">Apoiar <span>🦊</span></a>
         
-        <!-- Área de Login / Perfil -->
         <div id="auth-area" style="display:flex; align-items:center; gap:15px;">
             <a href="auth.html" class="nav-link" id="nav-login">Entrar</a>
             <a href="auth.html" class="btn btn-primary" id="nav-register">Criar conta</a>
@@ -58,7 +57,7 @@
     <section id="niveis" class="levels-section" style="border-top: none; background: var(--bg);">
       <div class="container">
         <div class="levels-grid" id="levels-grid">
-          <!-- Preenchido via JS -->
+          <!-- Preenchido via JS embutido -->
         </div>
       </div>
     </section>
@@ -80,82 +79,97 @@
     </div>
   </footer>
 
-  <script src="src/data/levels.js"></script>
-  
   <script>
     // --- 1. TEMA CLARO/ESCURO ---
-    document.getElementById('theme-toggle').addEventListener('click', () => {
-      const currentTheme = document.documentElement.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', newTheme);
-      localStorage.setItem('ventu-theme', newTheme);
-    });
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('ventu-theme', newTheme);
+        });
+    }
 
-    // --- 2. RENDERIZAR OS NÍVEIS ---
+    // --- 2. NÍVEIS EMBUTIDOS (PARA NÃO QUEBRAR NA VERCEL) ---
+    const levelsData = [
+        { id: 'a1', cefr: 'A1', title: 'Vila Sobrevivente', desc: 'Pedir comida, andar pela cidade e se virar no básico.', available: true, color: '#fbbf24' },
+        { id: 'a2', cefr: 'A2', title: 'Porto Hotel', desc: 'Resolver pepinos do dia a dia, check-in e farmácia.', available: true, color: '#3b82f6' },
+        { id: 'b1', cefr: 'B1', title: 'Caos Cotidiano', desc: 'Clínica de madrugada, apartamento alagado e burocracia.', available: false, color: '#ef4444' },
+        { id: 'b2', cefr: 'B2', title: 'O Negociador', desc: 'Clientes furiosos, entrevistas de emprego e acordos.', available: false, color: '#8b5cf6' },
+        { id: 'c1', cefr: 'C1', title: 'O Mediador', desc: 'Jantares de família, ironia, sarcasmo e política.', available: false, color: '#06b6d4' },
+        { id: 'c2', cefr: 'C2', title: 'O Estrategista', desc: 'Conselhos hostis, crises de imprensa e persuasão pura.', available: false, color: '#f97316' },
+        { id: 'b1_plus', cefr: 'B1+', title: 'Bairro do Flerta', desc: 'Dates, flerte, humor e detecção de red flags.', available: false, badge: 'NOVO', color: '#ec4899' },
+        { id: 'b2_plus', cefr: 'B2+', title: 'Beco da Rua', desc: 'Conflito, insultos, palavrões e como se impor.', available: false, badge: '18+', color: '#e11d48' },
+        { id: 'exterior', cefr: 'B1+/B2+', title: 'Vida no Exterior', desc: 'Entrevistas, host family, aluguel e sobrevivência fora.', available: false, badge: 'AU PAIR', color: '#0ea5e9' }
+    ];
+
     const grid = document.getElementById('levels-grid');
-    levelsData.forEach(level => {
-      const card = document.createElement('div');
-      card.className = `level-card ${level.available ? '' : 'locked'}`;
-      card.style.setProperty('--level-color', level.color);
-      
-      let badgeCls = level.available ? 'badge-ready' : 'badge-soon';
-      let badgeText = level.available ? 'Disponível' : 'Em Breve';
-      
-      card.innerHTML = `
-        <div class="card-header">
-          <span class="level-badge">${level.cefr}</span>
-          ${level.badge ? `<span class="card-tag" style="background:var(--level-color); color:#fff;">${level.badge}</span>` : ''}
-          ${!level.available ? `<span class="card-lock" style="font-size:1rem;">🔒</span>` : ''}
-        </div>
-        <h3 class="card-title">${level.title}</h3>
-        <p class="card-desc">${level.desc}</p>
-        <button class="play-btn" style="margin-top:15px; padding:10px; border-radius:8px; border:none; font-weight:bold; cursor:pointer; background: ${level.available ? 'var(--gold)' : 'var(--border)'}; color: ${level.available ? 'var(--bg)' : 'var(--text-muted)'};">
-          ${level.available ? 'Jogar Agora →' : 'Aguardando Lançamento'}
-        </button>
-      `;
+    if (grid) {
+        levelsData.forEach(level => {
+            const card = document.createElement('div');
+            card.className = `level-card ${level.available ? '' : 'locked'}`;
+            card.style.setProperty('--level-color', level.color);
+            
+            card.innerHTML = `
+                <div class="card-header">
+                  <span class="level-badge">${level.cefr}</span>
+                  ${level.badge ? `<span class="card-tag" style="background:var(--level-color); color:#fff;">${level.badge}</span>` : ''}
+                  ${!level.available ? `<span class="card-lock" style="font-size:1rem;">🔒</span>` : ''}
+                </div>
+                <h3 class="card-title">${level.title}</h3>
+                <p class="card-desc">${level.desc}</p>
+                <button class="play-btn" style="margin-top:15px; padding:10px; border-radius:8px; border:none; font-weight:bold; cursor:pointer; background: ${level.available ? 'var(--gold)' : 'var(--border)'}; color: ${level.available ? 'var(--bg)' : 'var(--text-muted)'};">
+                  ${level.available ? 'Jogar Agora →' : 'Aguardando Lançamento'}
+                </button>
+            `;
 
-      // Lógica de Clique Correta
-      card.addEventListener('click', () => {
-        if (level.available) {
-          // Vai para a URL certa do nível! (ex: jogo.html?l=a2)
-          window.location.href = `jogo.html?l=${level.id}`;
-        } else {
-          // Mostra o Modal
-          document.getElementById('modal-name').innerText = level.title;
-          document.getElementById('modal-overlay').style.display = 'flex';
-        }
-      });
+            card.addEventListener('click', () => {
+                if (level.available) {
+                    window.location.href = `jogo.html?l=${level.id}`;
+                } else {
+                    document.getElementById('modal-name').innerText = level.title;
+                    document.getElementById('modal-overlay').style.display = 'flex';
+                }
+            });
 
-      grid.appendChild(card);
-    });
+            grid.appendChild(card);
+        });
+    }
 
     // --- 3. VERIFICAÇÃO DE LOGIN E XP ---
     const SUPABASE_URL = 'https://hbqjoadubrwuafbfykre.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let supabase = null;
+    if (window.supabase) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
 
     async function checkUser() {
-        const { data: { session } } = await supabase.auth.getSession();
-        const authArea = document.getElementById('auth-area');
+        if (!supabase) return;
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const authArea = document.getElementById('auth-area');
 
-        if (session) {
-            const email = session.user.email;
-            const name = session.user.user_metadata?.full_name || email.split('@')[0];
-            
-            const { data: profile } = await supabase.from('profiles').select('xp').eq('id', session.user.id).single();
-            const userXp = profile?.xp || 0;
+            if (session) {
+                const email = session.user.email;
+                const name = session.user.user_metadata?.full_name || email.split('@')[0];
+                
+                const { data: profile } = await supabase.from('profiles').select('xp').eq('id', session.user.id).single();
+                const userXp = profile?.xp || 0;
 
-            authArea.innerHTML = `
-                <span style="color: var(--gold); font-weight: bold; background: rgba(251, 191, 36, 0.1); padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(251, 191, 36, 0.2);">⭐ ${userXp} XP</span>
-                <span style="font-size: 0.9rem; color: var(--text-muted);">Olá, ${name.split(' ')[0]}</span>
-                <button class="btn btn-ghost" id="btn-logout">Sair</button>
-            `;
+                authArea.innerHTML = `
+                    <span style="color: var(--gold); font-weight: bold; background: rgba(251, 191, 36, 0.1); padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(251, 191, 36, 0.2);">⭐ ${userXp} XP</span>
+                    <span style="font-size: 0.9rem; color: var(--text-muted);">Olá, ${name.split(' ')[0]}</span>
+                    <button class="btn btn-ghost" id="btn-logout">Sair</button>
+                `;
 
-            document.getElementById('btn-logout').addEventListener('click', async () => {
-                await supabase.auth.signOut();
-                window.location.reload();
-            });
-        }
+                document.getElementById('btn-logout').addEventListener('click', async () => {
+                    await supabase.auth.signOut();
+                    window.location.reload();
+                });
+            }
+        } catch(e) { console.log('Erro no Supabase (ignorado se offline):', e); }
     }
     checkUser();
   </script>
