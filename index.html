@@ -31,7 +31,7 @@
     .header-inner { display: flex; justify-content: space-between; align-items: center; height: 80px; }
     .logo { display: flex; align-items: center; gap: 12px; font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; color: var(--text); }
     .header-nav { display: flex; align-items: center; gap: 20px; }
-    .nav-link { font-weight: 600; color: var(--text); transition: 0.2s; }
+    .nav-link { font-weight: 600; color: var(--text); transition: 0.2s; font-size: 0.95rem; }
     .nav-link:hover { color: var(--gold); }
     .btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; border: none; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px; }
     .btn-primary { background: var(--gold); color: var(--bg); }
@@ -68,16 +68,10 @@
     }
     .level-card.locked { opacity: 0.6; filter: grayscale(0.8); cursor: not-allowed; }
     
-    .card-top {
-        width: 100%; display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;
-    }
+    .card-top { width: 100%; display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
     .level-badge { background: var(--border); color: var(--text); font-weight: 700; font-size: 0.75rem; padding: 4px 10px; border-radius: 6px; letter-spacing: 1px; }
     
-    /* TAGS ESPECIAIS COM BRILHO */
-    .card-tag { 
-        font-size: 0.65rem; padding: 4px 8px; border-radius: 12px; font-weight: 800; text-transform: uppercase; 
-        box-shadow: 0 0 10px rgba(255,255,255,0.2); animation: pulse 2s infinite;
-    }
+    .card-tag { font-size: 0.65rem; padding: 4px 8px; border-radius: 12px; font-weight: 800; text-transform: uppercase; box-shadow: 0 0 10px rgba(255,255,255,0.2); animation: pulse 2s infinite; }
     @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
 
     .lock-icon { font-size: 1.2rem; }
@@ -93,14 +87,30 @@
     .card-title { font-size: 1.5rem; margin-bottom: 10px; color: var(--text); font-family: var(--font-heading); }
     .card-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; flex: 1; margin-bottom: 20px; }
     
-    .play-btn { 
-        width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; text-align: center; transition: 0.2s; font-size: 1rem;
-    }
+    .play-btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; text-align: center; transition: 0.2s; font-size: 1rem; }
     
     .site-footer { background: var(--panel); border-top: 1px solid var(--border); padding: 30px 0; margin-top: auto; }
     .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; color: var(--text-muted); font-size: 0.85rem; }
     .creator-credit a { color: var(--gold); font-weight: 600; }
-    @media (max-width: 768px) { .header-nav { display: none; } .footer-bottom { flex-direction: column; text-align: center; } }
+
+    /* --- AQUI ESTÁ O CONSERTO DO MOBILE HEADER --- */
+    @media (max-width: 768px) {
+      .header-inner { 
+          height: auto; 
+          padding: 15px 0; 
+          flex-direction: column; 
+          gap: 15px; 
+      }
+      .header-nav { 
+          width: 100%; 
+          justify-content: center; 
+          flex-wrap: wrap; 
+          gap: 10px;
+      }
+      .btn { padding: 8px 12px; font-size: 0.85rem; }
+      .nav-link { font-size: 0.85rem; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+    }
   </style>
 </head>
 <body>
@@ -114,7 +124,7 @@
       <nav class="header-nav">
         <button id="theme-toggle" class="theme-toggle"><span class="icon-sun">☀️</span><span class="icon-moon">🌙</span></button>
         <a href="apoie.html" class="btn btn-support">Apoiar <span>🦊</span></a>
-        <div id="auth-area" style="display:flex; align-items:center; gap:15px;">
+        <div id="auth-area" style="display:flex; align-items:center; gap:10px;">
             <a href="auth.html" class="nav-link" id="nav-login">Entrar</a>
             <a href="auth.html" class="btn btn-primary" id="nav-register">Criar conta</a>
         </div>
@@ -206,8 +216,7 @@
                 const userXp = profile?.xp || 0;
 
                 authArea.innerHTML = `
-                    <span style="color: var(--gold); font-weight: bold; background: rgba(251, 191, 36, 0.1); padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(251, 191, 36, 0.2);">⭐ ${userXp} XP</span>
-                    <span style="font-size: 0.9rem; color: var(--text-muted);">Olá, ${name.split(' ')[0]}</span>
+                    <span style="color: var(--gold); font-weight: bold; background: rgba(251, 191, 36, 0.1); padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(251, 191, 36, 0.2); font-size:0.85rem;">⭐ ${userXp} XP</span>
                     <a href="dashboard.html" class="btn btn-ghost">Meu Dashboard</a>
                     <button class="btn btn-ghost" id="btn-logout">Sair</button>
                 `;
