@@ -1,109 +1,163 @@
 ﻿<!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ventu Universe - Não estude inglês. Sobreviva a ele.</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        :root {
-            --bg: #0b0f19; --panel: #151b2b; --text: #e2e8f0; --text-muted: #94a3b8;
-            --gold: #fbbf24; --gold-hover: #f59e0b; --border: #1e293b;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
-        body { background-color: var(--bg); color: var(--text); min-height: 100dvh; display: flex; flex-direction: column; }
-
-        header { background-color: transparent; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; position: absolute; top: 0; width: 100%; z-index: 10; }
-        .logo { font-size: 1.5rem; font-weight: bold; color: var(--gold); display: flex; align-items: center; gap: 10px; }
-        .btn-auth { background: transparent; color: var(--text); border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; text-decoration: none; font-size: 0.9rem;}
-        .btn-auth:hover { border-color: var(--gold); color: var(--gold); }
-
-        .hero { 
-            text-align: center; padding: 150px 20px 80px; max-width: 900px; margin: 0 auto; 
-            background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.08) 0%, var(--bg) 70%);
-            flex: 1; display: flex; flex-direction: column; justify-content: center;
-        }
-        .hero h1 { font-size: 3.5rem; color: var(--text); margin-bottom: 20px; line-height: 1.1; letter-spacing: -1px; }
-        .hero h1 span { color: var(--gold); }
-        .hero p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 40px; line-height: 1.6; max-width: 700px; margin-left: auto; margin-right: auto; }
-        .btn-primary { background: var(--gold); color: var(--bg); padding: 16px 40px; border: none; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; text-decoration: none; transition: 0.2s; display: inline-block; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3); }
-        .btn-primary:hover { background: var(--gold-hover); transform: translateY(-2px); }
-
-        .features { background: var(--panel); padding: 60px 20px; border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; max-width: 1000px; margin: 0 auto; border-radius: 20px 20px 0 0; }
-        .feature-card { text-align: center; padding: 20px; }
-        .feature-icon { font-size: 2.5rem; margin-bottom: 15px; }
-        .feature-card h3 { color: var(--gold); font-size: 1.2rem; margin-bottom: 10px; }
-        .feature-card p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; }
-
-        footer { text-align: center; padding: 30px; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border); background: var(--bg); }
-        footer a { color: var(--text-muted); text-decoration: none; margin: 0 10px; transition: 0.2s; }
-        footer a:hover { color: var(--gold); }
-
-        @media (max-width: 600px) {
-            .hero h1 { font-size: 2.5rem; }
-            .hero p { font-size: 1rem; }
-            header { padding: 15px 20px; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ventu — Play. Speak. Survive.</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="src/styles/global.css">
+  <link rel="stylesheet" href="src/styles/home.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const savedTheme = localStorage.getItem('ventu-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
 </head>
 <body>
 
-    <header>
-        <div class="logo">🦊 Ventu</div>
-        <div id="auth-area">
-            <a href="auth.html" class="btn-auth">Entrar</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">
+        <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 22 46 L 25 22 L 36 38 Z" fill="#ea580c"/><path d="M 78 46 L 75 22 L 64 38 Z" fill="#ea580c"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><circle cx="36" cy="56" r="1.2" fill="#fff"/><circle cx="66" cy="56" r="1.2" fill="#fff"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/>
+        </svg>
+        <span class="logo-text">VENTU</span>
+      </a>
+      
+      <nav class="header-nav">
+        <button id="theme-toggle" class="theme-toggle" aria-label="Alternar tema">
+          <span class="icon-sun">☀️</span>
+          <span class="icon-moon">🌙</span>
+        </button>
+        <a href="apoie.html" class="btn btn-support">Apoiar <span>🦊</span></a>
+        
+        <!-- Área de Login / Perfil -->
+        <div id="auth-area" style="display:flex; align-items:center; gap:15px;">
+            <a href="auth.html" class="nav-link" id="nav-login">Entrar</a>
+            <a href="auth.html" class="btn btn-primary" id="nav-register">Criar conta</a>
         </div>
-    </header>
+      </nav>
 
-    <div class="hero">
-        <h1>Não estude inglês. <br><span>Sobreviva a ele.</span></h1>
-        <p>Nada de decoreba ou "complete a frase". Você entra no meio do caos de hotéis, restaurantes e aeroportos, resolve problemas reais e aprende inglês como a vida cobra: na pressão.</p>
-        <a href="auth.html" class="btn-primary" id="btn-cta">Começar a Jogar Grátis</a>
+      <button class="menu-toggle" id="menu-toggle">☰</button>
     </div>
+  </header>
 
-    <div class="features">
-        <div class="feature-card">
-            <div class="feature-icon">🔥</div>
-            <h3>O Caos é Real</h3>
-            <p>Lide com clientes furiosos, sistemas caídos e hóspedes bilionários exigentes.</p>
+  <main>
+    <section class="hero" style="padding-bottom: 20px;">
+      <div class="container hero-inner">
+        <div class="hero-content" style="text-align: center; max-width: 100%;">
+          <h1 class="hero-title">Você não estuda inglês.<br>Você <span class="text-gold">sobrevive</span> a ele.</h1>
+          <p class="hero-subtitle">Escolha sua missão abaixo. Do básico ao avançado, cada nível é um mundo com histórias e desafios reais.</p>
         </div>
-        <div class="feature-card">
-            <div class="feature-icon">🧠</div>
-            <h3>Aprenda na Prática</h3>
-            <p>Esqueça a gramática chata. Aprenda as frases que você realmente vai usar no dia a dia.</p>
+      </div>
+    </section>
+
+    <section id="niveis" class="levels-section" style="border-top: none; background: var(--bg);">
+      <div class="container">
+        <div class="levels-grid" id="levels-grid">
+          <!-- Preenchido via JS -->
         </div>
-        <div class="feature-card">
-            <div class="feature-icon">🛡️</div>
-            <h3>Vergonha Zero</h3>
-            <p>Erre, recomece, teste. Aqui é o seu campo de treinamento seguro antes do mundo real.</p>
-        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal Em Breve -->
+  <div id="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 999; backdrop-filter: blur(5px);">
+    <div style="background: var(--panel); padding: 30px; border-radius: 12px; border: 1px solid var(--gold); max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: fadeIn 0.3s ease;">
+        <h2 style="color: var(--gold); margin-bottom: 15px; font-size: 1.5rem;">🚧 Em Breve</h2>
+        <p style="color: var(--text); margin-bottom: 25px; line-height: 1.5;">O nível <strong id="modal-name"></strong> está em desenvolvimento. Continue praticando nos níveis liberados!</p>
+        <button onclick="document.getElementById('modal-overlay').style.display='none'" style="background: var(--border); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s;">Entendido</button>
     </div>
+  </div>
 
-    <footer>
-        <p>&copy; 2026 Ventu. Todos os direitos reservados.</p>
-        <div style="margin-top: 10px;">
-            <a href="termos.html">Termos de Uso</a> | 
-            <a href="privacidade.html">Privacidade</a> | 
-            <a href="sobre.html">Sobre o Projeto</a>
+  <footer class="site-footer">
+    <div class="container footer-bottom">
+      <p>&copy; 2026 Ventu. Todos os direitos reservados.</p>
+      <p class="creator-credit">Desenvolvido com <span class="heart">❤️</span> por <a href="https://instagram.com/porphirio.brayam" target="_blank" rel="noopener">Brayam Porphirio</a></p>
+    </div>
+  </footer>
+
+  <script src="src/data/levels.js"></script>
+  
+  <script>
+    // --- 1. TEMA CLARO/ESCURO ---
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('ventu-theme', newTheme);
+    });
+
+    // --- 2. RENDERIZAR OS NÍVEIS ---
+    const grid = document.getElementById('levels-grid');
+    levelsData.forEach(level => {
+      const card = document.createElement('div');
+      card.className = `level-card ${level.available ? '' : 'locked'}`;
+      card.style.setProperty('--level-color', level.color);
+      
+      let badgeCls = level.available ? 'badge-ready' : 'badge-soon';
+      let badgeText = level.available ? 'Disponível' : 'Em Breve';
+      
+      card.innerHTML = `
+        <div class="card-header">
+          <span class="level-badge">${level.cefr}</span>
+          ${level.badge ? `<span class="card-tag" style="background:var(--level-color); color:#fff;">${level.badge}</span>` : ''}
+          ${!level.available ? `<span class="card-lock" style="font-size:1rem;">🔒</span>` : ''}
         </div>
-    </footer>
+        <h3 class="card-title">${level.title}</h3>
+        <p class="card-desc">${level.desc}</p>
+        <button class="play-btn" style="margin-top:15px; padding:10px; border-radius:8px; border:none; font-weight:bold; cursor:pointer; background: ${level.available ? 'var(--gold)' : 'var(--border)'}; color: ${level.available ? 'var(--bg)' : 'var(--text-muted)'};">
+          ${level.available ? 'Jogar Agora →' : 'Aguardando Lançamento'}
+        </button>
+      `;
 
-    <script>
-        const SUPABASE_URL = 'https://hbqjoadubrwuafbfykre.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_';
+      // Lógica de Clique Correta
+      card.addEventListener('click', () => {
+        if (level.available) {
+          // Vai para a URL certa do nível! (ex: jogo.html?l=a2)
+          window.location.href = `jogo.html?l=${level.id}`;
+        } else {
+          // Mostra o Modal
+          document.getElementById('modal-name').innerText = level.title;
+          document.getElementById('modal-overlay').style.display = 'flex';
+        }
+      });
 
-        try {
-            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            async function checkUser() {
-                const { data: { session } } = await supabase.auth.getSession();
-                if (session) {
-                    document.getElementById('auth-area').innerHTML = `<a href="dashboard.html" class="btn-auth" style="border-color: var(--gold); color: var(--gold);">Meu Dashboard →</a>`;
-                    document.getElementById('btn-cta').innerText = "Continuar Jogando";
-                    document.getElementById('btn-cta').href = "dashboard.html";
-                }
-            }
-            checkUser();
-        } catch(e) {}
-    </script>
+      grid.appendChild(card);
+    });
+
+    // --- 3. VERIFICAÇÃO DE LOGIN E XP ---
+    const SUPABASE_URL = 'https://hbqjoadubrwuafbfykre.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function checkUser() {
+        const { data: { session } } = await supabase.auth.getSession();
+        const authArea = document.getElementById('auth-area');
+
+        if (session) {
+            const email = session.user.email;
+            const name = session.user.user_metadata?.full_name || email.split('@')[0];
+            
+            const { data: profile } = await supabase.from('profiles').select('xp').eq('id', session.user.id).single();
+            const userXp = profile?.xp || 0;
+
+            authArea.innerHTML = `
+                <span style="color: var(--gold); font-weight: bold; background: rgba(251, 191, 36, 0.1); padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(251, 191, 36, 0.2);">⭐ ${userXp} XP</span>
+                <span style="font-size: 0.9rem; color: var(--text-muted);">Olá, ${name.split(' ')[0]}</span>
+                <button class="btn btn-ghost" id="btn-logout">Sair</button>
+            `;
+
+            document.getElementById('btn-logout').addEventListener('click', async () => {
+                await supabase.auth.signOut();
+                window.location.reload();
+            });
+        }
+    }
+    checkUser();
+  </script>
 </body>
 </html>

@@ -78,13 +78,13 @@
         try {
             if (isLogin) {
                 await fazerLogin(email, senha);
-                window.location.href = 'jogo.html'; 
+                window.location.href = 'index.html'; // <-- MUDOU AQUI
             } else {
                 const nome = document.getElementById('nome').value;
                 const telefone = telefoneInput.value;
                 await fazerCadastro(email, senha, nome, telefone);
                 alert('Conta criada com sucesso!');
-                window.location.href = 'jogo.html'; 
+                window.location.href = 'index.html'; // <-- MUDOU AQUI
             }
         } catch (error) {
             alert('Erro: ' + error.message);

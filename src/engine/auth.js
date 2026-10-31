@@ -1,5 +1,5 @@
 const SUPABASE_URL = 'https://hbqjoadubrwuafbfykre.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_'; // <-- SUBSTITUA AQUI!
+const SUPABASE_ANON_KEY = 'sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_';
 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -29,7 +29,7 @@ async function fazerLogin(email, password) {
 async function loginComGoogle() {
     const { data, error } = await supabaseClient.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: window.location.origin + '/jogo.html' }
+        options: { redirectTo: window.location.origin + '/index.html' } // <-- MUDOU AQUI
     });
     if (error) throw error;
 }
