@@ -66,13 +66,24 @@
       box-shadow: 0 15px 30px rgba(0,0,0,0.4), 0 0 15px var(--level-color, rgba(251, 191, 36, 0.2));
     }
     .level-card.locked { opacity: 0.6; filter: grayscale(0.8); cursor: not-allowed; }
-    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+    
+    /* ESTILO NOVO DO ÍCONE NO GRID */
+    .card-icon-wrapper {
+        width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;
+        background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border);
+    }
+    [data-theme="light"] .card-icon-wrapper { background: rgba(0, 0, 0, 0.05); }
+    
+    .card-badges { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
     .level-badge { background: var(--border); color: var(--text); font-weight: 700; font-size: 0.75rem; padding: 4px 10px; border-radius: 6px; letter-spacing: 1px; }
     .card-tag { font-size: 0.65rem; padding: 4px 8px; border-radius: 12px; font-weight: 700; text-transform: uppercase; }
+    
     .card-title { font-size: 1.4rem; margin-bottom: 10px; color: var(--text); }
     .card-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; flex: 1; }
     
-    .play-btn { margin-top:15px; padding:10px; border-radius:8px; border:none; font-weight:bold; cursor:pointer; text-align:center; }
+    .play-btn { margin-top:15px; padding:10px; border-radius:8px; border:none; font-weight:bold; cursor:pointer; text-align:center; transition: 0.2s; }
     
     .site-footer { background: var(--panel); border-top: 1px solid var(--border); padding: 30px 0; margin-top: auto; }
     .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; color: var(--text-muted); font-size: 0.85rem; }
@@ -135,14 +146,17 @@
             
             card.innerHTML = `
               <div class="card-header">
-                <span class="level-badge">${level.cefr}</span>
-                ${level.badge ? `<span class="card-tag" style="background:var(--level-color); color:#fff;">${level.badge}</span>` : ''}
-                ${!level.available ? `<span class="card-lock" style="font-size:1rem;">🔒</span>` : ''}
+                <div class="card-icon-wrapper">${level.icon}</div>
+                <div class="card-badges">
+                    <span class="level-badge">${level.cefr}</span>
+                    ${level.badge ? `<span class="card-tag" style="background:${level.color}; color:#fff;">${level.badge}</span>` : ''}
+                    ${!level.available ? `<span style="font-size:0.8rem;">🔒</span>` : ''}
+                </div>
               </div>
               <h3 class="card-title">${level.title}</h3>
               <p class="card-desc">${level.desc}</p>
-              <button class="play-btn" style="background: ${level.available ? 'var(--gold)' : 'var(--border)'}; color: ${level.available ? 'var(--bg)' : 'var(--text-muted)'};">
-                ${level.available ? 'Ver Dossiê →' : 'Aguardando Lançamento'}
+              <button class="play-btn" style="background: ${level.available ? level.color : 'var(--border)'}; color: ${level.available ? '#fff' : 'var(--text-muted)'}; border: 1px solid ${level.available ? level.color : 'var(--border)'};">
+                ${level.available ? 'Ver Dossiê' : 'Aguardando Lançamento'}
               </button>
             `;
 
