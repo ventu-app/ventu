@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dossiê da Missão — Ventu</title>
+  <title>Cenário — Ventu</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -48,14 +48,16 @@
     .level-title { font-family: var(--font-heading); font-size: 3rem; color: var(--text); margin-bottom: 5px; line-height: 1.1; }
     .level-subtitle { font-size: 1rem; color: var(--level-color, var(--gold)); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; font-weight: bold; }
 
+    /* BALÃO DA VENTU DINÂMICO */
     .ventu-bubble { 
-      background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); 
-      border-radius: 16px; padding: 25px; text-align: left; margin-bottom: 30px; 
+      background: var(--level-color-bg, rgba(251, 191, 36, 0.1)); 
+      border-left: 6px solid var(--level-color, var(--gold)); 
+      border-radius: 0 16px 16px 0; padding: 25px; text-align: left; margin-bottom: 30px; 
       display: flex; gap: 20px; align-items: flex-start;
     }
     .ventu-avatar { font-size: 3rem; flex-shrink: 0; }
     .ventu-text { font-size: 1.1rem; line-height: 1.6; color: var(--text); font-style: italic; }
-    .ventu-name { font-size: 0.85rem; font-weight: bold; color: var(--gold); margin-bottom: 5px; text-transform: uppercase; }
+    .ventu-name { font-size: 0.85rem; font-weight: bold; color: var(--level-color, var(--gold)); margin-bottom: 5px; text-transform: uppercase; }
 
     .objectives-box { 
       background: var(--bg); border: 1px solid var(--border); border-radius: 16px; 
@@ -81,7 +83,7 @@
     @media (max-width: 600px) {
       .dossier-box { padding: 30px 20px; }
       .level-title { font-size: 2.2rem; }
-      .ventu-bubble { flex-direction: column; text-align: center; align-items: center; }
+      .ventu-bubble { flex-direction: column; text-align: center; align-items: center; border-left: none; border-top: 6px solid var(--level-color); border-radius: 0 0 16px 16px; }
       .actions { flex-direction: column; }
       .btn { width: 100%; }
     }
@@ -104,7 +106,7 @@
       <p class="level-subtitle" id="level-subtitle">NÍVEL A1</p>
 
       <div class="ventu-bubble">
-        <div class="ventu-avatar">🦊</div>
+        <div class="ventu-avatar" id="ventu-avatar">🦊</div>
         <div>
           <div class="ventu-name">Ventu diz:</div>
           <div class="ventu-text" id="ventu-says">"Bem-vindo ao caos..."</div>
@@ -140,7 +142,7 @@
         }
       } catch(e) {}
 
-      // 2. Carregar Dados do Nível
+      // 2. Carregar Dados
       const urlParams = new URLSearchParams(window.location.search);
       const levelId = urlParams.get('l');
 
@@ -156,10 +158,23 @@
       }
 
       // 3. Preencher a Tela
-      document.getElementById('dossier-box').style.setProperty('--level-color', level.color);
+      const box = document.getElementById('dossier-box');
+      box.style.setProperty('--level-color', level.color);
+      
+      // Truque para a cor de fundo do balão (converte HEX para RGBA com 10% de opacidade)
+      const hex = level.color.replace('#', '');
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      box.style.setProperty('--level-color-bg', `rgba(${r}, ${g}, ${b}, 0.1)`);
+
       document.getElementById('level-icon').innerText = level.icon;
       document.getElementById('level-title').innerText = level.title;
       document.getElementById('level-subtitle').innerText = `NÍVEL ${level.cefr}`;
+      
+      // Avatar Dinâmico (A carinha da Ventu muda)
+      document.getElementById('ventu-avatar').innerText = level.mascot || '🦊';
+      
       document.getElementById('ventu-says').innerText = `"${level.ventuSays}"`;
       
       const list = document.getElementById('objectives-list');
@@ -169,7 +184,7 @@
         list.appendChild(li);
       });
 
-      // 4. Lógica do Botão Jogar
+      // 4. Botão de Jogar
       const btnPlay = document.getElementById('btn-play');
       
       if (level.available) {
