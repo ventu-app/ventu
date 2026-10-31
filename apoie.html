@@ -17,25 +17,55 @@
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     h1 { color: var(--gold); font-size: 2rem; margin-bottom: 15px; }
     p { color: var(--text-muted); line-height: 1.6; margin-bottom: 25px; font-size: 1rem; }
-    .pix-box { background: var(--bg); border: 1px dashed var(--gold); padding: 15px; border-radius: 8px; margin-bottom: 25px; font-family: monospace; font-size: 1.1rem; color: var(--gold); word-break: break-all; cursor: pointer; }
+    
+    .pix-container { margin-bottom: 25px; }
+    .pix-label { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; display: block; text-align: left; font-weight: 600;}
+    .pix-box { 
+      background: var(--bg); border: 1px dashed var(--gold); padding: 15px; 
+      border-radius: 8px; font-family: monospace; font-size: 1.1rem; 
+      color: var(--gold); word-break: break-all; cursor: pointer; 
+      transition: 0.2s; position: relative; display: flex; justify-content: space-between; align-items: center;
+    }
     .pix-box:hover { background: rgba(251, 191, 36, 0.1); }
-    .btn { background: var(--gold); color: var(--bg); text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; display: inline-block; transition: 0.2s; }
+    .copy-icon { font-size: 1.2rem; }
+    
+    .btn { background: var(--gold); color: var(--bg); text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; display: inline-block; transition: 0.2s; border: none; cursor: pointer; width: 100%; font-size: 1rem;}
     .btn:hover { background: var(--gold-hover); transform: translateY(-2px); }
+    
+    .toast { position: fixed; bottom: -50px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; transition: bottom 0.3s; z-index: 1000; }
+    .toast.show { bottom: 20px; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="fox">🦊</div>
     <h1>Ajude o Ventu a crescer!</h1>
-    <p>O Ventu é um projeto feito por um desenvolvedor independente e apaixonado por idiomas. Se você gosta do projeto e quer ajudar a manter os servidores no ar (e criar níveis cada vez mais caóticos), considere apoiar!</p>
+    <p>O Ventu é um projeto independente. Se você gosta do jogo e quer ajudar a manter os servidores no ar (e criar níveis cada vez mais caóticos), considere apoiar!</p>
     
-    <p><strong>Chave PIX:</strong> (Clique para copiar)</p>
-    <div class="pix-box" onclick="navigator.clipboard.writeText('seu-email@aqui.com'); alert('Chave PIX copiada!');">
-      seu-email@aqui.com
+    <div class="pix-container">
+      <span class="pix-label">Chave PIX (Clique para copiar):</span>
+      <div class="pix-box" onclick="copiarPix()">
+        <span>cd5e70df-ddb5-4c74-8589-bee68ed718d0</span>
+        <span class="copy-icon">📋</span>
+      </div>
     </div>
-    <p style="font-size: 0.85rem; margin-bottom: 20px;">(Substitua pelo seu e-mail real no código)</p>
     
     <a href="index.html" class="btn">Voltar para o Jogo</a>
   </div>
+
+  <div id="toast" class="toast">Chave PIX copiada! 🦊</div>
+
+  <script>
+    function copiarPix() {
+      const chave = "cd5e70df-ddb5-4c74-8589-bee68ed718d0";
+      navigator.clipboard.writeText(chave).then(() => {
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => { toast.classList.remove('show'); }, 3000);
+      }).catch(err => {
+        alert("Erro ao copiar. A chave é: " + chave);
+      });
+    }
+  </script>
 </body>
 </html>
