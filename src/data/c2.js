@@ -52,12 +52,12 @@ const gameDataC2 = {
             { word: 'Bombshell', meaning: 'Participante novo que chega pra "explodir" os casais existentes (jargão de Love Island)' }
           ],
           quickReplies: [
-            { label: 'Confiar na Ruby e ficar de boa.', text: "..." },
+            { label: 'Confiar na Ruby e ficar de boa.', text: "Trust Ruby and stay put." },
             { label: 'Interromper o chat.', text: "Oi. Ruby. Can I steal you for a sec, darl?" },
             { label: 'Falar com o Fitzy antes.', text: "Fitzy. What's this bloke's story?" }
           ],
           intents: [
-            { match: /(\.\.\.)/i, response: "You watch from the daybed. Kai leans in close to Ruby. She laughs at something he says. Your gut twists. But you stay put. Ruby glances at you — once — and you give her a small nod. 'Go on,' you mouth. She smiles. The chat lasts twenty minutes. It feels like twenty years. When she comes back, she's... different. A little flushed. A little far away.", nextScene: 'noah_3', addsFlags: ['trusted_ruby_first'], energyCost: 5 },
+            { match: /(trust|stay put)/i, response: "You watch from the daybed. Kai leans in close to Ruby. She laughs at something he says. Your gut twists. But you stay put. Ruby glances at you — once — and you give her a small nod. 'Go on,' you mouth. She smiles. The chat lasts twenty minutes. It feels like twenty years. When she comes back, she's... different. A little flushed. A little far away.", nextScene: 'noah_3', addsFlags: ['trusted_ruby_first'], energyCost: 5 },
             { match: /(steal|chat|can i|darl)/i, response: "Ruby looks up, surprised. 'Noah. We're just talking.' Kai smirks. 'Yeah, mate. Just a chat. No need to get your knickers in a knot.' You feel the eyes of the whole villa on you. Ruby's face flushes — and not in a good way. 'I'll be back in a bit,' she says, and walks off with Kai. She doesn't look back.", nextScene: 'noah_3', addsFlags: ['interrupted_chat'], energyCost: 10 },
             { match: /(fitzy|story|bloke|what's)/i, response: "Fitzy takes a long pull from his stubby. 'That bloke? Kai. Real estate, Gold Coast. Been on three of these shows already. Never won. Reckons he's due.' He looks at you sideways. 'Watch your girl, mate. He's a proper snake. He'll plant a seed, then sit back and watch it grow.' He hands you the stubby. 'Here. You look like you need it.'", nextScene: 'noah_3', addsFlags: ['fitzy_warning'], energyCost: 0 }
           ],
@@ -122,12 +122,12 @@ const gameDataC2 = {
             { word: 'Not pulling away', meaning: 'Não se afastando — ela está permitindo a proximidade' }
           ],
           quickReplies: [
-            { label: 'Assistir em silêncio.', text: "..." },
+            { label: 'Assistir em silêncio.', text: "Watch in silence." },
             { label: 'Interromper.', text: "Ruby. It's late. Come to bed." },
             { label: 'Voltar pra cama e confiar.', text: "I'm going back to bed. I have to trust her." }
           ],
           intents: [
-            { match: /(\.\.\.)/i, response: "You stay in the shadows. Kai says something. Ruby laughs — that low, private laugh she used to save for you. Then she leans in. Her lips brush his cheek. A whisper. He says something back. She pulls away, smiling. She stands up. She's walking back inside. She hasn't seen you. You have one second to decide what to do. But you don't move. You can't. And she walks past you in the dark.", nextScene: 'noah_6', addsFlags: ['watched_silently', 'near_kiss_seen'], energyCost: 5 },
+            { match: /(silence)/i, response: "You stay in the shadows. Kai says something. Ruby laughs — that low, private laugh she used to save for you. Then she leans in. Her lips brush his cheek. A whisper. He says something back. She pulls away, smiling. She stands up. She's walking back inside. She hasn't seen you. You have one second to decide what to do. But you don't move. You can't. And she walks past you in the dark.", nextScene: 'noah_6', addsFlags: ['watched_silently', 'near_kiss_seen'], energyCost: 5 },
             { match: /(come to bed|late|interrupt)/i, response: "Your voice cuts through the night. Ruby jumps. Kai stands up slowly, like he's got all the time in the world. 'Noah. Hey. We were just talking.' Ruby won't look at you. She walks past you, inside, without a word. Kai grins. 'She's a good one, mate. Don't stuff it up.' He pats your shoulder. You want to hit him. You don't.", nextScene: 'noah_6', addsFlags: ['interrupted_almost_kiss'], energyCost: 10 },
             { match: /(back to bed|trust|going back|confiar)/i, response: "You turn around and walk back to bed. It's the hardest thing you've ever done. You lie there, staring at the ceiling, for two hours. When Ruby finally comes to bed, she smells like chlorine and something else. Something floral. Kai's cologne. She doesn't say a word. You don't either. But you both know.", nextScene: 'noah_6', addsFlags: ['walked_away', 'suffered_silently'], energyCost: 15 }
           ],
