@@ -1,0 +1,392 @@
+const gameDataC2 = {
+  id: 'c2',
+  title: 'Cove of Secrets',
+  shopItems: [
+    { id: 'akubra', name: '🤠 Akubra Hat', price: 30.00, energy: 10, desc: 'Instant rizz. A hat that says "I am a proper Australian legend." +10 Rizz for one scene.' },
+    { id: 'timtams', name: '🍫 Tim Tams', price: 10.00, energy: 15, desc: 'The ultimate Aussie comfort food. Restores your energy and your will to live.' }
+  ],
+  characters: {
+    noah: {
+      charId: 'noah',
+      name: 'Noah',
+      role: 'The Underdog',
+      emoji: '🏄‍♂️',
+      description: "You were the bad guy once. You cheated. You broke someone's heart. Now you're on national TV with the girl of your dreams — and a bombshell who wants to take her. Will history repeat itself? Or will you finally learn to trust?",
+      initialState: { trust: 100, rizz: 50, energy: 100 },
+      startScene: 'noah_1',
+      scenes: {
+        // ============================================================
+        // ATO 1: A BOMBSHELL (cenas 1–5)
+        // ============================================================
+        noah_1: {
+          npcName: 'Ruby (Your Partner)',
+          npcText: "You're awake. Good. I was startin' to think you'd sleep through brekky again. You right, though? You were proper tossing and turning all night. Bad dreams?",
+          energyCost: 5,
+          glossary: [
+            { word: 'Brekky', meaning: 'Café da manhã (abreviação australiana de breakfast)' },
+            { word: 'Proper', meaning: 'Realmente / muito (intensificador australiano)' },
+            { word: 'Tossing and turning', meaning: 'Rolando na cama sem conseguir dormir' },
+            { word: 'You right?', meaning: 'Você tá bem? (pergunta australiana clássica de preocupação)' }
+          ],
+          quickReplies: [
+            { label: 'Ser honesto e carinhoso.', text: "Just thinking about you, love. About us. I'm happy. Proper happy." },
+            { label: 'Desviar com piada.', text: "Just dreamin' about the barbie later. I'm starvin', Ruby." },
+            { label: 'Ser vago e fechado.', text: "Nothin'. Just a lot on my mind." }
+          ],
+          intents: [
+            { match: /(happy|us|love|thinking about you)/i, response: "Ruby's face softens — that slow, sleepy smile that made you forget your own name a week ago. 'Yeah? Me too.' She leans in and kisses you, slow and easy. Then the villa speakers crackle to life: 'ISLANDERS. A new bombshell arrives this arvo. Get ready to graft.' Ruby pulls back. Her smile drops. Just for a second. Then it's back. 'Well,' she says. 'Bombshell, eh?'", nextScene: 'noah_2', addsFlags: ['warm_morning'] },
+            { match: /(barbie|starvin'|dreamin'|food)/i, response: "Ruby laughs — that big, unguarded laugh. 'You're a deadset galah, you know that?' She pokes your ribs. Then the speakers crackle. 'ISLANDERS. A new bombshell arrives this arvo.' Ruby stops laughing. 'Bombshell, eh?' She looks at the door. You follow her gaze. Neither of you says anything.", nextScene: 'noah_2', addsFlags: ['deflected_with_humor'] },
+            { match: /(nothin'|nothing|mind)/i, response: "Ruby's eyes narrow. 'Right.' She gets up, pulls on her sunnies, and walks out to the balcony. Then the speakers crackle: 'ISLANDERS. A new bombshell arrives this arvo.' You hear her exhale on the balcony. She doesn't turn around.", nextScene: 'noah_2', energyCost: 5, addsFlags: ['cold_start'] }
+          ],
+          fallback: "Ruby is waiting. She can tell something's off.",
+          offensiveScene: 'noah_bad_1'
+        },
+        noah_2: {
+          npcName: 'Narrador',
+          npcText: "The door swings open and he walks in like he owns the place. Tanned. Tattooed. Jaw like a bloody axe. 'G'day, legends. Name's Kai. Reckon I'll be taking one of your ladies for a chat.' His eyes scan the villa. They land on Ruby. They stay there. He grins. 'You. Love. What's your name?'",
+          energyCost: 10,
+          glossary: [
+            { word: 'G\'day', meaning: 'Oi / Bom dia (saudação australiana icônica)' },
+            { word: 'Legends', meaning: 'Lendas (gíria australiana para "galera", "pessoal")' },
+            { word: 'Reckon', meaning: 'Acho que / imagino que' },
+            { word: 'Bombshell', meaning: 'Participante novo que chega pra "explodir" os casais existentes (jargão de Love Island)' }
+          ],
+          quickReplies: [
+            { label: 'Confiar na Ruby e ficar de boa.', text: "..." },
+            { label: 'Interromper o chat.', text: "Oi. Ruby. Can I steal you for a sec, love?" },
+            { label: 'Falar com o Fitzy antes.', text: "Fitzy. What's this bloke's story?" }
+          ],
+          intents: [
+            { match: /(\.\.\.)/i, response: "You watch from the daybed. Kai leans in close to Ruby. She laughs at something he says. Your gut twists. But you stay put. Ruby glances at you — once — and you give her a small nod. 'Go on,' you mouth. She smiles. The chat lasts twenty minutes. It feels like twenty years. When she comes back, she's... different. A little flushed. A little far away.", nextScene: 'noah_3', addsFlags: ['trusted_ruby_first'], energyCost: 5 },
+            { match: /(steal|chat|can i|love)/i, response: "Ruby looks up, surprised. 'Noah. We're just talking.' Kai smirks. 'Yeah, mate. Just a chat. No need to get your knickers in a knot.' You feel the eyes of the whole villa on you. Ruby's face flushes — and not in a good way. 'I'll be back in a bit,' she says, and walks off with Kai. She doesn't look back.", nextScene: 'noah_3', addsFlags: ['interrupted_chat'], energyCost: 10 },
+            { match: /(fitzy|story|bloke|what's)/i, response: "Fitzy takes a long pull from his stubby. 'That bloke? Kai. Real estate, Gold Coast. Been on three of these shows already. Never won. Reckons he's due.' He looks at you sideways. 'Watch your girl, mate. He's a proper snake. He'll plant a seed, then sit back and watch it grow.' He hands you the stubby. 'Here. You look like you need it.'", nextScene: 'noah_3', addsFlags: ['fitzy_warning'], energyCost: 0 }
+          ],
+          fallback: "Kai is walking toward Ruby. You have seconds to decide.",
+          offensiveScene: 'noah_bad_1'
+        },
+        noah_3: {
+          npcName: 'Bree (Producer, Off-Camera)',
+          npcText: "Righto, Noah. Confessional time. Sit. Look at the camera. Now — how are you feeling about Kai picking Ruby for the first chat? And remember, the audience is watching. They know about your... history.",
+          energyCost: 15,
+          glossary: [
+            { word: 'Righto', meaning: 'Certo / Beleza / Entendido (interjeição australiana)' },
+            { word: 'Love', meaning: 'Querido / amor (termo australiano de afeto — usado com QUALQUER pessoa, não só romântico)' },
+            { word: 'History', meaning: 'Histórico (no caso, o passado de infidelidade do Noah)' },
+            { word: 'Confessional', meaning: 'Cabine onde os participantes falam sozinhos para a câmera (jargão de reality show)' }
+          ],
+          quickReplies: [
+            { label: 'Ser honesto sobre o passado.', text: "I cheated before. Years ago. It was the worst thing I ever did. And now... now I'm terrified of it happening to me." },
+            { label: 'Desviar com charme.', text: "History? I'm a new man, Bree. Ruby knows that. The audience will see." },
+            { label: 'Ficar puto com a produção.', text: "You're gonna bring that up? On camera? That's low, even for you lot." }
+          ],
+          intents: [
+            { match: /(cheated|worst thing|terrified|years ago|honest)/i, response: "Bree's face softens — on camera, of course. 'That's very brave, Noah. The audience loves vulnerability.' She leans in. 'But let me ask you this. If Ruby did the same to you... would you forgive her? Or would you run?' The camera holds on your face. Long. Uncomfortable. You don't have an answer. The red light keeps blinking.", nextScene: 'noah_4', addsFlags: ['honest_confessional'], energyCost: -10 },
+            { match: /(new man|knows that|audience|charm)/i, response: "Bree smiles. It doesn't reach her eyes. 'A new man. Right.' She writes something on her clipboard. 'And if the audience doesn't see it that way? If they remember the old Noah?' She lets the question hang. The camera doesn't blink. Neither do you.", nextScene: 'noah_4', addsFlags: ['deflected_confessional'] },
+            { match: /(low|bring that up|camera|lot)/i, response: "Bree doesn't flinch. 'It's a reality show, Noah. Reality is the product.' She tilts her head. 'The question is — are you going to let your past define you? Or are you going to fight for this girl?' The red light on the camera keeps blinking. You realize she's not going to stop.", nextScene: 'noah_4', addsFlags: ['angry_confessional'], energyCost: 5 }
+          ],
+          fallback: "Bree is waiting. The camera is rolling. The whole country is about to hear your answer.",
+          offensiveScene: 'noah_bad_1'
+        },
+                noah_4: {
+          npcName: 'Ruby (Your Partner)',
+          npcText: `Hey. Sorry that took so long. Kai's... a lot. She's fiddling with her necklace. She won't quite meet your eye. "He's not what I expected, you know? Anyway. How was your arvo?"`,
+          energyCost: 15,
+          npcTextVariants: [
+            { ifFlag: 'interrupted_chat', text: `Hey. Sorry about earlier. You didn't have to do that, you know. Kai's... a lot. But I can handle myself. She's fiddling with her necklace. She won't quite meet your eye. "Anyway. How was your arvo?"` }
+          ],
+          glossary: [
+            { word: 'A lot', meaning: 'Muito (no sentido de "intenso", "demais", "complicado")' },
+            { word: 'Arvo', meaning: 'Tarde (abreviação australiana de afternoon)' },
+            { word: 'Type on paper', meaning: 'A descrição do parceiro ideal no papel — mas a química real pode ser outra (jargão de Love Island)' }
+          ],
+          quickReplies: [
+            { label: 'Perguntar diretamente.', text: "Ruby. Look at me. What did he say?" },
+            { label: 'Dar espaço.', text: "It's fine. You don't have to tell me. I trust you." },
+            { label: 'Fazer piada para aliviar.', text: "A lot, eh? Should I be worried, or just start packing my bags?" }
+          ],
+          intents: [
+            { match: /(look at me|what did he say|perguntar|directly)/i, response: "Ruby finally looks up. Her eyes are... complicated. 'He said I'm his type on paper. He said... he reckons I'm settling.' She bites her lip. 'He's wrong. I know he's wrong. But he's... he's very convincing, Noah. The way he looks at me. Like he actually sees me.' She stops. 'You know what I mean?'", nextScene: 'noah_5', addsFlags: ['direct_confrontation'], energyCost: 5 },
+            { match: /(fine|trust|space|don't have to)/i, response: "Ruby's shoulders drop. 'Thank you.' She kisses your cheek. But the kiss is quick. Distracted. She pulls away and looks toward the pool. Kai is out there, doing laps. Shirtless. She looks away. But you saw it. You saw her look. 'I'm gonna go have a shower,' she says. 'Big day.' She's gone before you can say anything.", nextScene: 'noah_5', addsFlags: ['gave_space'], energyCost: 0 },
+            { match: /(worried|packing|bags|joke)/i, response: "Ruby laughs — but it's a beat too late. 'You're a dag, you know that?' She ruffles your hair. But her eyes flick to the pool. Just for a second. 'Nah, you're right. I'm just tired. Big day.' She walks inside. You watch her go. And you wonder if you imagined the flick.", nextScene: 'noah_5', addsFlags: ['humor_deflect'], energyCost: 5 }
+          ],
+          fallback: "Ruby is waiting. She's not quite looking at you.",
+          offensiveScene: 'noah_bad_1'
+        },
+        noah_5: {
+          npcName: 'Narrador',
+          npcText: "2 AM. You can't sleep. You pad out to the kitchen for a glass of water. That's when you see them — Ruby and Kai. At the edge of the infinity pool. The moon is full. Her feet are in the water. His hand is on her knee. She's not pulling away. He leans in. Close. Too close.",
+          energyCost: 20,
+          glossary: [
+            { word: 'Pad out', meaning: 'Andar sem fazer barulho (como um gato)' },
+            { word: 'Infinity pool', meaning: 'Piscina de borda infinita (aquela que parece se fundir com o horizonte)' },
+            { word: 'Not pulling away', meaning: 'Não se afastando — ela está permitindo a proximidade' }
+          ],
+          quickReplies: [
+            { label: 'Assistir em silêncio.', text: "..." },
+            { label: 'Interromper.', text: "Ruby. It's late. Come to bed." },
+            { label: 'Voltar pra cama e confiar.', text: "I'm going back to bed. I have to trust her." }
+          ],
+          intents: [
+            { match: /(\.\.\.)/i, response: "You stay in the shadows. Kai says something. Ruby laughs — that low, private laugh she used to save for you. Then she leans in. Her lips brush his cheek. A whisper. He says something back. She pulls away, smiling. She stands up. She's walking back inside. She hasn't seen you. You have one second to decide what to do. But you don't move. You can't. And she walks past you in the dark.", nextScene: 'noah_6', addsFlags: ['watched_silently', 'near_kiss_seen'], energyCost: 5 },
+            { match: /(come to bed|late|interrupt)/i, response: "Your voice cuts through the night. Ruby jumps. Kai stands up slowly, like he's got all the time in the world. 'Noah. Hey. We were just talking.' Ruby won't look at you. She walks past you, inside, without a word. Kai grins. 'She's a good one, mate. Don't stuff it up.' He pats your shoulder. You want to hit him. You don't.", nextScene: 'noah_6', addsFlags: ['interrupted_almost_kiss'], energyCost: 10 },
+            { match: /(back to bed|trust|going back|confiar)/i, response: "You turn around and walk back to bed. It's the hardest thing you've ever done. You lie there, staring at the ceiling, for two hours. When Ruby finally comes to bed, she smells like chlorine and something else. Something floral. Kai's cologne. She doesn't say a word. You don't either. But you both know.", nextScene: 'noah_6', addsFlags: ['walked_away', 'suffered_silently'], energyCost: 15 }
+          ],
+          fallback: "They're right there. The water is still. The night is silent. What do you do?",
+          offensiveScene: 'noah_bad_2'
+        },
+
+        // ============================================================
+        // ATO 2: O RECOUPLING E A TENTAÇÃO (cenas 6–10)
+        // ============================================================
+        noah_6: {
+          npcName: 'Ruby (Your Partner)',
+          npcText: "Morning. You were gone when I woke up. Everything... alright? You've been proper quiet since last night.",
+          energyCost: 10,
+          glossary: [
+            { word: 'Proper quiet', meaning: 'Muito quieto / calado (proper = intensificador)' },
+            { word: 'Gone', meaning: 'Fora / ausente' }
+          ],
+          quickReplies: [
+            { label: 'Confrontar o que viu.', text: "I saw you. By the pool. With Kai. At 2 AM." },
+            { label: 'Engolir o ciúme.', text: "Yeah. Just tired. Slept badly." },
+            { label: 'Ser passivo-agressivo.', text: "Nothing. Just wondering what you and Kai talked about for so long." }
+          ],
+          intents: [
+            { match: /(saw you|pool|kai|2 am|confront)/i, response: "Ruby's face goes pale. 'Noah... it wasn't what it looked like.' She steps closer, her voice dropping to a whisper so the mics don't pick it up. 'He was just... he was saying things. And I was listening. That's all. I swear on me mum's life.' She reaches for your hand. 'Do you believe me?'", nextScene: 'noah_7', addsFlags: ['confronted_pool_incident'], energyCost: 5 },
+            { match: /(tired|slept badly|engolir)/i, response: "Ruby nods slowly. 'Right.' She doesn't believe you. But she lets it go. 'Well... Bree just called a meeting. Recoupling tonight.' She looks at you, her eyes searching yours. 'You gonna pick me? Or am I gonna have to graft?'", nextScene: 'noah_7', addsFlags: ['swallowed_jealousy'], energyCost: 0 },
+            { match: /(nothing|wondering|talked about|passive)/i, response: "Ruby's jaw tightens. 'So that's how it is.' She crosses her arms. 'If you've got something to say, Noah, say it to my face. Don't do the passive-aggressive bullshit.' She turns and walks toward the fire pit. 'Recoupling's tonight. Better sort your head out.'", nextScene: 'noah_7', addsFlags: ['passive_aggressive_fight'], energyCost: 5 }
+          ],
+          fallback: "Ruby is looking at you. She knows you saw something.",
+          offensiveScene: 'noah_bad_1'
+        },
+        noah_7: {
+          npcName: 'Bree (Producer, Off-Camera)',
+          npcText: "Alright, legends! Gather round the fire pit. Tonight, we have a recoupling. The boys will choose. And remember — a new bombshell is in the villa. Chloe. She's a ripper sort. Noah, since you're up first... who are you picking?",
+          energyCost: 20,
+          glossary: [
+            { word: 'Ripper sort', meaning: 'Alguém muito atraente / "um espetáculo" (gíria australiana)' },
+            { word: 'Recoupling', meaning: 'Cerimônia onde os participantes escolhem com quem ficar (jargão de Love Island)' },
+            { word: 'Fire pit', meaning: 'Fogueira (onde acontecem as cerimônias no reality)' }
+          ],
+          quickReplies: [
+            { label: 'Escolher Ruby (Lealdade).', text: "I'm sticking with Ruby. She's my girl." },
+            { label: 'Escolher Chloe (Vingança).', text: "I want to get to know Chloe. I need to see what's out there." },
+            { label: 'Ficar sozinho (Poder).', text: "I'm not picking anyone tonight. I'm stepping back." }
+          ],
+          intents: [
+            { match: /(ruby|sticking|loyalty|my girl)/i, response: "Ruby exhales, a massive smile breaking across her face. She walks over and takes your hand. 'Thank you,' she whispers. But then Kai steps up. 'Well, since Noah's taken... I'll take Ruby.' The villa gasps. Ruby looks at you, sheer panic in her eyes. She has to go stand with Kai.", nextScene: 'noah_8', addsFlags: ['chose_ruby_kai_stole'], energyCost: 0 },
+            { match: /(chloe|revenge|get to know|out there)/i, response: "The villa goes dead silent. Ruby's mouth drops open. 'Seriously, Noah?' she whispers. Chloe, the new bombshell, steps forward with a smirk. 'Smart choice, Aussie.' She links her arm through yours. Ruby is forced to stand with Kai. The betrayal is written all over her face.", nextScene: 'noah_8', addsFlags: ['chose_chloe'], energyCost: 10 },
+            { match: /(no one|stepping back|power|alone)/i, response: "Bree raises an eyebrow. 'A bold move.' Ruby looks confused, then hurt. Kai immediately steps up. 'I'll take Ruby then.' Ruby looks at you, but you look away. She walks to Kai. Chloe, the bombshell, walks over to you. 'Well, you're a mysterious one, aren't ya? I like it.'", nextScene: 'noah_8', addsFlags: ['stepped_back'], energyCost: 5 }
+          ],
+          fallback: "The fire crackles. The whole villa is waiting for your choice.",
+          offensiveScene: 'noah_bad_1'
+        },
+          noah_8: {
+          npcName: 'Chloe (The New Bombshell)',
+          npcText: `So. You're Noah. The one with the... history. She hands you a stubby. "Don't worry, I've got a bit of a past meself. But I'm here for a good time. And right now, you look like you need one."`,
+          energyCost: 15,
+          glossary: [
+            { word: 'Stubby', meaning: 'Garrafa de cerveja (geralmente de 375ml na Austrália)' },
+            { word: 'Meself', meaning: 'Myself (sotaque australiano carregado)' },
+            { word: 'Good time', meaning: 'Diversão / Curtição' }
+          ],
+          npcTextVariants: [
+            { ifFlag: 'chose_ruby_kai_stole', text: `So. You're Noah. The one Ruby left for Kai. She hands you a stubby. "Tough break, mate. But I'm here for a good time. And right now, you look like you need one."` }
+          ],
+          quickReplies: [
+            { label: 'Flertar de volta.', text: "You're a ripper sort, Chloe. Reckon we'll get along just fine." },
+            { label: 'Ser honesto sobre Ruby.', text: "I'm still hung up on Ruby. I don't want to lead you on." },
+            { label: 'Desabafar.', text: "I've been mugged off, Chloe. I just need a drink." }
+          ],
+          intents: [
+            { match: /(ripper|fine|flirt|reckon)/i, response: "Chloe grins, leaning in close. 'I knew I liked you.' She clinks her stubby against yours. 'Let's have a crack, then.' From across the villa, you feel Ruby's eyes burning into the back of your head.", nextScene: 'noah_9', addsFlags: ['flirted_chloe'], energyCost: -10 },
+            { match: /(honest|hung up|lead her on)/i, response: "Chloe's smile softens. 'Fair enough. Honesty is rare in here.' She pats your shoulder. 'But if she breaks your heart, I'm right here, mate.' She walks off. You respect her for that.", nextScene: 'noah_9', addsFlags: ['honest_with_chloe'] },
+            { match: /(mugged off|drink|desabafar)/i, response: "Chloe nods knowingly. 'Been there. Kai's a proper snake. Everyone knows it.' She takes a swig. 'You need to play the game, Noah. Or the game plays you.' She hands you the bottle. 'Bottoms up.'", nextScene: 'noah_9', addsFlags: ['bonded_with_chloe'], energyCost: 5 }
+          ],
+          fallback: "Chloe is waiting. She's trouble, but the fun kind.",
+          offensiveScene: 'noah_bad_1'
+        },
+        noah_9: {
+          npcName: 'Bree (Producer, Off-Camera)',
+          npcText: "Alright, Islanders! It's time for the Heart Rate Challenge! The boys will perform a saucy dance for the girls, and the girl who raises their heart rate the most wins a date. Noah, you're up first. Ruby, Chloe, and Sienna are waiting.",
+          energyCost: 20,
+          glossary: [
+            { word: 'Saucy', meaning: 'Picante / Atrevido' },
+            { word: 'Heart Rate Challenge', meaning: 'Desafio clássico de Love Island onde os participantes dançam de forma sensual para aumentar os batimentos cardíacos uns dos outros' }
+          ],
+          quickReplies: [
+            { label: 'Focar 100% na Ruby.', text: "..." },
+            { label: 'Focar na Chloe (Vingança).', text: "..." },
+            { label: 'Fazer um show para todas.', text: "..." }
+          ],
+          intents: [
+            { match: /(\.\.\.)/i, response: "You put on the firefighter outfit. When it's your turn, you ignore everyone else and walk straight to Ruby. You pull her close, your lips brushing her ear. 'You're the only one I see.' Her heart monitor spikes to 150 BPM. She looks at you, completely breathless. But Kai is watching from the sidelines, furious.", nextScene: 'noah_10', addsFlags: ['danced_for_ruby'], energyCost: -15 },
+            { match: /(\.\.\.)/i, response: "You lock eyes with Chloe and give her a devilish smirk. You pull her up and give her a proper Aussie grind. She gasps, throwing her head back. Her monitor hits 160 BPM. Ruby stands up from her chair, her face a mask of pure jealousy. 'Right,' she mutters. 'Two can play at that game.'", nextScene: 'noah_10', addsFlags: ['danced_for_chloe'], energyCost: 0 },
+            { match: /(\.\.\.)/i, response: "You rip off the shirt completely, giving the villa a full show. You pull Sienna up, spin Chloe around, and finish with a wink at Ruby. The whole villa is screaming. All three monitors spike. You're the winner. But the tension in the room is so thick you could cut it with a knife.", nextScene: 'noah_10', addsFlags: ['full_strip_show'], energyCost: 10 }
+          ],
+          fallback: "The music is pumping. The villa is watching. Time to move.",
+          offensiveScene: 'noah_bad_2'
+        },
+        noah_10: {
+          npcName: 'Narrador',
+          npcText: "Later that night. The villa is asleep. You wake up to a noise. You walk out to the terrace. Ruby is there. But she's not alone. She's in the Hideaway corner, whispering with Kai. Her hand is on his chest. He's leaning in to kiss her. This is it. The moment of truth.",
+          energyCost: 25,
+          glossary: [
+            { word: 'Hideaway', meaning: 'Quarto privado no reality show para os casais terem intimidade (jargão de Love Island)' },
+            { word: 'Terrace', meaning: 'Terraço' },
+            { word: 'Moment of truth', meaning: 'Momento da verdade' }
+          ],
+          quickReplies: [
+            { label: 'Invadir e confrontar.', text: "Oi! Get your hands off her, mate." },
+            { label: 'Dar um ultimato.', text: "Ruby. If you do this, we're done. I mean it." },
+            { label: 'Vingar-se na hora.', text: "..." }
+          ],
+          intents: [
+            { match: /(confront|hands off|invadir)/i, response: "You stride out. Kai drops his hands. 'Noah, mate, chill—' 'Shut up.' You look at Ruby. 'Is this what you want? Him?' Ruby bursts into tears. 'No! I don't know! I'm so confused!' Kai steps back. 'I'll leave you two to it.' He walks away. Ruby is crying.", nextScene: 'noah_11', addsFlags: ['confronted_terrace'], energyCost: 10 },
+            { match: /(ultimatum|done|mean it|dar um ultimato)/i, response: "Your voice is cold. 'Ruby.' She freezes. Kai stops. 'Noah. I—' 'If you kiss him, we're done. I'm not doing this again.' The silence is deafening. Ruby looks at Kai, then back at you. She steps away from Kai. 'I'm sorry,' she whispers. But you don't know if she means it.", nextScene: 'noah_11', addsFlags: ['gave_ultimatum'], energyCost: 5 },
+            { match: /(find chloe|vingar|walk away)/i, response: "You don't say a word. You just turn around and walk into the villa. You knock on Chloe's door. She opens it, sleepy. 'Noah?' 'I'm done,' you say. 'I'm done with her.' Chloe pulls you inside. The door closes. Ruby doesn't see it. But the cameras do.", nextScene: 'noah_11', addsFlags: ['revenge_chloe'], energyCost: 0 }
+          ],
+          fallback: "They're inches apart. You have one chance to stop this.",
+          offensiveScene: 'noah_bad_2'
+        },
+
+        // ============================================================
+        // ATO 3: O ESCÂNDALO E A VERDADE (cenas 11-15)
+        // ============================================================
+        noah_11: {
+          npcName: 'Ruby (Your Partner)',
+          npcText: "Noah. We need to talk. About last night. About Kai. About... everything. Please.",
+          energyCost: 15,
+          glossary: [
+            { word: 'Row', meaning: 'Briga / Discussão acalorada' },
+            { word: 'Snakey', meaning: 'Falso / Traiçoeiro (jargão do reality)' }
+          ],
+          quickReplies: [
+            { label: 'Ouvir o que ela tem a dizer.', text: "I'm listening, Ruby. But no more lies." },
+            { label: 'Confrontar sobre a traição.', text: "You were going to kiss him. Weren't you?" },
+            { label: 'Terminar de vez.', text: "We're done. I can't trust you anymore." }
+          ],
+          intents: [
+            { match: /(listening|no more lies|ouvir)/i, response: "Ruby takes a deep breath, tears in her eyes. 'Kai told me you were only playing the game. He said you were using me to fix your image. And I believed him for a second.' She grabs your hands. 'But I know you, Noah. I know you're a good man. I'm sorry I doubted you.'", nextScene: 'noah_12', addsFlags: ['listened_ruby'], energyCost: -10 },
+            { match: /(kiss him|weren't you|confrontar)/i, response: "Ruby flinches. 'I... I don't know what I was doing. He was just there, and you were being so distant.' She starts crying. 'I'm sorry. I'm so sorry. Nothing happened. I swear.'", nextScene: 'noah_12', addsFlags: ['confronted_harshly'] },
+            { match: /(done|can't trust|terminar)/i, response: "Ruby's face crumbles. 'Noah, please. Don't do this.' But you walk away. You walk straight to Chloe. The villa watches the new power couple form. Ruby runs inside, crying. The producers are eating this up.", nextScene: 'noah_12', addsFlags: ['dumped_ruby'], energyCost: 5 }
+          ],
+          fallback: "Ruby is waiting for your answer.",
+          offensiveScene: 'noah_bad_2'
+        },
+        noah_12: {
+          npcName: 'Bree (Producer, Off-Camera)',
+          npcText: "Gather round, Islanders! It's time for Movie Night! Grab the popcorn and the Tim Tams. We're showing you exactly what's been said behind your backs this week. Roll the tape!",
+          energyCost: 20,
+          glossary: [
+            { word: 'Roll the tape', meaning: 'Rolar o vídeo / Começar a gravação' },
+            { word: 'Movie Night', meaning: 'Evento clássico de reality onde eles mostram os confessionais e segredos uns dos outros' }
+          ],
+          quickReplies: [
+            { label: 'Assistir em silêncio.', text: "..." },
+            { label: 'Preparar para o caos.', text: "This is gonna be a bloody disaster." },
+            { label: 'Olhar para o Kai.', text: "Let's see what the snake has been saying." }
+          ],
+          intents: [
+            { match: /(\.\.\.)/i, response: "The screen lights up. First, your confessional plays. The whole villa hears you talk about your past cheating. Ruby looks at you, her eyes wide. Then, Kai's confessional plays. 'Noah's a mug. Ruby's just a game to me. I'm here for the cash.' The villa gasps. Ruby stands up, furious.", nextScene: 'noah_13', addsFlags: ['movie_night_chaos'], energyCost: 5 },
+            { match: /(bloody disaster|preparar)/i, response: "The screen lights up. The first clip is Kai. 'Noah's a mug. Ruby's just a game to me.' The villa gasps. Ruby throws her drink at Kai. 'You snake!' she screams. Then, your confessional plays about your past. Ruby stops, looks at you. 'Noah... is that true?'", nextScene: 'noah_13', addsFlags: ['movie_night_chaos'], energyCost: 5 },
+            { match: /(snake|what the snake|olhar)/i, response: "You stare at Kai as the screen lights up. The first clip is Kai talking to the producers. 'Noah's a mug. Ruby's just a game to me.' The villa erupts. Ruby is screaming at Kai. Kai is trying to defend himself. But then the screen cuts to your confessional about your cheating past. The villa goes silent.", nextScene: 'noah_13', addsFlags: ['movie_night_chaos'], energyCost: 5 }
+          ],
+          fallback: "The screen is about to play the clips. The tension is unbearable.",
+          offensiveScene: 'noah_bad_2'
+        },
+        noah_13: {
+          npcName: 'Fitzy (The Wildcard)',
+          npcText: "Mate. Mate! Over here. I just overheard the producers talking. Kai isn't even a real contestant. He's an actor. They hired him to break you and Ruby up for ratings. It's all a setup.",
+          energyCost: 25,
+          glossary: [
+            { word: 'Setup', meaning: 'Armação / Plano montado' },
+            { word: 'Overheard', meaning: 'Ouviu por acaso' },
+            { word: 'Ratings', meaning: 'Audiência (de TV)' }
+          ],
+          quickReplies: [
+            { label: 'Expor o Kai ao vivo.', text: "We're taking this to the fire pit. Right now." },
+            { label: 'Contar para a Ruby primeiro.', text: "Ruby. I need to tell you something. It's about Kai." },
+            { label: 'Usar isso para ganhar.', text: "If it's a game, I'm going to win it." }
+          ],
+          intents: [
+            { match: /(fire pit|right now|expor)/i, response: "You grab Fitzy and march to the fire pit. 'Bree! Get out here!' The cameras scramble. You call out Kai. 'Tell them, Kai. Tell them you're an actor.' Kai's face goes pale. The villa gasps. You've exposed the biggest secret of the show.", nextScene: 'noah_14', addsFlags: ['exposed_kai_publicly'], energyCost: -10 },
+            { match: /(ruby|tell her|primeiro)/i, response: "You pull Ruby aside. 'He's an actor, Ruby. The producers hired him to break us up.' Ruby's eyes widen. 'What? Are you sure?' Fitzy nods. 'Deadset, love.' Ruby looks at Kai with pure disgust. 'I'm gonna kill him.'", nextScene: 'noah_14', addsFlags: ['told_ruby_about_kai'], energyCost: 0 },
+            { match: /(game|win|usar)/i, response: "You smirk. 'Right. So it's all fake.' You walk over to Bree. 'I want immunity. Or I tell everyone that Kai is an actor.' Bree's face pales. 'You wouldn't.' 'Try me.' You've just blackmailed the producers.", nextScene: 'noah_14', addsFlags: ['blackmailed_producers'], energyCost: 10 }
+          ],
+          fallback: "Fitzy is looking at you, waiting for your next move.",
+          offensiveScene: 'noah_bad_2'
+        },
+        noah_14: {
+          npcName: 'Bree (Producer, Off-Camera)',
+          npcText: "Alright, Islanders. It's the FINAL RECOUPLING. Tonight, you choose who you want to leave the villa with. Noah, it's your turn. Make your speech.",
+          energyCost: 30,
+          glossary: [
+            { word: 'Final Recoupling', meaning: 'A última cerimônia de escolha do reality show' },
+            { word: 'Speech', meaning: 'Discurso (no caso, a declaração antes de escolher o par)' }
+          ],
+          quickReplies: [
+            { label: 'Escolher Ruby e pedir desculpas.', text: "I choose Ruby. I'm sorry for doubting us. You're my girl." },
+            { label: 'Escolher Chloe e quebrar tudo.', text: "I choose Chloe. We're gonna have a crack at this." },
+            { label: 'Expor a produção e sair sozinho.', text: "I choose myself. This show is a lie. I'm out." }
+          ],
+          intents: [
+            { match: /(ruby|sorry|my girl|escolher ruby)/i, response: "You walk over to Ruby. She's crying. 'I choose Ruby. Because despite everything, you're the only one I see.' Ruby hugs you tightly. The audience cheers. But Bree looks furious. You defied the script.", nextScene: 'noah_15', addsFlags: ['chose_ruby_final'], energyCost: -15 },
+            { match: /(chloe|have a crack|escolher chloe)/i, response: "You walk over to Chloe. She grins. 'I choose Chloe. Let's cause some chaos.' Ruby's face falls. Kai is smirking. But you don't care. You're here to win, and Chloe is the ultimate wildcard.", nextScene: 'noah_15', addsFlags: ['chose_chloe_final'], energyCost: 0 },
+            { match: /(myself|lie|out|sozinho)/i, response: "You step forward. 'I choose myself. This show is rigged. Kai is an actor. The producers set us all up.' The villa erupts. Bree screams, 'Cut the feed!' But it's too late. The truth is out.", nextScene: 'noah_15', addsFlags: ['exposed_everything'], energyCost: 10 }
+          ],
+          fallback: "The fire pit is quiet. All eyes are on you.",
+          offensiveScene: 'noah_bad_2'
+        },
+        noah_15: {
+          npcName: 'Narrador',
+          npcText: "The final results are in. The public has voted. You stand in front of Bree, Ruby, and the rest of the villa. The tension is palpable. Bree opens the envelope. 'The winners of Cove of Secrets are...'",
+          energyCost: 10,
+          quickReplies: [
+            { label: 'Aguardar o resultado.', text: "..." }
+          ],
+          intents: [
+            { match: /(\.\.\.)/i, response: "The lights flash. The music swells. You brace yourself for the announcement.", nextScene: 'noah_end_good' }
+          ],
+          fallback: "The moment of truth.",
+          offensiveScene: 'noah_bad_2'
+        },
+
+        // ============================================================
+        // FINAIS (Good / Chaos / Bad)
+        // ============================================================
+        noah_end_good: {
+          npcName: 'Narrador',
+          npcText: "Bree smiles through gritted teeth. 'The winners are Noah and Ruby!' The villa explodes in cheers. Ruby jumps into your arms. You won. You survived the bombshell, the scheming, and the heartbreak. You found something real in a house of lies. (Final Bom)",
+          isEnd: true,
+          endingType: 'bom'
+        },
+        noah_end_chaos: {
+          npcName: 'Narrador',
+          npcText: "Bree looks horrified. 'The winners are... Noah and Chloe?' Chloe screams with laughter. You won, but you know the relationship is pure chaos. But hey, the money is real, and the chaos is fun. (Final Bom - Caos)",
+          isEnd: true,
+          endingType: 'bom'
+        },
+        noah_bad_1: {
+          npcName: 'Bree (Producer)',
+          npcText: "Righto, Noah. That was... not it. The audience wants authenticity, love, and you're giving them a bloke who's too in his own head. The producers have decided. You're out. Car's out front. Don't forget your sunnies. (Final Ruim)",
+          isEnd: true,
+          endingType: 'ruim'
+        },
+        noah_bad_2: {
+          npcName: 'Narrador',
+          npcText: "You wake up alone. Ruby's side of the bed is empty. Her things are gone. On the nightstand, a note in her handwriting: 'I'm sorry. I couldn't do it anymore. I hope you find what you're looking for.' The cameras are still rolling. They got their shot. (Final Ruim)",
+          isEnd: true,
+          endingType: 'ruim'
+        },
+        noah_bad_3: {
+          npcName: 'Narrador',
+          npcText: "You exposed the show, but the producers cut the feed and kicked you out before you could finish. The public thinks you're a paranoid liar. You're banned from reality TV forever. You lost the girl, the money, and the reputation. (Final Ruim)",
+          isEnd: true,
+          endingType: 'ruim'
+        }
+      }
+    }
+  }
+};
+window.currentGameDataC2 = gameDataC2;
