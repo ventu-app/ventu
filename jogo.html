@@ -179,6 +179,7 @@
     <script src="src/data/b1.js"></script>
     <script src="src/data/b2.js"></script>
     <script src="src/data/c1.js"></script>
+    <script src="src/data/c2.js"></script>
 
     <script>
         const params = new URLSearchParams(window.location.search);
@@ -193,7 +194,8 @@
             'a2': typeof gameDataA2 !== 'undefined' ? gameDataA2 : null,
             'b1': typeof gameDataB1 !== 'undefined' ? gameDataB1 : null,
             'b2': typeof gameDataB2 !== 'undefined' ? gameDataB2 : null,
-            'c1': typeof gameDataC1 !== 'undefined' ? gameDataC1 : null
+            'c1': typeof gameDataC1 !== 'undefined' ? gameDataC1 : null,
+            'c2': typeof gameDataC2 !== 'undefined' ? gameDataC2 : null
         };
 
         if (games[urlLevel]) {

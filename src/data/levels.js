@@ -65,7 +65,7 @@
     cefr: 'C2',
     color: '#eab308',
     icon: '♟️',
-    available: false,
+    available: true,
     desc: 'Crises de imprensa, retórica de manipulação, política pesada e charme no mais alto nível.',
     mascot: '♟️',
     ventuSays: "O jogo final. Cada palavra pode ser uma armadilha. Manipule, debata e vença sem que ninguém perceba.",
