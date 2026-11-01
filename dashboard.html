@@ -114,7 +114,7 @@
 
   <header class="site-header">
     <div class="container header-inner">
-      <a href="index.html" class="logo">
+      <a href="/" class="logo">
         <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 22 46 L 25 22 L 36 38 Z" fill="#ea580c"/><path d="M 78 46 L 75 22 L 64 38 Z" fill="#ea580c"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><circle cx="36" cy="56" r="1.2" fill="#fff"/><circle cx="66" cy="56" r="1.2" fill="#fff"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/></svg>
         <span class="logo-text">VENTU</span>
       </a>
@@ -235,7 +235,7 @@
         const authArea = document.getElementById('auth-area');
         authArea.innerHTML = `
             <span style="color: var(--gold); font-weight: bold; background: rgba(251, 191, 36, 0.1); padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(251, 191, 36, 0.2); font-size:0.85rem;">⭐ ${xp} XP</span>
-            <a href="index.html" class="btn btn-ghost">Home</a>
+            <a href="/" class="btn btn-ghost">Home</a>
             <button class="btn btn-ghost" id="btn-logout">Sair</button>
         `;
 
@@ -249,15 +249,17 @@
       // --- 3. RENDERIZAR O GRID ---
       try {
         const levelsData = [
+  // DEBUG: B2 status =  + JSON.stringify(levelsData.find(l => l.id === 'b2')) + 
+
             { id: 'a1', cefr: 'A1', title: 'Vila Sobrevivente', icon: '🏘️', color: '#10b981', available: true, desc: 'Pedir comida, andar pela cidade e se virar no básico.' },
             { id: 'a2', cefr: 'A2', title: 'Porto Hotel', icon: '🏨', color: '#3b82f6', available: true, desc: 'Resolver pepinos do dia a dia, check-in e farmácia.' },
             { id: 'b1', cefr: 'B1', title: 'Caos Cotidiano', icon: '🚑', color: '#f97316', available: true, desc: 'Clínica de madrugada, apartamento alagado e burocracia.' },
             { id: 'b2', cefr: 'B2', title: 'O Negociador', icon: '💼', color: '#8b5cf6', available: true, desc: 'Clientes furiosos, entrevistas de emprego e acordos.' },
             { id: 'c1', cefr: 'C1', title: 'O Mediador', icon: '🎭', color: '#ef4444', available: true, desc: 'Jantares de família, ironia, sarcasmo e política.' },
             { id: 'c2', cefr: 'C2', title: 'O Estrategista', icon: '♟️', color: '#eab308', available: true, desc: 'Conselhos hostis, crises de imprensa e persuasão pura.' },
-            { id: 'social', cefr: 'B1+', title: 'Bairro do Flerte', icon: '💕', color: '#ec4899', available: false, badge: '18+', desc: 'Dates, flerte, humor e detecção de red flags.' },
-            { id: 'street', cefr: 'B2+', title: 'Beco da Rua', icon: '🔥', color: '#e11d48', available: false, badge: '18+', desc: 'Conflito, insultos, palavrões e como se impor.' },
-            { id: 'abroad', cefr: 'B1+/B2+', title: 'Vida no Exterior', icon: '✈️', color: '#06b6d4', available: false, badge: 'MORAR FORA', desc: 'Entrevistas, host family, aluguel e sobrevivência fora do país.' }
+            { id: 'social', cefr: 'B1+', title: 'Bairro do Flerte', icon: '💕', color: '#ec4899', available: true, badge: '18+', desc: 'Dates, flerte, humor e detecção de red flags.' },
+            { id: 'street', cefr: 'B2+', title: 'Beco da Rua', icon: '🔥', color: '#e11d48', available: true, badge: '18+', desc: 'Conflito, insultos, palavrões e como se impor.' },
+            { id: 'abroad', cefr: 'B1+/B2+', title: 'Vida no Exterior', icon: '✈️', color: '#06b6d4', available: true, badge: 'MORAR FORA', desc: 'Entrevistas, host family, aluguel e sobrevivência fora do país.' }
         ];
 
         const grid = document.getElementById('levels-grid');
@@ -272,7 +274,7 @@
             if (completedLevels[level.id] && completedLevels[level.id].length > 0) {
                 statusHtml = `<span class="status-tag status-done">✅ Concluído</span>`;
             } else if (!level.available) {
-                statusHtml = `<span class="status-tag status-locked">🔒 Bloqueado</span>`;
+                statusHtml = `<span class="status-tag status-locked"> Bloqueado</span>`;
             } else {
                 statusHtml = `<span class="status-tag" style="color:var(--gold);">▶ Jogar</span>`;
             }
