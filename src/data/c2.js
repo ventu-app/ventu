@@ -29,12 +29,12 @@ const gameDataC2 = {
             { word: 'You right?', meaning: 'Você tá bem? (pergunta australiana clássica de preocupação)' }
           ],
           quickReplies: [
-            { label: 'Ser honesto e carinhoso.', text: "Just thinking about you, love. About us. I'm happy. Proper happy." },
+            { label: 'Ser honesto e carinhoso.', text: "Just thinking about you, babe. About us. I'm happy. Proper happy." },
             { label: 'Desviar com piada.', text: "Just dreamin' about the barbie later. I'm starvin', gorgeous." },
             { label: 'Ser vago e fechado.', text: "Nothin'. Just a lot on my mind." }
           ],
           intents: [
-            { match: /(happy|us|love|thinking about you)/i, response: "Ruby's face softens — that slow, sleepy smile that made you forget your own name a week ago. 'Yeah? Me too.' She leans in and kisses you, slow and easy. Then the villa speakers crackle to life: 'ISLANDERS. A new bombshell arrives this arvo. Get ready to graft.' Ruby pulls back. Her smile drops. Just for a second. Then it's back. 'Well,' she says. 'Bombshell, eh?'", nextScene: 'noah_2', addsFlags: ['warm_morning'] },
+            { match: /(happy|us|babe|thinking about you)/i, response: "Ruby's face softens — that slow, sleepy smile that made you forget your own name a week ago. 'Yeah? Me too.' She leans in and kisses you, slow and easy. Then the villa speakers crackle to life: 'ISLANDERS. A new bombshell arrives this arvo. Get ready to graft.' Ruby pulls back. Her smile drops. Just for a second. Then it's back. 'Well,' she says. 'Bombshell, eh?'", nextScene: 'noah_2', addsFlags: ['warm_morning'] },
             { match: /(barbie|starvin'|dreamin'|food)/i, response: "Ruby laughs — that big, unguarded laugh. 'You're a deadset galah, you know that?' She pokes your ribs. Then the speakers crackle. 'ISLANDERS. A new bombshell arrives this arvo.' Ruby stops laughing. 'Bombshell, eh?' She looks at the door. You follow her gaze. Neither of you says anything.", nextScene: 'noah_2', addsFlags: ['deflected_with_humor'] },
             { match: /(nothin'|nothing|mind)/i, response: "Ruby's eyes narrow. 'Right.' She gets up, pulls on her sunnies, and walks out to the balcony. Then the speakers crackle: 'ISLANDERS. A new bombshell arrives this arvo.' You hear her exhale on the balcony. She doesn't turn around.", nextScene: 'noah_2', energyCost: 5, addsFlags: ['cold_start'] }
           ],
@@ -43,7 +43,7 @@ const gameDataC2 = {
         },
         noah_2: {
           npcName: 'Narrador',
-        npcText: "The door swings open and he walks in like he owns the place. Tanned. Tattooed. Jaw like a bloody axe. 'G'day, legends. Name's Kai. Reckon I'll be taking one of your ladies for a chat.' His eyes scan the villa. They land on Ruby. They stay there. He grins. 'You. Gorgeous. What's your name?'",
+          npcText: "The door swings open and he walks in like he owns the place. Tanned. Tattooed. Jaw like a bloody axe. 'G'day, legends. Name's Kai. Reckon I'll be taking one of your ladies for a chat.' His eyes scan the villa. They land on Ruby. They stay there. He grins. 'You. Gorgeous. What's your name?'",
           energyCost: 10,
           glossary: [
             { word: 'G\'day', meaning: 'Oi / Bom dia (saudação australiana icônica)' },
@@ -53,12 +53,12 @@ const gameDataC2 = {
           ],
           quickReplies: [
             { label: 'Confiar na Ruby e ficar de boa.', text: "..." },
-            { label: 'Interromper o chat.', text: "Oi. Ruby. Can I steal you for a sec, love?" },
+            { label: 'Interromper o chat.', text: "Oi. Ruby. Can I steal you for a sec, darl?" },
             { label: 'Falar com o Fitzy antes.', text: "Fitzy. What's this bloke's story?" }
           ],
           intents: [
             { match: /(\.\.\.)/i, response: "You watch from the daybed. Kai leans in close to Ruby. She laughs at something he says. Your gut twists. But you stay put. Ruby glances at you — once — and you give her a small nod. 'Go on,' you mouth. She smiles. The chat lasts twenty minutes. It feels like twenty years. When she comes back, she's... different. A little flushed. A little far away.", nextScene: 'noah_3', addsFlags: ['trusted_ruby_first'], energyCost: 5 },
-            { match: /(steal|chat|can i|love)/i, response: "Ruby looks up, surprised. 'Noah. We're just talking.' Kai smirks. 'Yeah, mate. Just a chat. No need to get your knickers in a knot.' You feel the eyes of the whole villa on you. Ruby's face flushes — and not in a good way. 'I'll be back in a bit,' she says, and walks off with Kai. She doesn't look back.", nextScene: 'noah_3', addsFlags: ['interrupted_chat'], energyCost: 10 },
+            { match: /(steal|chat|can i|darl)/i, response: "Ruby looks up, surprised. 'Noah. We're just talking.' Kai smirks. 'Yeah, mate. Just a chat. No need to get your knickers in a knot.' You feel the eyes of the whole villa on you. Ruby's face flushes — and not in a good way. 'I'll be back in a bit,' she says, and walks off with Kai. She doesn't look back.", nextScene: 'noah_3', addsFlags: ['interrupted_chat'], energyCost: 10 },
             { match: /(fitzy|story|bloke|what's)/i, response: "Fitzy takes a long pull from his stubby. 'That bloke? Kai. Real estate, Gold Coast. Been on three of these shows already. Never won. Reckons he's due.' He looks at you sideways. 'Watch your girl, mate. He's a proper snake. He'll plant a seed, then sit back and watch it grow.' He hands you the stubby. 'Here. You look like you need it.'", nextScene: 'noah_3', addsFlags: ['fitzy_warning'], energyCost: 0 }
           ],
           fallback: "Kai is walking toward Ruby. You have seconds to decide.",
@@ -70,7 +70,7 @@ const gameDataC2 = {
           energyCost: 15,
           glossary: [
             { word: 'Righto', meaning: 'Certo / Beleza / Entendido (interjeição australiana)' },
-            { word: 'Love', meaning: 'Querido / amor (termo australiano de afeto — usado com QUALQUER pessoa, não só romântico)' },
+            { word: 'Darl / Babe', meaning: 'Termos australianos de afeto (usados com parceiros ou pessoas próximas)' },
             { word: 'History', meaning: 'Histórico (no caso, o passado de infidelidade do Noah)' },
             { word: 'Confessional', meaning: 'Cabine onde os participantes falam sozinhos para a câmera (jargão de reality show)' }
           ],
@@ -311,7 +311,7 @@ const gameDataC2 = {
           ],
           intents: [
             { match: /(fire pit|right now|expor)/i, response: "You grab Fitzy and march to the fire pit. 'Bree! Get out here!' The cameras scramble. You call out Kai. 'Tell them, Kai. Tell them you're an actor.' Kai's face goes pale. The villa gasps. You've exposed the biggest secret of the show.", nextScene: 'noah_14', addsFlags: ['exposed_kai_publicly'], energyCost: -10 },
-            { match: /(ruby|tell her|primeiro)/i, response: "You pull Ruby aside. 'He's an actor, Ruby. The producers hired him to break us up.' Ruby's eyes widen. 'What? Are you sure?' Fitzy nods. 'Deadset, love.' Ruby looks at Kai with pure disgust. 'I'm gonna kill him.'", nextScene: 'noah_14', addsFlags: ['told_ruby_about_kai'], energyCost: 0 },
+            { match: /(ruby|tell her|primeiro)/i, response: "You pull Ruby aside. 'He's an actor, Ruby. The producers hired him to break us up.' Ruby's eyes widen. 'What? Are you sure?' Fitzy nods. 'Deadset, mate.' Ruby looks at Kai with pure disgust. 'I'm gonna kill him.'", nextScene: 'noah_14', addsFlags: ['told_ruby_about_kai'], energyCost: 0 },
             { match: /(game|win|usar)/i, response: "You smirk. 'Right. So it's all fake.' You walk over to Bree. 'I want immunity. Or I tell everyone that Kai is an actor.' Bree's face pales. 'You wouldn't.' 'Try me.' You've just blackmailed the producers.", nextScene: 'noah_14', addsFlags: ['blackmailed_producers'], energyCost: 10 }
           ],
           fallback: "Fitzy is looking at you, waiting for your next move.",
@@ -492,8 +492,8 @@ const gameDataC2 = {
             { label: 'Jogar o jogo.', text: "..." }
           ],
           intents: [
-            { match: /(\.\.\.)/i, response: "Zane doesn't dance. He just walks over, pulls you up, and whispers in your ear. 'You're the only one I see.' The monitor goes crazy. Dylan is next. He does a funny, choreographed dance with a fake rose. It's cute. The monitor barely moves. Everyone knows who won.", nextScene: 'sienna_5', addsFlags: ['zane_heart_race'], energyCost: -10 },
-            { match: /(\.\.\.)/i, response: "When Dylan dances, he looks at you with pure love. He's trying so hard. Your heart monitor goes up. But then Zane takes the stage. He locks eyes with you, takes his shirt off slowly, and smirks. The monitor spikes to 170. Dylan's face falls.", nextScene: 'sienna_5', addsFlags: ['dylan_heart_race'], energyCost: 0 },
+            { match: /(\.\.\.)/i, response: "Zane doesn't dance. He just walks over, pulls you up, and whispers in your ear. 'You're the only one I see.' His breath is hot against your neck. The monitor goes crazy, hitting 180 BPM. Dylan is next. He does a funny, choreographed dance with a fake rose. It's cute. The monitor barely moves. Everyone knows who won.", nextScene: 'sienna_5', addsFlags: ['zane_heart_race'], energyCost: -10 },
+            { match: /(\.\.\.)/i, response: "When Dylan dances, he looks at you with pure love. He's trying so hard. Your heart monitor goes up. But then Zane takes the stage. He locks eyes with you, takes his shirt off slowly, and smirks. The monitor spikes to 170. Dylan's face falls. The chemistry is undeniable.", nextScene: 'sienna_5', addsFlags: ['dylan_heart_race'], energyCost: 0 },
             { match: /(\.\.\.)/i, response: "You barely look at either of them. You just sit there, cold and calculating. When Zane dances, you smile. When Dylan dances, you clap. Both monitors go up. But nobody can tell who made your heart race more. The audience is going wild.", nextScene: 'sienna_5', addsFlags: ['played_both'], energyCost: 5 }
           ],
           fallback: "The music starts. Time to see who makes your heart race.",
@@ -602,16 +602,16 @@ const gameDataC2 = {
             { label: 'Sair do programa.', text: "I choose myself. I'm leaving." }
           ],
           intents: [
-            { match: /(zane|villains|winning|escolher zane)/i, response: "Zane walks over and takes your hand. 'Told you,' he whispers. 'Best things aren't safe.' The audience is divided. Some hate you, some love you. But you're in the final.", nextScene: 'sienna_10', addsFlags: ['chose_zane_final'], energyCost: 0 },
-            { match: /(dylan|sorry|better|escolher dylan)/i, response: "Dylan hesitates, then walks over and hugs you. 'We can fix this. We can be good.' Zane just shakes his head and walks away. You've chosen the redemption arc. The audience is eating it up.", nextScene: 'sienna_10', addsFlags: ['chose_dylan_final'], energyCost: 5 },
+            { match: /(zane|villains|winning|escolher zane)/i, response: "Zane walks over and takes your hand. 'Told you,' he whispers. 'Best things aren't safe.' The audience is divided. Some hate you, some love you. But you're in the final.", nextScene: 'sienna_10_zane', addsFlags: ['chose_zane_final'], energyCost: 0 },
+            { match: /(dylan|sorry|better|escolher dylan)/i, response: "Dylan hesitates, then walks over and hugs you. 'We can fix this. We can be good.' Zane just shakes his head and walks away. You've chosen the redemption arc. The audience is eating it up.", nextScene: 'sienna_10_dylan', addsFlags: ['chose_dylan_final'], energyCost: 5 },
             { match: /(myself|leaving|sair|sozinha)/i, response: "You step back. 'I choose myself. I'm done.' You drop your microphone. The villa gasps. Bree screams at the cameramen. You walk out of the villa and into the night.", nextScene: 'sienna_end_chaos', energyCost: 10 }
           ],
           fallback: "The fire pit is silent. Who do you choose?",
           offensiveScene: 'sienna_bad_2'
         },
-        sienna_10: {
+        sienna_10_zane: {
           npcName: 'Narrador',
-          npcText: "The final results are in. The public has voted. You stand in front of Bree. The tension is palpable. Bree opens the envelope. 'The winners of Cove of Secrets are...'",
+          npcText: "The final results are in. The public has voted. You stand in front of Bree. The tension is palpable. Bree opens the envelope, looking furious that the villains made it this far. 'The winners of Cove of Secrets are...'",
           energyCost: 10,
           quickReplies: [
             { label: 'Aguardar o resultado.', text: "..." }
@@ -622,13 +622,32 @@ const gameDataC2 = {
           fallback: "The moment of truth.",
           offensiveScene: 'sienna_bad_2'
         },
+        sienna_10_dylan: {
+          npcName: 'Narrador',
+          npcText: "The final results are in. The public has voted. You stand in front of Bree. The tension is palpable. Bree opens the envelope. 'The winners of Cove of Secrets are...'",
+          energyCost: 10,
+          quickReplies: [
+            { label: 'Aguardar o resultado.', text: "..." }
+          ],
+          intents: [
+            { match: /(\.\.\.)/i, response: "Dylan squeezes your hand so hard it hurts. He's crying. The lights flash.", nextScene: 'sienna_end_dylan' }
+          ],
+          fallback: "The moment of truth.",
+          offensiveScene: 'sienna_bad_2'
+        },
 
         // ============================================================
-        // FINAIS
+        // FINAIS DA SIENNA
         // ============================================================
         sienna_end_good: {
           npcName: 'Narrador',
-          npcText: "Bree smiles. 'The winners are Sienna and Zane!' The villa explodes. Zane lifts you up. You won. You were the villain, you played the game, and you got exactly what you wanted. The audience loves to hate you, and you love every second of it. (Final Bom)",
+          npcText: "Bree smiles through gritted teeth. 'The winners are Sienna and Zane!' The villa explodes. Zane lifts you up and kisses you. You won. You were the villain, you played the game, and you got exactly what you wanted. The audience loves to hate you, and you love every second of it. (Final Bom)",
+          isEnd: true,
+          endingType: 'bom'
+        },
+        sienna_end_dylan: {
+          npcName: 'Narrador',
+          npcText: "Bree forces a smile. 'The winners are Sienna and Dylan!' Dylan picks you up, crying happy tears. You might not have won as the ruthless villain, but you won as the girl who chose the good guy. The audience loves a redemption arc. (Final Bom - Redenção)",
           isEnd: true,
           endingType: 'bom'
         },
