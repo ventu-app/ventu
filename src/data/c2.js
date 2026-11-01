@@ -215,14 +215,14 @@ const gameDataC2 = {
             { word: 'Heart Rate Challenge', meaning: 'Desafio clássico de Love Island onde os participantes dançam de forma sensual para aumentar os batimentos cardíacos uns dos outros' }
           ],
           quickReplies: [
-            { label: 'Focar 100% na Ruby.', text: "..." },
-            { label: 'Focar na Chloe (Vingança).', text: "..." },
-            { label: 'Fazer um show para todas.', text: "..." }
+            { label: 'Focar 100% na Ruby.', text: "I'm dancing for Ruby." },
+            { label: 'Focar na Chloe (Vingança).', text: "I'm dancing for Chloe." },
+            { label: 'Fazer um show para todas.', text: "I'm dancing for everyone." }
           ],
           intents: [
-            { match: /(\.\.\.)/i, response: "You put on the firefighter outfit. When it's your turn, you ignore everyone else and walk straight to Ruby. You pull her close, your lips brushing her ear. 'You're the only one I see.' Her heart monitor spikes to 150 BPM. She looks at you, completely breathless. But Kai is watching from the sidelines, furious.", nextScene: 'noah_10', addsFlags: ['danced_for_ruby'], energyCost: -15 },
-            { match: /(\.\.\.)/i, response: "You lock eyes with Chloe and give her a devilish smirk. You pull her up and give her a proper Aussie grind. She gasps, throwing her head back. Her monitor hits 160 BPM. Ruby stands up from her chair, her face a mask of pure jealousy. 'Right,' she mutters. 'Two can play at that game.'", nextScene: 'noah_10', addsFlags: ['danced_for_chloe'], energyCost: 0 },
-            { match: /(\.\.\.)/i, response: "You rip off the shirt completely, giving the villa a full show. You pull Sienna up, spin Chloe around, and finish with a wink at Ruby. The whole villa is screaming. All three monitors spike. You're the winner. But the tension in the room is so thick you could cut it with a knife.", nextScene: 'noah_10', addsFlags: ['full_strip_show'], energyCost: 10 }
+            { match: /(ruby)/i, response: "You put on the firefighter outfit. When it's your turn, you ignore everyone else and walk straight to Ruby. You pull her close, your lips brushing her ear. 'You're the only one I see.' Her heart monitor spikes to 150 BPM. She looks at you, completely breathless. But Kai is watching from the sidelines, furious.", nextScene: 'noah_10', addsFlags: ['danced_for_ruby'], energyCost: -15 },
+            { match: /(chloe)/i, response: "You lock eyes with Chloe and give her a devilish smirk. You pull her up and give her a proper Aussie grind. She gasps, throwing her head back. Her monitor hits 160 BPM. Ruby stands up from her chair, her face a mask of pure jealousy. 'Right,' she mutters. 'Two can play at that game.'", nextScene: 'noah_10', addsFlags: ['danced_for_chloe'], energyCost: 0 },
+            { match: /(everyone)/i, response: "You rip off the shirt completely, giving the villa a full show. You pull Sienna up, spin Chloe around, and finish with a wink at Ruby. The whole villa is screaming. All three monitors spike. You're the winner. But the tension in the room is so thick you could cut it with a knife.", nextScene: 'noah_10', addsFlags: ['full_strip_show'], energyCost: 10 }
           ],
           fallback: "The music is pumping. The villa is watching. Time to move.",
           offensiveScene: 'noah_bad_2'
@@ -239,7 +239,7 @@ const gameDataC2 = {
           quickReplies: [
             { label: 'Invadir e confrontar.', text: "Oi! Get your hands off her, mate." },
             { label: 'Dar um ultimato.', text: "Ruby. If you do this, we're done. I mean it." },
-            { label: 'Vingar-se na hora.', text: "..." }
+            { label: 'Vingar-se na hora.', text: "I'm going to find Chloe." }
           ],
           intents: [
             { match: /(confront|hands off|invadir)/i, response: "You stride out. Kai drops his hands. 'Noah, mate, chill—' 'Shut up.' You look at Ruby. 'Is this what you want? Him?' Ruby bursts into tears. 'No! I don't know! I'm so confused!' Kai steps back. 'I'll leave you two to it.' He walks away. Ruby is crying.", nextScene: 'noah_11', addsFlags: ['confronted_terrace'], energyCost: 10 },
@@ -283,14 +283,14 @@ const gameDataC2 = {
             { word: 'Movie Night', meaning: 'Evento clássico de reality onde eles mostram os confessionais e segredos uns dos outros' }
           ],
           quickReplies: [
-            { label: 'Assistir em silêncio.', text: "..." },
-            { label: 'Preparar para o caos.', text: "This is gonna be a bloody disaster." },
-            { label: 'Olhar para o Kai.', text: "Let's see what the snake has been saying." }
+            { label: 'Assistir em silêncio.', text: "Watch in silence." },
+            { label: 'Preparar para o caos.', text: "Prepare for chaos." },
+            { label: 'Olhar para o Kai.', text: "Look at Kai." }
           ],
           intents: [
-            { match: /(\.\.\.)/i, response: "The screen lights up. First, your confessional plays. The whole villa hears you talk about your past cheating. Ruby looks at you, her eyes wide. Then, Kai's confessional plays. 'Noah's a mug. Ruby's just a game to me. I'm here for the cash.' The villa gasps. Ruby stands up, furious.", nextScene: 'noah_13', addsFlags: ['movie_night_chaos'], energyCost: 5 },
-            { match: /(bloody disaster|preparar)/i, response: "The screen lights up. The first clip is Kai. 'Noah's a mug. Ruby's just a game to me.' The villa gasps. Ruby throws her drink at Kai. 'You snake!' she screams. Then, your confessional plays about your past. Ruby stops, looks at you. 'Noah... is that true?'", nextScene: 'noah_13', addsFlags: ['movie_night_chaos'], energyCost: 5 },
-            { match: /(snake|what the snake|olhar)/i, response: "You stare at Kai as the screen lights up. The first clip is Kai talking to the producers. 'Noah's a mug. Ruby's just a game to me.' The villa erupts. Ruby is screaming at Kai. Kai is trying to defend himself. But then the screen cuts to your confessional about your cheating past. The villa goes silent.", nextScene: 'noah_13', addsFlags: ['movie_night_chaos'], energyCost: 5 }
+            { match: /(silence)/i, response: "The screen lights up. First, your confessional plays. The whole villa hears you talk about your past cheating. Ruby looks at you, her eyes wide. Then, Kai's confessional plays. 'Noah's a mug. Ruby's just a game to me. I'm here for the cash.' The villa gasps. Ruby stands up, furious.", nextScene: 'noah_13', addsFlags: ['movie_night_chaos'], energyCost: 5 },
+            { match: /(chaos)/i, response: "The screen lights up. The first clip is Kai. 'Noah's a mug. Ruby's just a game to me.' The villa gasps. Ruby throws her drink at Kai. 'You snake!' she screams. Then, your confessional plays about your past. Ruby stops, looks at you. 'Noah... is that true?'", nextScene: 'noah_13', addsFlags: ['movie_night_chaos'], energyCost: 5 },
+            { match: /(kai)/i, response: "You stare at Kai as the screen lights up. The first clip is Kai talking to the producers. 'Noah's a mug. Ruby's just a game to me.' The villa erupts. Ruby is screaming at Kai. Kai is trying to defend himself. But then the screen cuts to your confessional about your cheating past. The villa goes silent.", nextScene: 'noah_13', addsFlags: ['movie_night_chaos'], energyCost: 5 }
           ],
           fallback: "The screen is about to play the clips. The tension is unbearable.",
           offensiveScene: 'noah_bad_2'
@@ -487,14 +487,14 @@ const gameDataC2 = {
             { word: 'Race', meaning: 'Corrida (aqui, "quem faz o coração bater mais rápido")' }
           ],
           quickReplies: [
-            { label: 'Focar no Zane.', text: "..." },
-            { label: 'Focar no Dylan (Lealdade).', text: "..." },
-            { label: 'Jogar o jogo.', text: "..." }
+            { label: 'Focar no Zane.', text: "Focus on Zane." },
+            { label: 'Focar no Dylan (Lealdade).', text: "Focus on Dylan." },
+            { label: 'Jogar o jogo.', text: "Play the game." }
           ],
           intents: [
-            { match: /(\.\.\.)/i, response: "Zane doesn't dance. He just walks over, pulls you up, and whispers in your ear. 'You're the only one I see.' His breath is hot against your neck. The monitor goes crazy, hitting 180 BPM. Dylan is next. He does a funny, choreographed dance with a fake rose. It's cute. The monitor barely moves. Everyone knows who won.", nextScene: 'sienna_5', addsFlags: ['zane_heart_race'], energyCost: -10 },
-            { match: /(\.\.\.)/i, response: "When Dylan dances, he looks at you with pure love. He's trying so hard. Your heart monitor goes up. But then Zane takes the stage. He locks eyes with you, takes his shirt off slowly, and smirks. The monitor spikes to 170. Dylan's face falls. The chemistry is undeniable.", nextScene: 'sienna_5', addsFlags: ['dylan_heart_race'], energyCost: 0 },
-            { match: /(\.\.\.)/i, response: "You barely look at either of them. You just sit there, cold and calculating. When Zane dances, you smile. When Dylan dances, you clap. Both monitors go up. But nobody can tell who made your heart race more. The audience is going wild.", nextScene: 'sienna_5', addsFlags: ['played_both'], energyCost: 5 }
+            { match: /(zane)/i, response: "Zane doesn't dance. He just walks over, pulls you up, and whispers in your ear. 'You're the only one I see.' His breath is hot against your neck. The monitor goes crazy, hitting 180 BPM. Dylan is next. He does a funny, choreographed dance with a fake rose. It's cute. The monitor barely moves. Everyone knows who won.", nextScene: 'sienna_5', addsFlags: ['zane_heart_race'], energyCost: -10 },
+            { match: /(dylan)/i, response: "When Dylan dances, he looks at you with pure love. He's trying so hard. Your heart monitor goes up. But then Zane takes the stage. He locks eyes with you, takes his shirt off slowly, and smirks. The monitor spikes to 170. Dylan's face falls. The chemistry is undeniable.", nextScene: 'sienna_5', addsFlags: ['dylan_heart_race'], energyCost: 0 },
+            { match: /(game)/i, response: "You barely look at either of them. You just sit there, cold and calculating. When Zane dances, you smile. When Dylan dances, you clap. Both monitors go up. But nobody can tell who made your heart race more. The audience is going wild.", nextScene: 'sienna_5', addsFlags: ['played_both'], energyCost: 5 }
           ],
           fallback: "The music starts. Time to see who makes your heart race.",
           offensiveScene: 'sienna_bad_2'
@@ -554,14 +554,14 @@ const gameDataC2 = {
             { word: 'Movie Night', meaning: 'Noite de cinema do reality (onde os segredos são expostos)' }
           ],
           quickReplies: [
-            { label: 'Preparar para o caos.', text: "..." },
-            { label: 'Fingir calma.', text: "..." },
-            { label: 'Olhar para o Zane.', text: "..." }
+            { label: 'Preparar para o caos.', text: "Prepare for chaos." },
+            { label: 'Fingir calma.', text: "Pretend to be calm." },
+            { label: 'Olhar para o Zane.', text: "Look at Zane." }
           ],
           intents: [
-            { match: /(\.\.\.)/i, response: "The screen lights up. It's you in the confessional, talking to Bree. 'Dylan is a safe bet. But Zane... Zane makes me want to risk it all. I don't know if I can stay faithful.' The villa erupts. Dylan stands up, furious. Zane just smiles.", nextScene: 'sienna_8', addsFlags: ['exposed_by_movie_night'], energyCost: 5 },
-            { match: /(\.\.\.)/i, response: "The screen lights up. First is Zane's confessional: 'Sienna's a challenge. But I don't lose.' Then, your confessional plays. You admit that Dylan is just a game piece. Dylan is devastated. The villa is in chaos. You've been caught out.", nextScene: 'sienna_8', addsFlags: ['exposed_by_movie_night'], energyCost: 5 },
-            { match: /(\.\.\.)/i, response: "The screen lights up. It's not you first. It's Kai. 'Noah's a mug.' Everyone gasps. But then, the tape switches to you. 'Dylan is boring. Zane is dangerous.' Dylan stands up and walks inside. The damage is done.", nextScene: 'sienna_8', addsFlags: ['exposed_by_movie_night'], energyCost: 5 }
+            { match: /(chaos)/i, response: "The screen lights up. It's you in the confessional, talking to Bree. 'Dylan is a safe bet. But Zane... Zane makes me want to risk it all. I don't know if I can stay faithful.' The villa erupts. Dylan stands up, furious. Zane just smiles.", nextScene: 'sienna_8', addsFlags: ['exposed_by_movie_night'], energyCost: 5 },
+            { match: /(calm)/i, response: "The screen lights up. First is Zane's confessional: 'Sienna's a challenge. But I don't lose.' Then, your confessional plays. You admit that Dylan is just a game piece. Dylan is devastated. The villa is in chaos. You've been caught out.", nextScene: 'sienna_8', addsFlags: ['exposed_by_movie_night'], energyCost: 5 },
+            { match: /(zane)/i, response: "The screen lights up. It's not you first. It's Kai. 'Noah's a mug.' Everyone gasps. But then, the tape switches to you. 'Dylan is boring. Zane is dangerous.' Dylan stands up and walks inside. The damage is done.", nextScene: 'sienna_8', addsFlags: ['exposed_by_movie_night'], energyCost: 5 }
           ],
           fallback: "The screen is about to play your biggest secrets.",
           offensiveScene: 'sienna_bad_2'
