@@ -482,7 +482,8 @@
         if (usedItem) {
              addMessage('Sistema', `✨ Você usou o item <em>${matchedIntent.requiresItem}</em> que já tinha comprado! (Nenhum dinheiro extra gasto)`, 'ventu', false);
         } else if (matchedIntent.money) {
-             if (currentState.money < Math.abs(matchedIntent.money)) {
+             // CORREÇÃO AQUI: Só barra a ação se for um custo (negativo) e o saldo não cobrir
+             if (matchedIntent.money < 0 && currentState.money < Math.abs(matchedIntent.money)) {
                  playSound('error');
                  addMessage('Sistema', 'Você não tem dinheiro suficiente para isso!', 'ventu', false);
                  toggleInputLock(false);
