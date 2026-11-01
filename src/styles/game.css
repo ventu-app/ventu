@@ -291,3 +291,182 @@ body.game-body {
     order: -1;
   }
 }
+
+/* --- SPRINT 3: LENTE DE INGLÊS --- */
+.lens-bubble {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(251, 191, 36, 0.05));
+  border: 1px solid var(--gold);
+  border-left: 4px solid var(--gold);
+  border-radius: 12px;
+  padding: 15px;
+  margin: 10px 0;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  animation: slideUp 0.3s ease-out;
+  align-self: stretch;
+  max-width: 90%;
+}
+
+.lens-bubble .lens-title {
+  color: var(--gold);
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 1.05rem;
+}
+
+.lens-bubble .lens-native {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(251, 191, 36, 0.3);
+  font-style: italic;
+  color: #10b981; /* Verde sucesso */
+}
+
+/* --- SPRINT 3: BOTÃO DE DICA --- */
+.hint-btn {
+  background: transparent;
+  border: 1px dashed var(--gold);
+  color: var(--gold);
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.hint-btn:hover:not(:disabled) {
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.hint-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: var(--text-secondary);
+  color: var(--text-secondary);
+}
+/* --- MELHORIAS VISUAIS PREMIUM (SPRINT 3) --- */
+
+/* 1. Refinamento das Bolhas de Chat */
+.msg-bubble {
+  border-radius: 16px 16px 16px 4px; /* Mais arredondado */
+  padding: 14px 18px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+.chat-message.player .msg-bubble {
+  border-radius: 16px 16px 4px 16px;
+  background: linear-gradient(135deg, var(--player-bubble), #1d4ed8); /* Degradê no balão do jogador */
+}
+
+/* 2. Lente de Inglês (Mais bonita e clicável) */
+.lens-bubble {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(251, 191, 36, 0.02));
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+.lens-title {
+  font-size: 1.1rem;
+  border-bottom: 1px dashed rgba(251, 191, 36, 0.3);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+.lens-native {
+  background: rgba(16, 185, 129, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  border-left: 3px solid #10b981;
+  margin-top: 12px;
+}
+.lens-btn {
+  background: var(--bg-base);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-left: 8px;
+}
+.lens-btn:hover {
+  background: var(--gold);
+  color: var(--bg-base);
+}
+
+/* 3. Botão de Dica (Hint) */
+.hint-btn {
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: 0.3s;
+}
+.hint-btn:hover:not(:disabled) {
+  background: var(--gold);
+  color: var(--bg-base);
+  transform: translateY(-2px);
+}
+
+/* 4. Tela de Final (Grid de Botões) */
+.end-report {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  padding: 12px;
+  border-radius: 12px;
+  margin: 15px 0;
+  display: flex;
+  justify-content: space-around;
+  font-size: 0.85rem;
+}
+.end-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+.retry-btn {
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+  flex: 1;
+  min-width: 140px;
+  text-align: center;
+}
+.retry-btn:hover {
+  background: var(--gold);
+  color: var(--bg-base);
+  border-color: var(--gold);
+}
+.retry-btn[data-act="next"], .retry-btn[data-act="review"] {
+  background: var(--gold);
+  color: var(--bg-base);
+  border: none;
+}
+.retry-btn[data-act="next"]:hover, .retry-btn[data-act="review"]:hover {
+  background: var(--gold-hover);
+}
+
+/* 5. Ajuste no Input e FAB */
+.chat-input-area {
+  padding-bottom: 20px; /* Espaço para o FAB não cobrir o input */
+}
