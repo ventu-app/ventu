@@ -89,10 +89,10 @@ const gameDataC2 = {
         },
         noah_4: {
           npcName: 'Ruby (Your Partner)',
-          npcText: `Hey. Sorry that took so long. Kai's... a lot. She's fiddling with her necklace. She won't quite meet your eye. "He's not what I expected, you know? Anyway. How was your arvo?"`,
+          npcText: `Hey. Sorry that took so long. Kai's... a lot.\n\n*She's fiddling with her necklace. She won't quite meet your eye.*\n\n"He's not what I expected, you know? Anyway. How was your arvo?"`,
           energyCost: 15,
           npcTextVariants: [
-            { ifFlag: 'interrupted_chat', text: `Hey. Sorry about earlier. You didn't have to do that, you know. Kai's... a lot. But I can handle myself. She's fiddling with her necklace. She won't quite meet your eye. "Anyway. How was your arvo?"` }
+            { ifFlag: 'interrupted_chat', text: `Hey. Sorry about earlier. You didn't have to do that, you know. Kai's... a lot. But I can handle myself.\n\n*She's fiddling with her necklace. She won't quite meet your eye.*\n\n"Anyway. How was your arvo?"` }
           ],
           glossary: [
             { word: 'A lot', meaning: 'Muito (no sentido de "intenso", "demais", "complicado")' },
@@ -183,7 +183,7 @@ const gameDataC2 = {
         },
         noah_8: {
           npcName: 'Chloe (The New Bombshell)',
-          npcText: `So. You're Noah. The one with the... history. She hands you a stubby. "Don't worry, I've got a bit of a past meself. But I'm here for a good time. And right now, you look like you need one."`,
+          npcText: `So. You're Noah. The one with the... history.\n\n*She hands you a stubby.*\n\n"Don't worry, I've got a bit of a past meself. But I'm here for a good time. And right now, you look like you need one."`,
           energyCost: 15,
           glossary: [
             { word: 'Stubby', meaning: 'Garrafa de cerveja (geralmente de 375ml na Austrália)' },
@@ -191,7 +191,7 @@ const gameDataC2 = {
             { word: 'Good time', meaning: 'Diversão / Curtição' }
           ],
           npcTextVariants: [
-            { ifFlag: 'chose_ruby_kai_stole', text: `So. You're Noah. The one Ruby left for Kai. She hands you a stubby. "Tough break, mate. But I'm here for a good time. And right now, you look like you need one."` }
+            { ifFlag: 'chose_ruby_kai_stole', text: `So. You're Noah. The one Ruby left for Kai.\n\n*She hands you a stubby.*\n\n"Tough break, mate. But I'm here for a good time. And right now, you look like you need one."` }
           ],
           quickReplies: [
             { label: 'Flertar de volta.', text: "You're a ripper sort, Chloe. Reckon we'll get along just fine." },
@@ -414,7 +414,7 @@ const gameDataC2 = {
         // ============================================================
         sienna_1: {
           npcName: 'Dylan (Your Partner)',
-          npcText: `Morning, gorgeous. I made you a coffee. Just the way you like it. And I saved you the good sunnies. He smiles, so eager to please. "What's the plan today? Grafting in the sun?"`,
+          npcText: `Morning, gorgeous. I made you a coffee. Just the way you like it. And I saved you the good sunnies.\n\n*He smiles, so eager to please.*\n\n"What's the plan today? Grafting in the sun?"`,
           energyCost: 5,
           glossary: [
             { word: 'Grafting', meaning: 'Trabalhar duro (no sentido de flertar/conquistar alguém no reality)' },
@@ -568,7 +568,7 @@ const gameDataC2 = {
         },
         sienna_8: {
           npcName: 'Zane (The Bombshell)',
-          npcText: `Well. Looks like the cat's out of the bag. He laughs. So, what's the play now, Sienna? Are you going to run after the puppy and beg for forgiveness? Or are you going to be the villain everyone thinks you are?`,
+          npcText: `Well. Looks like the cat's out of the bag.\n\n*He laughs.*\n\n"So, what's the play now, Sienna? Are you going to run after the puppy and beg for forgiveness? Or are you going to be the villain everyone thinks you are?"`,
           energyCost: 25,
           glossary: [
             { word: 'Cat\'s out of the bag', meaning: 'O segredo foi revelado' },
