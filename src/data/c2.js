@@ -30,7 +30,7 @@ const gameDataC2 = {
           ],
           quickReplies: [
             { label: 'Ser honesto e carinhoso.', text: "Just thinking about you, love. About us. I'm happy. Proper happy." },
-            { label: 'Desviar com piada.', text: "Just dreamin' about the barbie later. I'm starvin', Ruby." },
+            { label: 'Desviar com piada.', text: "Just dreamin' about the barbie later. I'm starvin', gorgeous." },
             { label: 'Ser vago e fechado.', text: "Nothin'. Just a lot on my mind." }
           ],
           intents: [
@@ -43,7 +43,7 @@ const gameDataC2 = {
         },
         noah_2: {
           npcName: 'Narrador',
-          npcText: "The door swings open and he walks in like he owns the place. Tanned. Tattooed. Jaw like a bloody axe. 'G'day, legends. Name's Kai. Reckon I'll be taking one of your ladies for a chat.' His eyes scan the villa. They land on Ruby. They stay there. He grins. 'You. Love. What's your name?'",
+        npcText: "The door swings open and he walks in like he owns the place. Tanned. Tattooed. Jaw like a bloody axe. 'G'day, legends. Name's Kai. Reckon I'll be taking one of your ladies for a chat.' His eyes scan the villa. They land on Ruby. They stay there. He grins. 'You. Gorgeous. What's your name?'",
           energyCost: 10,
           glossary: [
             { word: 'G\'day', meaning: 'Oi / Bom dia (saudação australiana icônica)' },
