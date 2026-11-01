@@ -298,17 +298,16 @@
     
     async function checkExhaustion() {
         if (currentState.energy <= 0) {
-            currentState.energy = 30;
+            currentState.energy = 50;
             currentState.trust = Math.max(0, (currentState.trust || 100) - 10);
             updateHUD();
             saveGame();
             
-            // Espera a mensagem de exaustão terminar de digitar antes de continuar
             toggleInputLock(true);
             showTypingIndicator();
             await new Promise(r => setTimeout(r, 1000));
             removeTypingIndicator();
-            await addMessage('Narrador', 'Seus olhos pesam. Você apaga na espreguiçadeira. Quando acorda, o sol já nasceu e você perdeu um momento importante. (-10 Trust)', 'npc', true);
+            await addMessage('Narrador', 'Seus olhos pesam. Você apaga por um momento. Quando acorda, você se sente um pouco melhor, mas perdeu um pouco de confiança. (+50 Energia, -10 Trust)', 'npc', true);
             toggleInputLock(false);
             return true;
         }
@@ -521,12 +520,9 @@
             updateHUD();
         }
 
-        // CHECA EXAUSTÃO ANTES DE CONTINUAR
+        // CHECA EXAUSTÃO ANTES DE CONTINUAR (Sem o return agora)
         if (currentState.energy <= 0) {
-            if (await checkExhaustion()) {
-                toggleInputLock(false);
-                return; // Para por aqui se desmaiou
-            }
+            await checkExhaustion();
         }
 
         if (matchedIntent.explanation) {
@@ -568,10 +564,7 @@
         saveGame();
 
         if (currentState.energy <= 0) {
-            if (await checkExhaustion()) {
-                toggleInputLock(false);
-                return;
-            }
+            await checkExhaustion();
         }
 
         showTypingIndicator();
