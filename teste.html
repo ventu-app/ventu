@@ -15,7 +15,7 @@
     :root {
       --bg: #0b0f19; --panel: #151b2b; --text: #e2e8f0; --text-muted: #94a3b8;
       --gold: #fbbf24; --gold-hover: #f59e0b; --border: #1e293b; --blue: #2563eb;
-      --ok: #22c55e; --bad: #ef4444;
+      --ok: #22c55e; --bad: #ef4444; --info: #3b82f6;
       --font-heading: 'Playfair Display', serif; --font-body: 'Inter', sans-serif;
     }
     [data-theme="light"] {
@@ -60,10 +60,39 @@
     .feedback.ok { display: block; background: rgba(34, 197, 94, 0.1); color: var(--ok); border: 1px solid var(--ok); }
     .feedback.bad { display: block; background: rgba(239, 68, 68, 0.1); color: var(--bad); border: 1px solid var(--bad); }
     
-    .result-box { display: none; text-align: center; }
+    /* --- TELA DE RESULTADO EXPANDIDA --- */
+    .result-box { display: none; text-align: left; }
     .result-box.active { display: block; animation: fadeIn 0.5s ease; }
-    .result-title { font-family: var(--font-heading); font-size: 3rem; color: var(--gold); margin-bottom: 15px; }
-    .result-desc { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 30px; line-height: 1.6; }
+    
+    .result-header { text-align: center; margin-bottom: 30px; }
+    .result-title { font-family: var(--font-heading); font-size: 4rem; color: var(--gold); margin-bottom: 10px; line-height: 1; }
+    .result-desc { color: var(--text-muted); font-size: 1.05rem; line-height: 1.5; }
+    
+    .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px 30px; margin-bottom: 30px; background: var(--bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); }
+    .skill-item { display: flex; flex-direction: column; gap: 5px; }
+    .skill-header { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: bold; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    .skill-bar { height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .skill-fill { height: 100%; background: var(--blue); border-radius: 99px; width: 0%; transition: width 1s ease; }
+    
+    .disclaimer { background: rgba(59, 130, 246, 0.1); border: 1px solid var(--info); border-radius: 8px; padding: 15px; font-size: 0.85rem; color: var(--text); line-height: 1.5; margin-bottom: 25px; display: flex; gap: 10px; align-items: flex-start; }
+    .disclaimer span { font-size: 1.2rem; }
+    
+    .recommendation { background: rgba(251, 191, 36, 0.1); border-left: 4px solid var(--gold); padding: 15px; border-radius: 0 8px 8px 0; margin-bottom: 30px; }
+    .recommendation h4 { color: var(--gold); font-size: 1rem; margin-bottom: 5px; }
+    .recommendation p { font-size: 0.9rem; color: var(--text); line-height: 1.4; }
+    
+    /* ACORDEÃO DE ERROS */
+    .errors-container { margin-bottom: 30px; }
+    .errors-toggle { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-family: var(--font-body); transition: 0.2s; }
+    .errors-toggle:hover { border-color: var(--bad); color: var(--bad); }
+    .errors-content { display: none; margin-top: 10px; flex-direction: column; gap: 10px; }
+    .errors-content.active { display: flex; animation: fadeIn 0.3s ease; }
+    .error-card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 15px; font-size: 0.9rem; }
+    .error-q { font-weight: bold; margin-bottom: 10px; color: var(--text); }
+    .error-ans { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+    .error-ans span.bad { color: var(--bad); text-decoration: line-through; }
+    .error-ans span.ok { color: var(--ok); font-weight: bold; }
+    .error-exp { font-size: 0.85rem; color: var(--text-muted); border-top: 1px dashed var(--border); padding-top: 10px; }
     
     .btn { display: inline-flex; align-items: center; justify-content: center; padding: 14px 30px; border-radius: 10px; font-weight: 600; font-size: 1.05rem; cursor: pointer; border: none; transition: 0.2s; text-decoration: none; font-family: var(--font-body); width: 100%; }
     .btn-p { background: var(--gold); color: var(--bg); }
@@ -86,15 +115,57 @@
   <div id="quiz-box" style="display: none;">
     <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
     <div class="progress-text" id="progress-text">Questão 1 de 20</div>
-    <div id="questions-container">
-      <!-- Injetado via JS -->
-    </div>
+    <div id="questions-container"></div>
   </div>
 
-  <!-- RESULTADO -->
+  <!-- RESULTADO EXPANDIDO -->
   <div id="result-box" class="result-box">
-    <h2 class="result-title" id="result-level">B1</h2>
-    <p class="result-desc" id="result-desc">Você já consegue se virar bem...</p>
+    <div class="result-header">
+      <h2 class="result-title" id="result-level">B1</h2>
+      <p class="result-desc" id="result-desc">Você já consegue se virar bem...</p>
+    </div>
+    
+    <!-- Gráficos de Habilidades -->
+    <div class="skills-grid">
+      <div class="skill-item">
+        <div class="skill-header"><span>Reading</span> <span id="pct-reading">0%</span></div>
+        <div class="skill-bar"><div class="skill-fill" id="bar-reading"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-header"><span>Listening</span> <span id="pct-listening">0%</span></div>
+        <div class="skill-bar"><div class="skill-fill" id="bar-listening" style="background: #f59e0b;"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-header"><span>Writing</span> <span id="pct-writing">0%</span></div>
+        <div class="skill-bar"><div class="skill-fill" id="bar-writing" style="background: #8b5cf6;"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-header"><span>Speaking</span> <span id="pct-speaking">0%</span></div>
+        <div class="skill-bar"><div class="skill-fill" id="bar-speaking" style="background: #22c55e;"></div></div>
+      </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+      <span>💡</span>
+      <div><strong>Aviso:</strong> Este teste é uma estimativa adaptativa rápida para calibrar sua experiência no Ventu. Ele não substitui certificações oficiais (TOEFL, IELTS ou Cambridge).</div>
+    </div>
+
+    <!-- Recomendação -->
+    <div class="recommendation" id="recommendation-box">
+      <h4>Foco Sugerido</h4>
+      <p id="recommendation-text">Analisando suas respostas...</p>
+    </div>
+
+    <!-- Acordeão de Erros -->
+    <div class="errors-container">
+      <button class="errors-toggle" onclick="toggleErrors()">
+        <span>Ver Revisão de Erros</span>
+        <span id="error-count">0</span>
+      </button>
+      <div class="errors-content" id="errors-list"></div>
+    </div>
+
     <button class="btn btn-p" onclick="window.location.href='jogar.html'">Ver meus Níveis</button>
     <a href="index.html" class="btn" style="background:transparent; color:var(--text-muted); margin-top:10px;">Voltar para Home</a>
   </div>
@@ -102,58 +173,47 @@
 
 <script src="src/engine/storage.js"></script>
 <script>
-  // --- BANCO DE QUESTÕES (20 Questões - Sotaques Misturados + Dificuldade B1-C2 Elevada) ---
+  // --- BANCO DE QUESTÕES (Com Explicações para o Relatório) ---
   const questions = [
-    // A1 - Reading
-    { type: 'mcq', level: 'A1', text: "Complete a frase: 'I ___ a student at the university.'", options: ["is", "am", "are"], answer: "am", pts: 10 },
-    // A1 - Listening (US)
-    { type: 'listen', level: 'A1', accent: 'en-US', audio: "Where is the nearest bank?", text: "O que a pessoa está perguntando?", options: ["Onde fica o banheiro?", "Onde fica o banco mais próximo?", "Quanto custa a passagem?"], answer: "Onde fica o banco mais próximo?", pts: 10 },
-    // A1 - Speaking
-    { type: 'speak', level: 'A1', text: "Leia em voz alta a seguinte frase:", target: "Hello, how are you?", pts: 10 },
+    { type: 'mcq', level: 'A1', text: "Complete a frase: 'I ___ a student at the university.'", options: ["is", "am", "are"], answer: "am", pts: 10, explanation: "O verbo 'to be' para 'I' (eu) é sempre 'am'." },
+    { type: 'listen', level: 'A1', accent: 'en-US', audio: "Where is the nearest bank?", text: "O que a pessoa está perguntando?", options: ["Onde fica o banheiro?", "Onde fica o banco mais próximo?", "Quanto custa a passagem?"], answer: "Onde fica o banco mais próximo?", pts: 10, explanation: "A palavra 'bank' significa banco (instituição financeira)." },
+    { type: 'speak', level: 'A1', text: "Leia em voz alta a seguinte frase:", target: "Hello, how are you?", pts: 10, explanation: "Frase clássica de cumprimento. Tente manter a entonação subindo no final." },
 
-    // A2 - Reading
-    { type: 'mcq', level: 'A2', text: "Escolha a opção correta: 'I have lived here ___ 2015.'", options: ["for", "since", "from"], answer: "since", pts: 20 },
-    // A2 - Listening (UK) - Corrigido pronomes
-    { type: 'listen', level: 'A2', accent: 'en-GB', audio: "I was going to call you, but I lost my phone.", text: "Por que a pessoa não ligou?", options: ["Esqueceu o telefone em casa.", "Perdeu o celular.", "Não tinha o seu número."], answer: "Perdeu o celular.", pts: 20 },
-    // A2 - Writing
-    { type: 'write', level: 'A2', text: "Qual o passado do verbo 'to go'? (ex: I ___ to the beach yesterday)", answer: "went", pts: 20 },
-    // A2 - Speaking
-    { type: 'speak', level: 'A2', text: "Leia em voz alta a seguinte frase:", target: "Could you please help me?", pts: 20 },
+    { type: 'mcq', level: 'A2', text: "Escolha a opção correta: 'I have lived here ___ 2015.'", options: ["for", "since", "from"], answer: "since", pts: 20, explanation: "Usamos 'since' para marcar o início de uma ação no Present Perfect. 'For' é usado para duração (ex: for 3 years)." },
+    { type: 'listen', level: 'A2', accent: 'en-GB', audio: "I was going to call you, but I lost my phone.", text: "Por que a pessoa não ligou?", options: ["Esqueceu o telefone em casa.", "Perdeu o celular.", "Não tinha o seu número."], answer: "Perdeu o celular.", pts: 20, explanation: "'Lost my phone' significa que a pessoa perdeu o aparelho, não que esqueceu." },
+    { type: 'write', level: 'A2', text: "Qual o passado do verbo 'to go'? (ex: I ___ to the beach yesterday)", answer: "went", pts: 20, explanation: "'Go' é um verbo irregular. O passado simples é 'went'." },
+    { type: 'speak', level: 'A2', text: "Leia em voz alta a seguinte frase:", target: "Could you please help me?", pts: 20, explanation: "'Could' é usado para pedidos educados. A pronúncia de 'please' tem um 'z' no final." },
 
-    // B1 - Reading (Subjunctive)
-    { type: 'mcq', level: 'B1', text: "Complete a frase (Subjunctive): 'If I ___ you, I would apologize immediately.'", options: ["was", "were", "am"], answer: "were", pts: 30 },
-    // B1 - Listening (AUS) - Phrasal Verb
-    { type: 'listen', level: 'B1', accent: 'en-AU', audio: "I'm going to call it a day. I'm exhausted.", text: "O que a pessoa quer dizer com 'call it a day'?", options: ["Ligar para alguém durante o dia.", "Parar de trabalhar por hoje.", "Marcar um compromisso para amanhã."], answer: "Parar de trabalhar por hoje.", pts: 30 },
-    // B1 - Writing (Prepositional Verb)
-    { type: 'write', level: 'B1', text: "Complete com a preposição correta: 'I am looking forward ___ meeting you.'", answer: "to", pts: 30 },
-    // B1 - Speaking
-    { type: 'speak', level: 'B1', text: "Leia em voz alta a seguinte frase:", target: "I've been trying to reach you all morning.", pts: 30 },
+    { type: 'mcq', level: 'B1', text: "Complete a frase (Subjunctive): 'If I ___ you, I would apologize immediately.'", options: ["was", "were", "am"], answer: "were", pts: 30, explanation: "No 'Second Conditional' (situações hipotéticas), usamos 'were' para todas as pessoas (If I were, If he were)." },
+    { type: 'listen', level: 'B1', accent: 'en-AU', audio: "I'm going to call it a day. I'm exhausted.", text: "O que a pessoa quer dizer com 'call it a day'?", options: ["Ligar para alguém durante o dia.", "Parar de trabalhar por hoje.", "Marcar um compromisso para amanhã."], answer: "Parar de trabalhar por hoje.", pts: 30, explanation: "'Call it a day' é uma expressão idiomática que significa encerrar o trabalho ou uma atividade por hoje." },
+    { type: 'write', level: 'B1', text: "Complete com a preposição correta: 'I am looking forward ___ meeting you.'", answer: "to", pts: 30, explanation: "O phrasal verb 'look forward to' sempre exige a preposição 'to'. E o verbo seguinte fica no gerúndio (-ing)." },
+    { type: 'speak', level: 'B1', text: "Leia em voz alta a seguinte frase:", target: "I've been trying to reach you all morning.", pts: 30, explanation: "Note a contração 'I've'. A pronúncia correta conecta as palavras naturalmente." },
 
-    // B2 - Reading (Idiom/Slang)
-    { type: 'mcq', level: 'B2', text: "O que significa a expressão 'call it a wrap'?", options: ["Embrulhar algo para presente.", "Finalizar uma atividade ou projeto.", "Ligar para alguém rapidamente."], answer: "Finalizar uma atividade ou projeto.", pts: 40 },
-    // B2 - Listening (Canadian Accent)
-    { type: 'listen', level: 'B2', accent: 'en-CA', audio: "I'm sorry, but I can't make it to the meeting today. I'm feeling a bit under the weather.", text: "Por que a pessoa não vai à reunião?", options: ["Ela está doente.", "Ela esqueceu da reunião.", "Ela está viajando."], answer: "Ela está doente.", pts: 40 },
-    // B2 - Writing (Passive Voice)
-    { type: 'write', level: 'B2', text: "Transforme para a voz passiva: 'The committee will review the proposal.' -> 'The proposal will be ___ by the committee.'", answer: "reviewed", pts: 40 },
-    // B2 - Speaking (Longer sentence)
-    { type: 'speak', level: 'B2', text: "Leia em voz alta a seguinte frase:", target: "If I had known you were coming, I would have baked a cake.", pts: 40 },
+    { type: 'mcq', level: 'B2', text: "O que significa a expressão 'call it a wrap'?", options: ["Embrulhar algo para presente.", "Finalizar uma atividade ou projeto.", "Ligar para alguém rapidamente."], answer: "Finalizar uma atividade ou projeto.", pts: 40, explanation: "'That's a wrap' ou 'call it a wrap' é muito usado no cinema e em projetos para dizer 'está encerrado'." },
+    { type: 'listen', level: 'B2', accent: 'en-CA', audio: "I'm sorry, but I can't make it to the meeting today. I'm feeling a bit under the weather.", text: "Por que a pessoa não vai à reunião?", options: ["Ela está doente.", "Ela esqueceu da reunião.", "Ela está viajando."], answer: "Ela está doente.", pts: 40, explanation: "'Under the weather' é uma gíria comum para dizer que está se sentindo mal ou doente." },
+    { type: 'write', level: 'B2', text: "Transforme para a voz passiva: 'The committee will review the proposal.' -> 'The proposal will be ___ by the committee.'", answer: "reviewed", pts: 40, explanation: "Na voz passiva com 'will', usamos 'will be' + o particípio passado do verbo principal ('reviewed')." },
+    { type: 'speak', level: 'B2', text: "Leia em voz alta a seguinte frase:", target: "If I had known you were coming, I would have baked a cake.", pts: 40, explanation: "Essa é a Third Conditional. Preste atenção na fluidez entre 'known you' e 'would have'." },
 
-    // C1 - Reading (Inversion + Slang)
-    { type: 'mcq', level: 'C1', text: "O que significa a expressão 'He has a chip on his shoulder'?", options: ["Ele está com um pedaço de madeira no ombro.", "Ele tem um sentimento de ressentimento ou inferioridade.", "Ele é uma pessoa muito amigável."], answer: "Ele tem um sentimento de ressentimento ou inferioridade.", pts: 50 },
-    // C1 - Listening (Irish Accent) - Slang e Phrasal Verbs
-    { type: 'listen', level: 'C1', accent: 'en-IE', audio: "I'm completely snowed under with work at the moment, so I'll have to take a rain check on dinner.", text: "O que a pessoa está dizendo?", options: ["Que vai ao jantar mesmo com muita neve.", "Que está muito ocupada e vai recusar o convite por agora.", "Que quer remarcar o jantar para amanhã cedo."], answer: "Que está muito ocupada e vai recusar o convite por agora.", pts: 50 },
-    // C1 - Writing (Advanced Collocation)
-    { type: 'write', level: 'C1', text: "Complete com a palavra correta: 'The findings were so ___ that they completely changed our understanding of the disease.' (algo inovador, que abre caminhos)", answer: "groundbreaking", pts: 50 },
-    // C1 - Speaking (Complex sentence)
-    { type: 'speak', level: 'C1', text: "Leia em voz alta a seguinte frase:", target: "Despite the considerable challenges, we managed to pull it off.", pts: 50 },
+    { type: 'mcq', level: 'C1', text: "O que significa a expressão 'He has a chip on his shoulder'?", options: ["Ele está com um pedaço de madeira no ombro.", "Ele tem um sentimento de ressentimento ou inferioridade.", "Ele é uma pessoa muito amigável."], answer: "Ele tem um sentimento de ressentimento ou inferioridade.", pts: 50, explanation: "'A chip on one's shoulder' descreve alguém que guarda rancor ou se sente facilmente ofendido." },
+    { type: 'listen', level: 'C1', accent: 'en-IE', audio: "I'm completely snowed under with work at the moment, so I'll have to take a rain check on dinner.", text: "O que a pessoa está dizendo?", options: ["Que vai ao jantar mesmo com muita neve.", "Que está muito ocupada e vai recusar o convite por agora.", "Que quer remarcar o jantar para amanhã cedo."], answer: "Que está muito ocupada e vai recusar o convite por agora.", pts: 50, explanation: "'Snowed under' significa sobrecarregado de trabalho. 'Take a rain check' significa recusar um convite agora, mas aceitar no futuro." },
+    { type: 'write', level: 'C1', text: "Complete com a palavra correta: 'The findings were so ___ that they completely changed our understanding of the disease.' (algo inovador, que abre caminhos)", answer: "groundbreaking", pts: 50, explanation: "'Groundbreaking' é o adjetivo usado para descobertas ou inovações revolucionárias." },
+    { type: 'speak', level: 'C1', text: "Leia em voz alta a seguinte frase:", target: "Despite the considerable challenges, we managed to pull it off.", pts: 50, explanation: "Frases longas exigem controle de respiração. 'Pull it off' significa conseguir realizar algo difícil." },
 
-    // C2 - Reading (Slang / Idiom)
-    { type: 'mcq', level: 'C2', text: "O que significa a expressão 'The CEO's announcement was a double-edged sword'?", options: ["O anúncio foi uma arma letal.", "O anúncio teve consequências positivas e negativas.", "O anúncio foi muito confuso."], answer: "O anúncio teve consequências positivas e negativas.", pts: 60 }
+    { type: 'mcq', level: 'C2', text: "O que significa a expressão 'The CEO's announcement was a double-edged sword'?", options: ["O anúncio foi uma arma letal.", "O anúncio teve consequências positivas e negativas.", "O anúncio foi muito confuso."], answer: "O anúncio teve consequências positivas e negativas.", pts: 60, explanation: "'Double-edged sword' (espada de dois gumes) significa algo que tem tanto vantagens quanto desvantagens." }
   ];
 
   let currentQuestion = 0;
   let totalScore = 0;
   let maxScore = questions.reduce((acc, q) => acc + q.pts, 0);
+  
+  // Variáveis de análise
+  let skillStats = {
+    Reading: { correct: 0, total: 0 },
+    Listening: { correct: 0, total: 0 },
+    Writing: { correct: 0, total: 0 },
+    Speaking: { correct: 0, total: 0 }
+  };
+  let errorsLog = [];
 
   let recognition = null;
   if (window.SpeechRecognition || window.webkitSpeechRecognition) {
@@ -195,6 +255,9 @@
     else if (q.type === 'listen') skillName = 'Listening';
     else if (q.type === 'speak') skillName = 'Speaking';
 
+    // Incrementa o total da habilidade
+    skillStats[skillName].total++;
+
     qBox.innerHTML = `
       <div class="badge">${skillName}</div>
       <div class="question-text">${q.text}</div>
@@ -209,7 +272,7 @@
         const btn = document.createElement('button');
         btn.className = 'option-btn';
         btn.textContent = opt;
-        btn.onclick = () => checkAnswer(opt === q.answer, q.pts);
+        btn.onclick = () => checkAnswer(opt === q.answer, q.pts, skillName, opt, q.answer);
         optionsDiv.appendChild(btn);
       });
       contentDiv.appendChild(optionsDiv);
@@ -220,7 +283,7 @@
       inputArea.className = 'input-area';
       inputArea.innerHTML = `
         <input type="text" class="text-input" id="write-input" placeholder="Digite sua resposta..." autocomplete="off">
-        <button class="action-btn btn-mic" onclick="submitWrite()">Confirmar</button>
+        <button class="action-btn btn-mic" onclick="submitWrite('${skillName}', '${q.answer}')">Confirmar</button>
       `;
       contentDiv.appendChild(inputArea);
     }
@@ -261,7 +324,7 @@
         const btn = document.createElement('button');
         btn.className = 'option-btn';
         btn.textContent = opt;
-        btn.onclick = () => checkAnswer(opt === q.answer, q.pts);
+        btn.onclick = () => checkAnswer(opt === q.answer, q.pts, skillName, opt, q.answer);
         optionsDiv.appendChild(btn);
       });
       listenArea.appendChild(optionsDiv);
@@ -274,7 +337,7 @@
       
       if (!recognition) {
         speakArea.innerHTML = `<p style="color: var(--bad); font-size:0.9rem;">Seu navegador não suporta gravação de voz. Pulando questão...</p>`;
-        setTimeout(() => checkAnswer(true, 0), 2000);
+        setTimeout(() => checkAnswer(true, 0, skillName, "Pulado", q.target), 2000);
       } else {
         speakArea.innerHTML = `
           <div style="background: var(--bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); text-align: center;">
@@ -286,9 +349,9 @@
           <p style="font-size:0.8rem; color:var(--text-muted); text-align:center; margin-top:10px;">Fale de forma clara em inglês.</p>
           <div class="feedback" id="feedback-speak"></div>
           
-          <button type="button" onclick="checkAnswer(false, 0)" style="background: transparent; border: none; color: var(--text-muted); text-decoration: underline; cursor: pointer; font-size: 0.8rem; margin-top: 15px;">Pular esta questão</button>
+          <button type="button" onclick="checkAnswer(false, 0, '${skillName}', 'Pulado', '${q.target}')" style="background: transparent; border: none; color: var(--text-muted); text-decoration: underline; cursor: pointer; font-size: 0.8rem; margin-top: 15px;">Pular esta questão</button>
         `;
-        speakArea.querySelector('#btn-record').onclick = () => startRecording(q.target, q.pts);
+        speakArea.querySelector('#btn-record').onclick = () => startRecording(q.target, q.pts, skillName);
       }
       contentDiv.appendChild(speakArea);
     }
@@ -297,14 +360,13 @@
     container.appendChild(qBox);
   }
 
-  function submitWrite() {
+  function submitWrite(skillName, correctAnswer) {
     const input = document.getElementById('write-input').value.trim().toLowerCase();
-    const q = questions[currentQuestion];
-    const isCorrect = input.replace(/[.!?]/g, '') === q.answer.toLowerCase();
-    checkAnswer(isCorrect, q.pts);
+    const isCorrect = input.replace(/[.!?]/g, '') === correctAnswer.toLowerCase();
+    checkAnswer(isCorrect, questions[currentQuestion].pts, skillName, input || "Vazio", correctAnswer);
   }
 
-  function startRecording(target, pts) {
+  function startRecording(target, pts, skillName) {
     const btn = document.getElementById('btn-record');
     const feedback = document.getElementById('feedback-speak');
     
@@ -346,7 +408,7 @@
       btn.classList.remove('recording');
       btn.innerHTML = 'Avançando...';
       
-      setTimeout(() => checkAnswer(isCorrect, pts), 2000);
+      setTimeout(() => checkAnswer(isCorrect, pts, skillName, transcript, target), 2000);
     };
 
     recognition.onerror = () => {
@@ -355,18 +417,27 @@
       btn.innerHTML = '🎤 Clique para Gravar';
       feedback.textContent = 'Erro ao acessar microfone. Pulando...';
       feedback.className = 'feedback bad';
-      setTimeout(() => checkAnswer(false, 0), 1500);
+      setTimeout(() => checkAnswer(false, 0, skillName, "Erro de microfone", target), 1500);
     };
 
     recognition.start();
   }
 
-  function checkAnswer(isCorrect, pts) {
+  function checkAnswer(isCorrect, pts, skillName, userAnswer, correctAnswer) {
     if (isCorrect) {
       totalScore += pts;
+      skillStats[skillName].correct++;
     } else {
       totalScore -= (pts / 2);
-      if (totalScore < 0) totalScore = 0; 
+      if (totalScore < 0) totalScore = 0;
+      
+      // Registra o erro para o relatório
+      errorsLog.push({
+        question: questions[currentQuestion].text,
+        userAnswer: userAnswer,
+        correctAnswer: correctAnswer,
+        explanation: questions[currentQuestion].explanation
+      });
     }
     currentQuestion++;
     
@@ -406,9 +477,79 @@
     document.getElementById('result-level').textContent = level;
     document.getElementById('result-desc').textContent = desc;
 
+    // --- PREENCHER BARRAS DE HABILIDADES ---
+    const skills = ['Reading', 'Listening', 'Writing', 'Speaking'];
+    let weakestSkill = { name: '', pct: 100 };
+
+    skills.forEach(skill => {
+      const stats = skillStats[skill];
+      // Se não houve questões (ex: não tem writing), assume 100% ou ignora
+      let pct = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 100;
+      
+      // Se o jogador pulou tudo de speaking, a nota fica 0
+      if (skill === 'Speaking' && stats.total > 0 && stats.correct === 0) pct = 0;
+
+      document.getElementById(`pct-${skill.toLowerCase()}`).textContent = `${pct}%`;
+      
+      // Pequeno delay para a animação da barra funcionar
+      setTimeout(() => {
+        document.getElementById(`bar-${skill.toLowerCase()}`).style.width = `${pct}%`;
+      }, 100);
+
+      if (pct < weakestSkill.pct) {
+        weakestSkill = { name: skill, pct: pct };
+      }
+    });
+
+    // --- RECOMENDAÇÃO BASEADA NA HABILIDADE MAIS FRACA ---
+    const recText = document.getElementById('recommendation-text');
+    if (weakestSkill.pct <= 50) {
+      if (weakestSkill.name === 'Listening') recText.textContent = "Seu Listening precisa de atenção. Tente assistir séries sem legenda e usar o modo áudio do Ventu quando disponível.";
+      else if (weakestSkill.name === 'Speaking') recText.textContent = "Seu Speaking está travado. Não tenha medo de errar! Treine repetindo as frases do jogo em voz alta (Shadowing).";
+      else if (weakestSkill.name === 'Writing') recText.textContent = "Sua gramática escrita precisa de reforço. Revise os tempos verbais e tente escrever respostas ao invés de usar os botões.";
+      else recText.textContent = "Você precisa expandir seu vocabulário. Leia os diálogos com atenção e anote as palavras novas no seu caderno.";
+    } else {
+      recText.textContent = "Você tem um perfil equilibrado! Continue praticando nos níveis mais altos para manter a fluência.";
+    }
+
+    // --- PREENCHER RELATÓRIO DE ERROS ---
+    document.getElementById('error-count').textContent = `${errorsLog.length} erros`;
+    const errorsList = document.getElementById('errors-list');
+    
+    if (errorsLog.length === 0) {
+      errorsList.innerHTML = `<p style="color: var(--ok); font-weight: bold; text-align: center; padding: 20px;">Perfeito! Você não cometeu nenhum erro.</p>`;
+    } else {
+      errorsLog.forEach(err => {
+        const card = document.createElement('div');
+        card.className = 'error-card';
+        card.innerHTML = `
+          <div class="error-q">${err.question}</div>
+          <div class="error-ans">
+            <span class="bad">Sua resposta: ${err.userAnswer}</span>
+            <span class="ok">Correta: ${err.correctAnswer}</span>
+          </div>
+          <div class="error-exp"><strong>Explicação:</strong> ${err.explanation}</div>
+        `;
+        errorsList.appendChild(card);
+      });
+    }
+
+    // --- SALVAR NO PERFIL ---
+    const report = {
+      level: level,
+      date: new Date().toISOString(),
+      skills: {
+        reading: skillStats.Reading.correct / (skillStats.Reading.total || 1),
+        listening: skillStats.Listening.correct / (skillStats.Listening.total || 1),
+        writing: skillStats.Writing.correct / (skillStats.Writing.total || 1),
+        speaking: skillStats.Speaking.correct / (skillStats.Speaking.total || 1)
+      }
+    };
+
     if (window.VentuStorage) {
       const user = window.VentuStorage.getUser();
       user.estimatedLevel = level;
+      user.lastAssessment = report; // Salva o objeto completo
       window.VentuStorage.saveUser(user);
     }
 
@@ -416,10 +557,21 @@
       const sb = window.supabase.createClient('https://hbqjoadubrwuafbfykre.supabase.co', 'sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_');
       sb.auth.getSession().then(({ data: { session } }) => {
         if (session) {
-          sb.from('profiles').update({ estimated_level: level }).eq('id', session.user.id).then();
+          // Tenta salvar o nível e o relatório JSON no banco (se a coluna assessment_report existir)
+          sb.from('profiles').update({ 
+            estimated_level: level,
+            assessment_report: report 
+          }).eq('id', session.user.id).then(({error}) => {
+             if(error) console.warn("Coluna 'assessment_report' não existe no Supabase. Salvo apenas localmente.");
+          });
         }
       });
     }
+  }
+
+  function toggleErrors() {
+    const list = document.getElementById('errors-list');
+    list.classList.toggle('active');
   }
 </script>
 </body>
