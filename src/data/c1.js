@@ -359,13 +359,12 @@
 
     // ============================================================
     // ARTHUR — THE PATRIARCH
-    // (arthur_1 a arthur_8 = seus originais; arthur_9 a arthur_20 = novos)
     // ============================================================
     arthur: {
       charId: 'arthur',
       name: 'Arthur',
       role: 'The Patriarch',
-      emoji: '👨‍💼',
+      emoji: '🤵‍♂️', // <-- AVATAR ALTERADO AQUI
       description: 'Forty years in business. You built this family from nothing. Tonight, your daughter brings home a man you do not trust. Your brother is already drunk. Your wife is watching. Welcome to Thanksgiving.',
       initialState: { money: 500.00, energy: 100 },
       startScene: 'arthur_1',
@@ -426,7 +425,7 @@
           offensiveScene: 'arthur_bad_1'
         },
         // --- ATO 2: O JANTAR ---
-             arthur_4: {
+        arthur_4: {
           npcName: 'Narrador',
           npcText: "Alex walks toward his chair and trips. A full glass of red wine flies from his hand and lands on Margaret's pristine white Persian carpet.",
           energyCost: 15,
@@ -515,7 +514,7 @@
           offensiveScene: 'arthur_bad_2'
         },
 
-        // --- ATO 3: O EX E O SUBORNO (novos) ---
+        // --- ATO 3: O EX E O SUBORNO ---
         arthur_9: {
           npcName: 'Claire (Your Daughter)',
           npcText: "Dad. Why is Julian here? You promised. You PROMISED no more tests.",
@@ -754,7 +753,7 @@
       charId: 'richard',
       name: 'Richard',
       role: 'The Drunk Uncle',
-      emoji: '🍺',
+      emoji: '🥴', // <-- AVATAR ALTERADO AQUI
       description: "You are the family's black sheep. You've been below the salt your whole life. Tonight, you drink. You cause chaos. And maybe — just maybe — you'll be the only one who tells the truth. Welcome to Thanksgiving.",
       initialState: { money: 50.00, energy: 100 },
       startScene: 'richard_1',
