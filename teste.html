@@ -38,7 +38,7 @@
     .question-box.active { display: block; animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
     
-    .badge { display: inline-block; font-size: 0.7rem; padding: 4px 8px; border-radius: 6px; font-weight: bold; text-transform: uppercase; margin-bottom: 15px; background: rgba(251, 191, 36, 0.15); color: var(--gold); border: 1px solid rgba(251, 191, 36, 0.3); }
+    .badge { display: inline-block; font-size: 0.7rem; padding: 4px 8px; border-radius: 6px; font-weight: bold; text-transform: uppercase; margin-bottom: 15px; background: var(--border); color: var(--text-muted); }
     .question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
     
     .options { display: flex; flex-direction: column; gap: 12px; }
@@ -94,7 +94,7 @@
   <!-- RESULTADO -->
   <div id="result-box" class="result-box">
     <h2 class="result-title" id="result-level">B1</h2>
-    <p class="result-desc" id="result-text">Você já consegue se virar bem...</p>
+    <p class="result-desc" id="result-desc">Você já consegue se virar bem...</p>
     <button class="btn btn-p" onclick="window.location.href='jogar.html'">Ver meus Níveis</button>
     <a href="index.html" class="btn" style="background:transparent; color:var(--text-muted); margin-top:10px;">Voltar para Home</a>
   </div>
@@ -102,53 +102,53 @@
 
 <script src="src/engine/storage.js"></script>
 <script>
-  // --- BANCO DE QUESTÕES (CEFR Ponderado) ---
+  // --- BANCO DE QUESTÕES (20 Questões - Sotaques Misturados + Dificuldade B1-C2 Elevada) ---
   const questions = [
     // A1 - Reading
-    { type: 'mcq', level: 'A1', skill: 'Reading', pts: 10, text: "Complete a frase: 'I ___ a student at the university.'", options: ["is", "am", "are"], answer: "am" },
-    // A1 - Listening
-    { type: 'listen', level: 'A1', skill: 'Listening', pts: 10, audio: "Where is the nearest bank?", text: "O que a pessoa está perguntando?", options: ["Onde fica o banheiro?", "Onde fica o banco mais próximo?", "Quanto custa a passagem?"], answer: "Onde fica o banco mais próximo?" },
-    // A1 - Writing
-    { type: 'write', level: 'A1', skill: 'Writing', pts: 10, text: "Escreva a forma correta do verbo 'to be' para 'He':", answer: "is" },
+    { type: 'mcq', level: 'A1', text: "Complete a frase: 'I ___ a student at the university.'", options: ["is", "am", "are"], answer: "am", pts: 10 },
+    // A1 - Listening (US)
+    { type: 'listen', level: 'A1', accent: 'en-US', audio: "Where is the nearest bank?", text: "O que a pessoa está perguntando?", options: ["Onde fica o banheiro?", "Onde fica o banco mais próximo?", "Quanto custa a passagem?"], answer: "Onde fica o banco mais próximo?", pts: 10 },
     // A1 - Speaking
-    { type: 'speak', level: 'A1', skill: 'Speaking', pts: 10, text: "Diga em voz alta a seguinte frase:", target: "Hello, how are you?" },
+    { type: 'speak', level: 'A1', text: "Leia em voz alta a seguinte frase:", target: "Hello, how are you?", pts: 10 },
 
     // A2 - Reading
-    { type: 'mcq', level: 'A2', skill: 'Reading', pts: 20, text: "Escolha a opção correta: 'I have lived here ___ 2015.'", options: ["for", "since", "from"], answer: "since" },
-    // A2 - Listening
-    { type: 'listen', level: 'A2', skill: 'Listening', pts: 20, audio: "I was going to call you, but I lost my phone.", text: "Por que a pessoa não ligou?", options: ["Ela esqueceu o telefone em casa.", "Ela perdeu o celular.", "Ela não tinha o seu número."], answer: "Ela perdeu o celular." },
+    { type: 'mcq', level: 'A2', text: "Escolha a opção correta: 'I have lived here ___ 2015.'", options: ["for", "since", "from"], answer: "since", pts: 20 },
+    // A2 - Listening (UK) - Corrigido pronomes
+    { type: 'listen', level: 'A2', accent: 'en-GB', audio: "I was going to call you, but I lost my phone.", text: "Por que a pessoa não ligou?", options: ["Esqueceu o telefone em casa.", "Perdeu o celular.", "Não tinha o seu número."], answer: "Perdeu o celular.", pts: 20 },
     // A2 - Writing
-    { type: 'write', level: 'A2', skill: 'Writing', pts: 20, text: "Qual o passado do verbo 'to go'? (ex: I ___ to the beach yesterday)", answer: "went" },
+    { type: 'write', level: 'A2', text: "Qual o passado do verbo 'to go'? (ex: I ___ to the beach yesterday)", answer: "went", pts: 20 },
     // A2 - Speaking
-    { type: 'speak', level: 'A2', skill: 'Speaking', pts: 20, text: "Diga em voz alta a seguinte frase:", target: "Could you please help me?" },
+    { type: 'speak', level: 'A2', text: "Leia em voz alta a seguinte frase:", target: "Could you please help me?", pts: 20 },
 
-    // B1 - Reading
-    { type: 'mcq', level: 'B1', skill: 'Reading', pts: 30, text: "Complete a condicional: 'If it rains tomorrow, we ___ cancel the picnic.'", options: ["will", "would", "did"], answer: "will" },
-    // B1 - Listening
-    { type: 'listen', level: 'B1', skill: 'Listening', pts: 30, audio: "The meeting has been called off due to the weather.", text: "O que aconteceu com a reunião?", options: ["Ela foi cancelada.", "Ela foi adiada.", "Ela foi um sucesso."], answer: "Ela foi cancelada." },
-    // B1 - Writing
-    { type: 'write', level: 'B1', skill: 'Writing', pts: 30, text: "Complete com a preposição correta: 'I have been studying English ___ three years.'", answer: "for" },
+    // B1 - Reading (Subjunctive)
+    { type: 'mcq', level: 'B1', text: "Complete a frase (Subjunctive): 'If I ___ you, I would apologize immediately.'", options: ["was", "were", "am"], answer: "were", pts: 30 },
+    // B1 - Listening (AUS) - Phrasal Verb
+    { type: 'listen', level: 'B1', accent: 'en-AU', audio: "I'm going to call it a day. I'm exhausted.", text: "O que a pessoa quer dizer com 'call it a day'?", options: ["Ligar para alguém durante o dia.", "Parar de trabalhar por hoje.", "Marcar um compromisso para amanhã."], answer: "Parar de trabalhar por hoje.", pts: 30 },
+    // B1 - Writing (Prepositional Verb)
+    { type: 'write', level: 'B1', text: "Complete com a preposição correta: 'I am looking forward ___ meeting you.'", answer: "to", pts: 30 },
     // B1 - Speaking
-    { type: 'speak', level: 'B1', skill: 'Speaking', pts: 30, text: "Diga em voz alta a seguinte frase:", target: "I would like to book a table for two." },
+    { type: 'speak', level: 'B1', text: "Leia em voz alta a seguinte frase:", target: "I've been trying to reach you all morning.", pts: 30 },
 
-    // B2 - Reading
-    { type: 'mcq', level: 'B2', skill: 'Reading', pts: 40, text: "O que significa a expressão 'It's not my cup of tea'?", options: ["Não é o meu chá favorito.", "Não é algo que eu goste ou me interesse.", "É uma coisa muito difícil de fazer."], answer: "Não é algo que eu goste ou me interesse." },
-    // B2 - Listening
-    { type: 'listen', level: 'B2', skill: 'Listening', pts: 40, audio: "He's a bit of a loose cannon, so be careful.", text: "O que 'loose cannon' significa nesse contexto?", options: ["Alguém imprevisível e que pode causar problemas.", "Alguém muito calmo e confiável.", "Alguém que fala muito."], answer: "Alguém imprevisível e que pode causar problemas." },
-    // B2 - Writing
-    { type: 'write', level: 'B2', skill: 'Writing', pts: 40, text: "Transforme na versão formal: 'I wanna know about the contract.' -> 'I would like to ___ about the contract.'", answer: "know" },
-    // B2 - Speaking
-    { type: 'speak', level: 'B2', skill: 'Speaking', pts: 40, text: "Diga em voz alta a seguinte frase:", target: "I completely agree with your point of view." },
+    // B2 - Reading (Idiom/Slang)
+    { type: 'mcq', level: 'B2', text: "O que significa a expressão 'call it a wrap'?", options: ["Embrulhar algo para presente.", "Finalizar uma atividade ou projeto.", "Ligar para alguém rapidamente."], answer: "Finalizar uma atividade ou projeto.", pts: 40 },
+    // B2 - Listening (Canadian Accent)
+    { type: 'listen', level: 'B2', accent: 'en-CA', audio: "I'm sorry, but I can't make it to the meeting today. I'm feeling a bit under the weather.", text: "Por que a pessoa não vai à reunião?", options: ["Ela está doente.", "Ela esqueceu da reunião.", "Ela está viajando."], answer: "Ela está doente.", pts: 40 },
+    // B2 - Writing (Passive Voice)
+    { type: 'write', level: 'B2', text: "Transforme para a voz passiva: 'The committee will review the proposal.' -> 'The proposal will be ___ by the committee.'", answer: "reviewed", pts: 40 },
+    // B2 - Speaking (Longer sentence)
+    { type: 'speak', level: 'B2', text: "Leia em voz alta a seguinte frase:", target: "If I had known you were coming, I would have baked a cake.", pts: 40 },
 
-    // C1 - Reading
-    { type: 'mcq', level: 'C1', skill: 'Reading', pts: 50, text: "Inversão gramatical: 'Had I known about the traffic, I ___ earlier.'", options: ["would have left", "will leave", "had left"], answer: "would have left" },
-    // C1 - Listening
-    { type: 'listen', level: 'C1', skill: 'Listening', pts: 50, audio: "The board gave a vociferous response to the proposal.", text: "Como foi a resposta do conselho?", options: ["Silenciosa e discreta.", "Barulhenta, forte e expressiva.", "Confusa e desorganizada."], answer: "Barulhenta, forte e expressiva." },
-    // C1 - Writing
-    { type: 'write', level: 'C1', skill: 'Writing', pts: 50, text: "Complete a expressão de alto nível: 'The implications are far-___ .' (algo de grande alcance)", answer: "reaching" },
-    
-    // C2 - Reading
-    { type: 'mcq', level: 'C2', skill: 'Reading', pts: 60, text: "O que significa a frase: 'His argument was so convoluted that even his supporters were left scratching their heads.'?", options: ["O argumento era tão claro que todos entenderam.", "O argumento era tão confuso e complicado que nem os apoiadores entenderam.", "O argumento era tão agressivo que causou brigas."], answer: "O argumento era tão confuso e complicado que nem os apoiadores entenderam." }
+    // C1 - Reading (Inversion + Slang)
+    { type: 'mcq', level: 'C1', text: "O que significa a expressão 'He has a chip on his shoulder'?", options: ["Ele está com um pedaço de madeira no ombro.", "Ele tem um sentimento de ressentimento ou inferioridade.", "Ele é uma pessoa muito amigável."], answer: "Ele tem um sentimento de ressentimento ou inferioridade.", pts: 50 },
+    // C1 - Listening (Irish Accent) - Slang e Phrasal Verbs
+    { type: 'listen', level: 'C1', accent: 'en-IE', audio: "I'm completely snowed under with work at the moment, so I'll have to take a rain check on dinner.", text: "O que a pessoa está dizendo?", options: ["Que vai ao jantar mesmo com muita neve.", "Que está muito ocupada e vai recusar o convite por agora.", "Que quer remarcar o jantar para amanhã cedo."], answer: "Que está muito ocupada e vai recusar o convite por agora.", pts: 50 },
+    // C1 - Writing (Advanced Collocation)
+    { type: 'write', level: 'C1', text: "Complete com a palavra correta: 'The findings were so ___ that they completely changed our understanding of the disease.' (algo inovador, que abre caminhos)", answer: "groundbreaking", pts: 50 },
+    // C1 - Speaking (Complex sentence)
+    { type: 'speak', level: 'C1', text: "Leia em voz alta a seguinte frase:", target: "Despite the considerable challenges, we managed to pull it off.", pts: 50 },
+
+    // C2 - Reading (Slang / Idiom)
+    { type: 'mcq', level: 'C2', text: "O que significa a expressão 'The CEO's announcement was a double-edged sword'?", options: ["O anúncio foi uma arma letal.", "O anúncio teve consequências positivas e negativas.", "O anúncio foi muito confuso."], answer: "O anúncio teve consequências positivas e negativas.", pts: 60 }
   ];
 
   let currentQuestion = 0;
@@ -170,11 +170,11 @@
     renderQuestion();
   }
 
-  function playAudio(text) {
+  function playAudio(text, lang) {
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'en-US';
+    u.lang = lang || 'en-US';
     u.rate = 0.9;
     window.speechSynthesis.speak(u);
   }
@@ -183,7 +183,6 @@
     const container = document.getElementById('questions-container');
     container.innerHTML = '';
     
-    // Atualiza progresso
     document.getElementById('progress').style.width = `${(currentQuestion / questions.length) * 100}%`;
     document.getElementById('progress-text').textContent = `Questão ${currentQuestion + 1} de ${questions.length}`;
 
@@ -191,14 +190,18 @@
     const qBox = document.createElement('div');
     qBox.className = 'question-box active';
     
+    let skillName = 'Reading';
+    if (q.type === 'write') skillName = 'Writing';
+    else if (q.type === 'listen') skillName = 'Listening';
+    else if (q.type === 'speak') skillName = 'Speaking';
+
     qBox.innerHTML = `
-      <div class="badge">${q.level} · ${q.skill}</div>
+      <div class="badge">${skillName}</div>
       <div class="question-text">${q.text}</div>
     `;
 
     const contentDiv = document.createElement('div');
     
-    // --- LÓGICA DE CADA TIPO DE HABILIDADE ---
     if (q.type === 'mcq') {
       const optionsDiv = document.createElement('div');
       optionsDiv.className = 'options';
@@ -222,7 +225,7 @@
       contentDiv.appendChild(inputArea);
     }
     
-        else if (q.type === 'listen') {
+    else if (q.type === 'listen') {
       const listenArea = document.createElement('div');
       listenArea.className = 'input-area';
       
@@ -234,8 +237,8 @@
       audioBtn.innerHTML = `🔊 Ouvir Áudio (${maxPlays}x restantes)`;
       
       audioBtn.onclick = () => {
-        if (playCount >= maxPlays) return; // Trava de segurança
-        playAudio(q.audio);
+        if (playCount >= maxPlays) return;
+        playAudio(q.audio, q.accent);
         playCount++;
         
         const remaining = maxPlays - playCount;
@@ -265,7 +268,7 @@
       contentDiv.appendChild(listenArea);
     }
     
-        else if (q.type === 'speak') {
+    else if (q.type === 'speak') {
       const speakArea = document.createElement('div');
       speakArea.className = 'input-area';
       
@@ -274,16 +277,16 @@
         setTimeout(() => checkAnswer(true, 0), 2000);
       } else {
         speakArea.innerHTML = `
-          <div style="background: var(--bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px dashed var(--gold); text-align: center;">
-              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Frase Alvo</p>
-              <div style="font-size: 1.4rem; font-weight: bold; color: var(--gold); font-style: italic; margin-bottom: 15px;">
+          <div style="background: var(--bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); text-align: center;">
+              <div style="font-size: 1.4rem; font-weight: bold; color: var(--gold); font-style: italic;">
                   "${q.target}"
               </div>
-              <button type="button" class="btn btn-g" style="width: auto; padding: 8px 15px; font-size: 0.85rem; margin: 0 auto; border-color: var(--blue); color: var(--blue);" onclick="playAudio('${q.target}')">🔊 Ouvir Pronúncia</button>
           </div>
           <button class="action-btn btn-mic" id="btn-record">🎤 Clique para Gravar</button>
           <p style="font-size:0.8rem; color:var(--text-muted); text-align:center; margin-top:10px;">Fale de forma clara em inglês.</p>
           <div class="feedback" id="feedback-speak"></div>
+          
+          <button type="button" onclick="checkAnswer(false, 0)" style="background: transparent; border: none; color: var(--text-muted); text-decoration: underline; cursor: pointer; font-size: 0.8rem; margin-top: 15px;">Pular esta questão</button>
         `;
         speakArea.querySelector('#btn-record').onclick = () => startRecording(q.target, q.pts);
       }
@@ -297,7 +300,6 @@
   function submitWrite() {
     const input = document.getElementById('write-input').value.trim().toLowerCase();
     const q = questions[currentQuestion];
-    // Aceita variações com ou sem pontuação no final
     const isCorrect = input.replace(/[.!?]/g, '') === q.answer.toLowerCase();
     checkAnswer(isCorrect, q.pts);
   }
@@ -312,34 +314,43 @@
     }
 
     btn.classList.add('recording');
-    btn.innerHTML = '🛑 Gravando... Fale agora';
+    btn.innerHTML = '🛑 Parar e Avaliar';
     feedback.className = 'feedback';
     feedback.style.display = 'none';
     
+    const safetyTimeout = setTimeout(() => {
+      if (recognition) recognition.stop();
+    }, 8000);
+
     recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript.toLowerCase();
+      clearTimeout(safetyTimeout);
+      const transcript = event.results[0][0].transcript.toLowerCase().trim();
       
-      // Comparação flexível (limpa pontuação)
       const cleanTarget = target.toLowerCase().replace(/[.,!?]/g, '');
       const cleanTranscript = transcript.replace(/[.,!?]/g, '');
       
-      // Se o usuário falou pelo menos 70% das palavras (evita falhas de sotaque muito fortes)
       const targetWords = cleanTarget.split(' ');
       let matches = 0;
       targetWords.forEach(w => { if (cleanTranscript.includes(w)) matches++; });
       
-      const isCorrect = (matches / targetWords.length) >= 0.7;
+      const isCorrect = (matches / targetWords.length) >= 0.5;
 
-      feedback.textContent = isCorrect ? '✅ Boa pronúncia!' : '❌ Quase! Tente falar mais devagar.';
-      feedback.className = `feedback ${isCorrect ? 'ok' : 'bad'}`;
+      if (isCorrect) {
+        feedback.textContent = '✅ Boa pronúncia!';
+        feedback.className = 'feedback ok';
+      } else {
+        feedback.innerHTML = `❌ Não reconhecido.<br><small>Você falou: "${transcript}"</small>`;
+        feedback.className = 'feedback bad';
+      }
       
       btn.classList.remove('recording');
       btn.innerHTML = 'Avançando...';
       
-      setTimeout(() => checkAnswer(isCorrect, pts), 1500);
+      setTimeout(() => checkAnswer(isCorrect, pts), 2000);
     };
 
     recognition.onerror = () => {
+      clearTimeout(safetyTimeout);
       btn.classList.remove('recording');
       btn.innerHTML = '🎤 Clique para Gravar';
       feedback.textContent = 'Erro ao acessar microfone. Pulando...';
@@ -351,7 +362,12 @@
   }
 
   function checkAnswer(isCorrect, pts) {
-    if (isCorrect) totalScore += pts;
+    if (isCorrect) {
+      totalScore += pts;
+    } else {
+      totalScore -= (pts / 2);
+      if (totalScore < 0) totalScore = 0; 
+    }
     currentQuestion++;
     
     if (currentQuestion < questions.length) {
@@ -366,24 +382,23 @@
     const resultBox = document.getElementById('result-box');
     resultBox.classList.add('active');
 
-    // Lógica de Nível Baseada na Porcentagem de Pontos (Max = 640)
     const percentage = (totalScore / maxScore) * 100;
     let level = 'A1';
-    let desc = 'Você está começando a jornada. O básico é a sua arma.';
+    let desc = 'Você está começando a jornada. O básico é a sua arma para sobreviver no Burger Palace!';
     
-    if (percentage >= 85) {
+    if (percentage >= 90) {
       level = 'C2';
       desc = 'Nível de proficiência plena. Você domina sarcasmo, ironia e expressões complexas como um nativo.';
-    } else if (percentage >= 70) {
+    } else if (percentage >= 75) {
       level = 'C1';
-      desc = 'Você tem fluência avançada e entende estruturas complexas. O jantar da elite não será um problema.';
-    } else if (percentage >= 50) {
+      desc = 'Fluência avançada. Você entende estruturas complexas e não passaria aperto no jantar da elite.';
+    } else if (percentage >= 60) {
       level = 'B2';
       desc = 'Você consegue argumentar e se virar em quase todas as situações com naturalidade.';
-    } else if (percentage >= 30) {
+    } else if (percentage >= 40) {
       level = 'B1';
       desc = 'Você já se comunica bem no dia a dia, mas ainda tropeça em phrasal verbs e contextos formais.';
-    } else if (percentage >= 15) {
+    } else if (percentage >= 20) {
       level = 'A2';
       desc = 'Você tem uma base sólida para viagens e situações cotidianas, mas precisa expandir o vocabulário.';
     }
@@ -391,7 +406,6 @@
     document.getElementById('result-level').textContent = level;
     document.getElementById('result-desc').textContent = desc;
 
-    // Salvar local e no Supabase
     if (window.VentuStorage) {
       const user = window.VentuStorage.getUser();
       user.estimatedLevel = level;
