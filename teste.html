@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste de Nivelamento — Ventu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    try { document.documentElement.setAttribute('data-theme', localStorage.getItem('ventu-theme') || 'dark'); } catch(e) {}
+  </script>
+  <style>
+    :root {
+      --bg: #0b0f19; --panel: #151b2b; --text: #e2e8f0; --text-muted: #94a3b8;
+      --gold: #fbbf24; --gold-hover: #f59e0b; --border: #1e293b; --blue: #2563eb;
+      --ok: #22c55e; --bad: #ef4444;
+      --font-heading: 'Playfair Display', serif; --font-body: 'Inter', sans-serif;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc; --panel: #ffffff; --text: #0f172a; --text-muted: #64748b;
+      --gold: #d97706; --gold-hover: #b45309; --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+    
+    .container { max-width: 650px; width: 100%; background: var(--panel); border: 1px solid var(--border); border-radius: 24px; padding: 40px 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); position: relative; }
+    
+    h1 { font-family: var(--font-heading); font-size: 2.2rem; text-align: center; margin-bottom: 10px; color: var(--gold); }
+    p.subtitle { text-align: center; color: var(--text-muted); margin-bottom: 30px; font-size: 1rem; line-height: 1.5; }
+    
+    .progress-bar { width: 100%; height: 8px; background: var(--border); border-radius: 99px; margin-bottom: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--gold); width: 0%; transition: width 0.3s ease; }
+    .progress-text { text-align: right; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 25px; font-weight: bold; }
+    
+    .question-box { display: none; }
+    .question-box.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    
+    .badge { display: inline-block; font-size: 0.7rem; padding: 4px 8px; border-radius: 6px; font-weight: bold; text-transform: uppercase; margin-bottom: 15px; background: rgba(251, 191, 36, 0.15); color: var(--gold); border: 1px solid rgba(251, 191, 36, 0.3); }
+    .question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
+    
+    .options { display: flex; flex-direction: column; gap: 12px; }
+    .option-btn { background: var(--bg); border: 1px solid var(--border); padding: 15px 20px; border-radius: 12px; color: var(--text); font-size: 1rem; text-align: left; cursor: pointer; transition: 0.2s; font-family: var(--font-body); }
+    .option-btn:hover { border-color: var(--gold); background: rgba(251, 191, 36, 0.05); }
+    
+    .input-area { display: flex; flex-direction: column; gap: 15px; }
+    .text-input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 1rem; outline: none; }
+    .text-input:focus { border-color: var(--gold); }
+    
+    .action-btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; font-family: var(--font-body); }
+    .btn-listen { background: var(--blue); color: white; }
+    .btn-listen:hover { background: #1d4ed8; }
+    .btn-mic { background: var(--gold); color: var(--bg); }
+    .btn-mic:hover { background: var(--gold-hover); }
+    .btn-mic.recording { background: var(--bad); color: white; animation: pulse 1s infinite; }
+    
+    .feedback { margin-top: 15px; padding: 10px; border-radius: 8px; font-weight: bold; text-align: center; display: none; }
+    .feedback.ok { display: block; background: rgba(34, 197, 94, 0.1); color: var(--ok); border: 1px solid var(--ok); }
+    .feedback.bad { display: block; background: rgba(239, 68, 68, 0.1); color: var(--bad); border: 1px solid var(--bad); }
+    
+    .result-box { display: none; text-align: center; }
+    .result-box.active { display: block; animation: fadeIn 0.5s ease; }
+    .result-title { font-family: var(--font-heading); font-size: 3rem; color: var(--gold); margin-bottom: 15px; }
+    .result-desc { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 30px; line-height: 1.6; }
+    
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 14px 30px; border-radius: 10px; font-weight: 600; font-size: 1.05rem; cursor: pointer; border: none; transition: 0.2s; text-decoration: none; font-family: var(--font-body); width: 100%; }
+    .btn-p { background: var(--gold); color: var(--bg); }
+    .btn-p:hover { background: var(--gold-hover); transform: translateY(-2px); }
+    
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- TELA INICIAL -->
+  <div id="intro-box">
+    <h1>Teste de Nivelamento</h1>
+    <p class="subtitle">Descubra seu nível real de inglês (CEFR).<br>20 questões. 4 habilidades. Cerca de 5 minutos.<br><br><em style="font-size:0.85rem; color:var(--gold);">Certifique-se de permitir o uso do microfone para o teste de Speaking.</em></p>
+    <button class="btn btn-p" onclick="startTest()">Começar Teste</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz-box" style="display: none;">
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+    <div class="progress-text" id="progress-text">Questão 1 de 20</div>
+    <div id="questions-container">
+      <!-- Injetado via JS -->
+    </div>
+  </div>
+
+  <!-- RESULTADO -->
+  <div id="result-box" class="result-box">
+    <h2 class="result-title" id="result-level">B1</h2>
+    <p class="result-desc" id="result-text">Você já consegue se virar bem...</p>
+    <button class="btn btn-p" onclick="window.location.href='jogar.html'">Ver meus Níveis</button>
+    <a href="index.html" class="btn" style="background:transparent; color:var(--text-muted); margin-top:10px;">Voltar para Home</a>
+  </div>
+</div>
+
+<script src="src/engine/storage.js"></script>
+<script>
+  // --- BANCO DE QUESTÕES (CEFR Ponderado) ---
+  const questions = [
+    // A1 - Reading
+    { type: 'mcq', level: 'A1', skill: 'Reading', pts: 10, text: "Complete a frase: 'I ___ a student at the university.'", options: ["is", "am", "are"], answer: "am" },
+    // A1 - Listening
+    { type: 'listen', level: 'A1', skill: 'Listening', pts: 10, audio: "Where is the nearest bank?", text: "O que a pessoa está perguntando?", options: ["Onde fica o banheiro?", "Onde fica o banco mais próximo?", "Quanto custa a passagem?"], answer: "Onde fica o banco mais próximo?" },
+    // A1 - Writing
+    { type: 'write', level: 'A1', skill: 'Writing', pts: 10, text: "Escreva a forma correta do verbo 'to be' para 'He':", answer: "is" },
+    // A1 - Speaking
+    { type: 'speak', level: 'A1', skill: 'Speaking', pts: 10, text: "Diga em voz alta a seguinte frase:", target: "Hello, how are you?" },
+
+    // A2 - Reading
+    { type: 'mcq', level: 'A2', skill: 'Reading', pts: 20, text: "Escolha a opção correta: 'I have lived here ___ 2015.'", options: ["for", "since", "from"], answer: "since" },
+    // A2 - Listening
+    { type: 'listen', level: 'A2', skill: 'Listening', pts: 20, audio: "I was going to call you, but I lost my phone.", text: "Por que a pessoa não ligou?", options: ["Ela esqueceu o telefone em casa.", "Ela perdeu o celular.", "Ela não tinha o seu número."], answer: "Ela perdeu o celular." },
+    // A2 - Writing
+    { type: 'write', level: 'A2', skill: 'Writing', pts: 20, text: "Qual o passado do verbo 'to go'? (ex: I ___ to the beach yesterday)", answer: "went" },
+    // A2 - Speaking
+    { type: 'speak', level: 'A2', skill: 'Speaking', pts: 20, text: "Diga em voz alta a seguinte frase:", target: "Could you please help me?" },
+
+    // B1 - Reading
+    { type: 'mcq', level: 'B1', skill: 'Reading', pts: 30, text: "Complete a condicional: 'If it rains tomorrow, we ___ cancel the picnic.'", options: ["will", "would", "did"], answer: "will" },
+    // B1 - Listening
+    { type: 'listen', level: 'B1', skill: 'Listening', pts: 30, audio: "The meeting has been called off due to the weather.", text: "O que aconteceu com a reunião?", options: ["Ela foi cancelada.", "Ela foi adiada.", "Ela foi um sucesso."], answer: "Ela foi cancelada." },
+    // B1 - Writing
+    { type: 'write', level: 'B1', skill: 'Writing', pts: 30, text: "Complete com a preposição correta: 'I have been studying English ___ three years.'", answer: "for" },
+    // B1 - Speaking
+    { type: 'speak', level: 'B1', skill: 'Speaking', pts: 30, text: "Diga em voz alta a seguinte frase:", target: "I would like to book a table for two." },
+
+    // B2 - Reading
+    { type: 'mcq', level: 'B2', skill: 'Reading', pts: 40, text: "O que significa a expressão 'It's not my cup of tea'?", options: ["Não é o meu chá favorito.", "Não é algo que eu goste ou me interesse.", "É uma coisa muito difícil de fazer."], answer: "Não é algo que eu goste ou me interesse." },
+    // B2 - Listening
+    { type: 'listen', level: 'B2', skill: 'Listening', pts: 40, audio: "He's a bit of a loose cannon, so be careful.", text: "O que 'loose cannon' significa nesse contexto?", options: ["Alguém imprevisível e que pode causar problemas.", "Alguém muito calmo e confiável.", "Alguém que fala muito."], answer: "Alguém imprevisível e que pode causar problemas." },
+    // B2 - Writing
+    { type: 'write', level: 'B2', skill: 'Writing', pts: 40, text: "Transforme na versão formal: 'I wanna know about the contract.' -> 'I would like to ___ about the contract.'", answer: "know" },
+    // B2 - Speaking
+    { type: 'speak', level: 'B2', skill: 'Speaking', pts: 40, text: "Diga em voz alta a seguinte frase:", target: "I completely agree with your point of view." },
+
+    // C1 - Reading
+    { type: 'mcq', level: 'C1', skill: 'Reading', pts: 50, text: "Inversão gramatical: 'Had I known about the traffic, I ___ earlier.'", options: ["would have left", "will leave", "had left"], answer: "would have left" },
+    // C1 - Listening
+    { type: 'listen', level: 'C1', skill: 'Listening', pts: 50, audio: "The board gave a vociferous response to the proposal.", text: "Como foi a resposta do conselho?", options: ["Silenciosa e discreta.", "Barulhenta, forte e expressiva.", "Confusa e desorganizada."], answer: "Barulhenta, forte e expressiva." },
+    // C1 - Writing
+    { type: 'write', level: 'C1', skill: 'Writing', pts: 50, text: "Complete a expressão de alto nível: 'The implications are far-___ .' (algo de grande alcance)", answer: "reaching" },
+    
+    // C2 - Reading
+    { type: 'mcq', level: 'C2', skill: 'Reading', pts: 60, text: "O que significa a frase: 'His argument was so convoluted that even his supporters were left scratching their heads.'?", options: ["O argumento era tão claro que todos entenderam.", "O argumento era tão confuso e complicado que nem os apoiadores entenderam.", "O argumento era tão agressivo que causou brigas."], answer: "O argumento era tão confuso e complicado que nem os apoiadores entenderam." }
+  ];
+
+  let currentQuestion = 0;
+  let totalScore = 0;
+  let maxScore = questions.reduce((acc, q) => acc + q.pts, 0);
+
+  let recognition = null;
+  if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRec();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+  }
+
+  function startTest() {
+    document.getElementById('intro-box').style.display = 'none';
+    document.getElementById('quiz-box').style.display = 'block';
+    renderQuestion();
+  }
+
+  function playAudio(text) {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US';
+    u.rate = 0.9;
+    window.speechSynthesis.speak(u);
+  }
+
+  function renderQuestion() {
+    const container = document.getElementById('questions-container');
+    container.innerHTML = '';
+    
+    // Atualiza progresso
+    document.getElementById('progress').style.width = `${(currentQuestion / questions.length) * 100}%`;
+    document.getElementById('progress-text').textContent = `Questão ${currentQuestion + 1} de ${questions.length}`;
+
+    const q = questions[currentQuestion];
+    const qBox = document.createElement('div');
+    qBox.className = 'question-box active';
+    
+    qBox.innerHTML = `
+      <div class="badge">${q.level} · ${q.skill}</div>
+      <div class="question-text">${q.text}</div>
+    `;
+
+    const contentDiv = document.createElement('div');
+    
+    // --- LÓGICA DE CADA TIPO DE HABILIDADE ---
+    if (q.type === 'mcq') {
+      const optionsDiv = document.createElement('div');
+      optionsDiv.className = 'options';
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = opt;
+        btn.onclick = () => checkAnswer(opt === q.answer, q.pts);
+        optionsDiv.appendChild(btn);
+      });
+      contentDiv.appendChild(optionsDiv);
+    }
+    
+    else if (q.type === 'write') {
+      const inputArea = document.createElement('div');
+      inputArea.className = 'input-area';
+      inputArea.innerHTML = `
+        <input type="text" class="text-input" id="write-input" placeholder="Digite sua resposta..." autocomplete="off">
+        <button class="action-btn btn-mic" onclick="submitWrite()">Confirmar</button>
+      `;
+      contentDiv.appendChild(inputArea);
+    }
+    
+        else if (q.type === 'listen') {
+      const listenArea = document.createElement('div');
+      listenArea.className = 'input-area';
+      
+      let playCount = 0;
+      const maxPlays = 3;
+
+      const audioBtn = document.createElement('button');
+      audioBtn.className = 'action-btn btn-listen';
+      audioBtn.innerHTML = `🔊 Ouvir Áudio (${maxPlays}x restantes)`;
+      
+      audioBtn.onclick = () => {
+        if (playCount >= maxPlays) return; // Trava de segurança
+        playAudio(q.audio);
+        playCount++;
+        
+        const remaining = maxPlays - playCount;
+        if (remaining > 0) {
+          audioBtn.innerHTML = `🔊 Ouvir Áudio (${remaining}x restantes)`;
+        } else {
+          audioBtn.innerHTML = `❌ Limite de áudio atingido`;
+          audioBtn.style.background = 'var(--border)';
+          audioBtn.style.color = 'var(--text-muted)';
+          audioBtn.style.cursor = 'not-allowed';
+        }
+      };
+      
+      listenArea.appendChild(audioBtn);
+
+      const optionsDiv = document.createElement('div');
+      optionsDiv.className = 'options';
+      optionsDiv.style.marginTop = '15px';
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = opt;
+        btn.onclick = () => checkAnswer(opt === q.answer, q.pts);
+        optionsDiv.appendChild(btn);
+      });
+      listenArea.appendChild(optionsDiv);
+      contentDiv.appendChild(listenArea);
+    }
+    
+        else if (q.type === 'speak') {
+      const speakArea = document.createElement('div');
+      speakArea.className = 'input-area';
+      
+      if (!recognition) {
+        speakArea.innerHTML = `<p style="color: var(--bad); font-size:0.9rem;">Seu navegador não suporta gravação de voz. Pulando questão...</p>`;
+        setTimeout(() => checkAnswer(true, 0), 2000);
+      } else {
+        speakArea.innerHTML = `
+          <div style="background: var(--bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px dashed var(--gold); text-align: center;">
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Frase Alvo</p>
+              <div style="font-size: 1.4rem; font-weight: bold; color: var(--gold); font-style: italic; margin-bottom: 15px;">
+                  "${q.target}"
+              </div>
+              <button type="button" class="btn btn-g" style="width: auto; padding: 8px 15px; font-size: 0.85rem; margin: 0 auto; border-color: var(--blue); color: var(--blue);" onclick="playAudio('${q.target}')">🔊 Ouvir Pronúncia</button>
+          </div>
+          <button class="action-btn btn-mic" id="btn-record">🎤 Clique para Gravar</button>
+          <p style="font-size:0.8rem; color:var(--text-muted); text-align:center; margin-top:10px;">Fale de forma clara em inglês.</p>
+          <div class="feedback" id="feedback-speak"></div>
+        `;
+        speakArea.querySelector('#btn-record').onclick = () => startRecording(q.target, q.pts);
+      }
+      contentDiv.appendChild(speakArea);
+    }
+
+    qBox.appendChild(contentDiv);
+    container.appendChild(qBox);
+  }
+
+  function submitWrite() {
+    const input = document.getElementById('write-input').value.trim().toLowerCase();
+    const q = questions[currentQuestion];
+    // Aceita variações com ou sem pontuação no final
+    const isCorrect = input.replace(/[.!?]/g, '') === q.answer.toLowerCase();
+    checkAnswer(isCorrect, q.pts);
+  }
+
+  function startRecording(target, pts) {
+    const btn = document.getElementById('btn-record');
+    const feedback = document.getElementById('feedback-speak');
+    
+    if (btn.classList.contains('recording')) {
+      recognition.stop();
+      return;
+    }
+
+    btn.classList.add('recording');
+    btn.innerHTML = '🛑 Gravando... Fale agora';
+    feedback.className = 'feedback';
+    feedback.style.display = 'none';
+    
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript.toLowerCase();
+      
+      // Comparação flexível (limpa pontuação)
+      const cleanTarget = target.toLowerCase().replace(/[.,!?]/g, '');
+      const cleanTranscript = transcript.replace(/[.,!?]/g, '');
+      
+      // Se o usuário falou pelo menos 70% das palavras (evita falhas de sotaque muito fortes)
+      const targetWords = cleanTarget.split(' ');
+      let matches = 0;
+      targetWords.forEach(w => { if (cleanTranscript.includes(w)) matches++; });
+      
+      const isCorrect = (matches / targetWords.length) >= 0.7;
+
+      feedback.textContent = isCorrect ? '✅ Boa pronúncia!' : '❌ Quase! Tente falar mais devagar.';
+      feedback.className = `feedback ${isCorrect ? 'ok' : 'bad'}`;
+      
+      btn.classList.remove('recording');
+      btn.innerHTML = 'Avançando...';
+      
+      setTimeout(() => checkAnswer(isCorrect, pts), 1500);
+    };
+
+    recognition.onerror = () => {
+      btn.classList.remove('recording');
+      btn.innerHTML = '🎤 Clique para Gravar';
+      feedback.textContent = 'Erro ao acessar microfone. Pulando...';
+      feedback.className = 'feedback bad';
+      setTimeout(() => checkAnswer(false, 0), 1500);
+    };
+
+    recognition.start();
+  }
+
+  function checkAnswer(isCorrect, pts) {
+    if (isCorrect) totalScore += pts;
+    currentQuestion++;
+    
+    if (currentQuestion < questions.length) {
+      renderQuestion();
+    } else {
+      finishTest();
+    }
+  }
+
+  function finishTest() {
+    document.getElementById('quiz-box').style.display = 'none';
+    const resultBox = document.getElementById('result-box');
+    resultBox.classList.add('active');
+
+    // Lógica de Nível Baseada na Porcentagem de Pontos (Max = 640)
+    const percentage = (totalScore / maxScore) * 100;
+    let level = 'A1';
+    let desc = 'Você está começando a jornada. O básico é a sua arma.';
+    
+    if (percentage >= 85) {
+      level = 'C2';
+      desc = 'Nível de proficiência plena. Você domina sarcasmo, ironia e expressões complexas como um nativo.';
+    } else if (percentage >= 70) {
+      level = 'C1';
+      desc = 'Você tem fluência avançada e entende estruturas complexas. O jantar da elite não será um problema.';
+    } else if (percentage >= 50) {
+      level = 'B2';
+      desc = 'Você consegue argumentar e se virar em quase todas as situações com naturalidade.';
+    } else if (percentage >= 30) {
+      level = 'B1';
+      desc = 'Você já se comunica bem no dia a dia, mas ainda tropeça em phrasal verbs e contextos formais.';
+    } else if (percentage >= 15) {
+      level = 'A2';
+      desc = 'Você tem uma base sólida para viagens e situações cotidianas, mas precisa expandir o vocabulário.';
+    }
+
+    document.getElementById('result-level').textContent = level;
+    document.getElementById('result-desc').textContent = desc;
+
+    // Salvar local e no Supabase
+    if (window.VentuStorage) {
+      const user = window.VentuStorage.getUser();
+      user.estimatedLevel = level;
+      window.VentuStorage.saveUser(user);
+    }
+
+    if (window.supabase) {
+      const sb = window.supabase.createClient('https://hbqjoadubrwuafbfykre.supabase.co', 'sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_');
+      sb.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          sb.from('profiles').update({ estimated_level: level }).eq('id', session.user.id).then();
+        }
+      });
+    }
+  }
+</script>
+</body>
+</html>
