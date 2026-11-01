@@ -88,16 +88,97 @@
             { label: 'Ficar em silêncio (Pânico).', text: "..." }
           ],
           intents: [
-            { match: /(sorry|clean|immediately|forgive)/i, response: "Margaret rushes to help you. Arthur sighs heavily. Richard bursts out laughing. 'Classic!'", nextScene: 'alex_end_part1', energyCost: 5 },
-            { match: /(not only did i|ruin|mortified)/i, response: "Arthur stares at you. 'At least you know how to use an inversion,' he says dryly. Margaret hides a tiny smile.", nextScene: 'alex_end_part1', energyCost: 0 },
-            { match: /(\.\.\.)/i, response: "The silence is deafening. Arthur rings a small bell. 'Maria, bring the cleaning supplies. And a new rug.' You feel your soul leaving your body.", nextScene: 'alex_end_part1', energyCost: 20 }
+            { match: /(sorry|clean|immediately|forgive)/i, response: "Margaret rushes to help you. Arthur sighs heavily. Richard bursts out laughing. 'Classic!'", nextScene: 'alex_6', energyCost: 5 },
+            { match: /(not only did i|ruin|mortified)/i, response: "Arthur stares at you. 'At least you know how to use an inversion,' he says dryly. Margaret hides a tiny smile.", nextScene: 'alex_6', energyCost: 0 },
+            { match: /(\.\.\.)/i, response: "The silence is deafening. Arthur rings a small bell. 'Maria, bring the cleaning supplies. And a new rug.' You feel your soul leaving your body.", nextScene: 'alex_6', energyCost: 20 }
           ],
           fallback: "Everyone is staring at the wine on the carpet. Say something!",
           offensiveScene: 'alex_bad_2'
         },
-        alex_end_part1: {
+        alex_6: {
+          npcName: 'Arthur (Father-in-law)',
+          npcText: "Well. Now that the carpet has been... baptized. Please, take your seat. You are sitting above the salt, Alex. Consider yourself lucky.",
+          energyCost: 10,
+          glossary: [{ word: 'Baptized', meaning: 'Batizado (usado ironicamente aqui)' }, { word: 'Above the salt', meaning: 'Acima do sal (lugar de honra na Idade Média)' }],
+          quickReplies: [
+            { label: 'Agradecer com elegância.', text: "Thank you for the honor, Arthur. I will try to be worthy of it." },
+            { label: 'C1: Usar Cleft Sentence.', text: "What matters is the company, not the seat. Thank you for having me." }
+          ],
+          intents: [
+            { match: /(honor|worthy|company|matters|having me)/i, response: "Arthur: 'Hmm. Well said.' He gestures for everyone to sit. Richard rolls his eyes.", nextScene: 'alex_7', energyCost: 0 }
+          ],
+          fallback: "Arthur is waiting for you to sit down. Say something.",
+          offensiveScene: 'alex_bad_2'
+        },
+        alex_7: {
+          npcName: 'Richard (The Drunk Uncle)',
+          npcText: "This turkey is dry as hell! Maria, did you cook this with a hairdryer? Hahaha! What do you think, Alex?",
+          energyCost: 10,
+          glossary: [{ word: 'Dry as hell', meaning: 'Seco pra caramba' }],
+          quickReplies: [
+            { label: 'Defender a cozinheira.', text: "I think it is delicious, Richard. Cooking for this many people is not easy." },
+            { label: 'Concordar com o tio (Caos).', text: "It is a bit dry. But I am too polite to say it." }
+          ],
+          intents: [
+            { match: /(delicious|not easy|defend)/i, response: "Margaret looks at you with gratitude. Arthur nods slightly. Richard: 'Boring!'", nextScene: 'alex_8', energyCost: 0 },
+            { match: /(dry|polite|chaos)/i, response: "Richard laughs loudly. Arthur frowns. 'We do not insult the staff at this table, Richard.'", nextScene: 'alex_8', energyCost: 5 }
+          ],
+          fallback: "Richard is waiting for you to bash the turkey.",
+          offensiveScene: 'alex_bad_2'
+        },
+        alex_8: {
+          npcName: 'Richard (The Drunk Uncle)',
+          npcText: "Alright, enough small talk. Alex, let's talk politics. This country is a mess. What do you think about the immigration policies? Are you stealing our jobs?",
+          energyCost: 20,
+          glossary: [{ word: 'Mess', meaning: 'Bagunça' }, { word: 'Stealing our jobs', meaning: 'Roubando nossos empregos' }],
+          quickReplies: [
+            { label: 'Desescalar com C1.', text: "I didn't steal a job, Richard. I created three companies and hired twenty people. I think I'm helping." },
+            { label: 'Usar Second Conditional.', text: "If we focused on education, we wouldn't be having this conversation. But let's just eat." }
+          ],
+          intents: [
+            { match: /(created|hired|helping|companies)/i, response: "Richard goes quiet for a second. 'Fair point.' Arthur looks at you, genuinely surprised.", nextScene: 'alex_9', energyCost: 0 },
+            { match: /(education|focused|conversation|eat)/i, response: "Arthur: 'A diplomatic answer. But I agree, let's not ruin the dinner.' Margaret sighs in relief.", nextScene: 'alex_9', energyCost: 5 }
+          ],
+          fallback: "The whole table is looking at you. Don't start a war.",
+          offensiveScene: 'alex_bad_2'
+        },
+        alex_9: {
+          npcName: 'Arthur (Father-in-law)',
+          npcText: "Claire, pass the potatoes. Alex, a word. Claire is my only daughter. She is my world. If you break her heart, I will destroy your career. I know people.",
+          energyCost: 25,
+          glossary: [{ word: 'Break her heart', meaning: 'Quebrar o coração dela' }, { word: 'Destroy', meaning: 'Destruir' }],
+          quickReplies: [
+            { label: 'Mostrar coragem.', text: "I respect you, Arthur. But threatening me won't change how I feel about her. I will never hurt her." },
+            { label: 'Aceitar a ameaça com frieza.', text: "Under no circumstances will I break her heart. But do not threaten me in my own home." }
+          ],
+          intents: [
+            { match: /(respect|coragem|won't change|never hurt|never|circumstances)/i, response: "Arthur stares at you for a long moment. 'Good.' He goes back to eating. The tension is thick.", nextScene: 'alex_10', energyCost: 10 }
+          ],
+          fallback: "Arthur is waiting for your response. This is a test of your spine.",
+          offensiveScene: 'alex_bad_2'
+        },
+        alex_10: {
+          npcName: 'Margaret (Mother-in-law)',
+          npcText: "I actually think Alex is a wonderful young man, Arthur. He has built so much from nothing. I think we should—",
+          npcTextVariants: [
+            { ifFlag: 'alex_defended_chef', text: "I actually think Alex is a wonderful young man, Arthur. He even defended Maria's turkey. I think we should—" }
+          ],
+          energyCost: 15,
+          glossary: [{ word: 'Built from nothing', meaning: 'Construiu do zero' }],
+          quickReplies: [
+            { label: 'Defender a Margaret.', text: "With all due respect, Arthur, let her finish. It's Thanksgiving." },
+            { label: 'Ficar quieto.', text: "..." }
+          ],
+          intents: [
+            { match: /(let her finish|respect|thanksgiving)/i, response: "Arthur glares at you, but Margaret smiles. 'Thank you, Alex.' (You gained an ally).", nextScene: 'alex_end_part2', addsFlags: ['alex_defended_margaret'] },
+            { match: /(\.\.\.)/i, response: "Arthur cuts her off: 'Margaret, we're discussing business.' She looks down at her plate, defeated.", nextScene: 'alex_end_part2', energyCost: 10 }
+          ],
+          fallback: "The table is silent. Arthur is controlling the conversation.",
+          offensiveScene: 'alex_bad_2'
+        },
+        alex_end_part2: {
           npcName: 'Narrador',
-          npcText: "The first act is over. You survived the greetings, the tests, and the wine disaster. But the dinner is just beginning. (End of Part 1 - Act 1)",
+          npcText: "The main course is over. But the night is not. The doorbell rings. Who could it be at this hour? (End of Part 2 - Act 2)",
           isEnd: true,
           endingType: 'ok'
         },
