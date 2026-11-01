@@ -29,6 +29,8 @@
         .stat { display: flex; flex-direction: column; align-items: flex-end; }
         .stat-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
         .stat-value { font-size: 1rem; font-weight: bold; color: var(--gold); }
+        .stat-value.trust-val { color: #10b981; }
+        .stat-value.rizz-val { color: #8b5cf6; }
 
         main { display: flex; flex: 1; overflow: hidden; width: 100%; }
         aside { width: 300px; background-color: var(--panel); border-right: 1px solid var(--border); padding: 20px; overflow-y: auto; display: none; }
@@ -38,7 +40,15 @@
         #glossary-list li { margin-bottom: 10px; font-size: 0.9rem; color: var(--text-muted); line-height: 1.4; }
         #glossary-list strong { color: var(--text); }
 
-        .chat-container { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; min-width: 0; }
+        .chat-container { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; min-width: 0; transition: background 1s ease; }
+        
+        /* Backgrounds Dinâmicos */
+        .chat-container[data-bg="pool"]     { background: linear-gradient(180deg, #0a2540 0%, #0b0f19 100%); }
+        .chat-container[data-bg="firepit"]  { background: linear-gradient(180deg, #3a0f0a 0%, #0b0f19 100%); }
+        .chat-container[data-bg="confess"]  { background: linear-gradient(180deg, #2a0f40 0%, #0b0f19 100%); }
+        .chat-container[data-bg="terrace"]  { background: linear-gradient(180deg, #10201a 0%, #0b0f19 100%); }
+        .chat-container[data-bg="bedroom"]  { background: linear-gradient(180deg, #1e1b4b 0%, #0b0f19 100%); }
+
         #chat-history { flex: 1; padding: 15px; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
         
         .chat-message { display: flex; gap: 10px; max-width: 95%; animation: fadeIn 0.3s ease; }
@@ -50,7 +60,6 @@
         .msg-sender { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
         .player .msg-sender { text-align: right; }
         
-        /* FIX CRÍTICO AQUI: max-height e overflow para não cortar o texto */
         .msg-bubble { 
             background-color: var(--npc-bubble); padding: 10px 14px; border-radius: 0 12px 12px 12px; 
             font-size: 0.95rem; line-height: 1.5; color: var(--text); white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;
@@ -134,6 +143,15 @@
                 <span class="stat-label" id="lbl-energy">Energia</span>
                 <span class="stat-value" id="stat-energy">100/100</span>
             </div>
+            <!-- NOVOS STATUS -->
+            <div class="stat" id="stat-trust-container" style="display: none;">
+                <span class="stat-label">Trust</span>
+                <span class="stat-value trust-val" id="stat-trust">100</span>
+            </div>
+            <div class="stat" id="stat-rizz-container" style="display: none;">
+                <span class="stat-label">Rizz</span>
+                <span class="stat-value rizz-val" id="stat-rizz">50</span>
+            </div>
         </div>
     </header>
 
@@ -146,7 +164,7 @@
             </div>
         </aside>
 
-        <div class="chat-container">
+        <div class="chat-container" id="main-chat">
             <div id="chat-history"></div>
             <div class="input-area">
                 <div id="quick-replies"></div>
