@@ -319,16 +319,24 @@ const gameDataC2 = {
           npcName: 'Narrador',
           bg: 'firepit',
           npcText: "The final results are in. The public has voted. Bree opens the envelope. 'The winners of Cove of Secrets are...'",
-          quickReplies: [ { label: 'Aguardar o resultado.', text: "..." } ],
-          intents: [ { match: /(\.\.\.)/i, response: "The lights flash. The music swells. You brace yourself.", nextScene: 'noah_end_good' } ],
+                  noah_15_ruby: {
+          npcName: 'Narrador',
+          bg: 'firepit',
+          npcText: "The final results are in. The public has voted. Bree opens the envelope. 'The winners of Cove of Secrets are...'",
+          quickReplies: [ { label: 'Aguardar o resultado.', text: "Wait for the result." } ],
+          intents: [ { match: /(wait|result|\.\.\.)/i, response: "The lights flash. The music swells. You brace yourself for the announcement.", nextScene: 'noah_end_good' } ],
           fallback: "The moment of truth.",
           offensiveScene: 'noah_bad_2'
         },
         noah_15_chloe: {
           npcName: 'Narrador',
           bg: 'firepit',
-          npcText: "The final results are in. The public has voted. Bree opens the envelope, looking terrified. 'The winners of Cove of Secrets are...'",
-          quickReplies: [ { label: 'Aguardar o resultado.', text: "..." } ],
+          npcText: "The final results are in. The public has voted. Bree opens the envelope, looking slightly terrified of what you might do next. 'The winners of Cove of Secrets are...'",
+          quickReplies: [ { label: 'Aguardar o resultado.', text: "Wait for the result." } ],
+          intents: [ { match: /(wait|result|\.\.\.)/i, response: "Chloe squeezes your hand so hard it hurts. The lights flash.", nextScene: 'noah_end_chaos' } ],
+          fallback: "The moment of truth.",
+          offensiveScene: 'noah_bad_2'
+        },
           intents: [ { match: /(\.\.\.)/i, response: "Chloe squeezes your hand so hard it hurts. The lights flash.", nextScene: 'noah_end_chaos' } ],
           fallback: "The moment of truth.",
           offensiveScene: 'noah_bad_2'

@@ -140,7 +140,7 @@
     let currentSceneId = gameData.startScene;
     let currentScene = gameData.scenes[currentSceneId];
     let isProcessing = false;
-    let textAnimInterval = null;
+    let activeTypers = []; // Rastreia animações de digitação ativas
 
     function getFlags() { try { return JSON.parse(localStorage.getItem(flagsKey) || '{}'); } catch { return {}; } }
     function hasFlag(n) { return !!getFlags()[n]; }
@@ -281,7 +281,6 @@
       if(statMoney) statMoney.style.color = currentState.money <= 0 ? 'var(--error)' : 'var(--gold)';
       if(statEnergy) statEnergy.style.color = currentState.energy <= 20 ? 'var(--error)' : 'var(--gold)';
       
-      // HUD de Trust e Rizz
       if (currentState.trust !== undefined) {
           if (statTrust) statTrust.textContent = currentState.trust;
           if (containerTrust) containerTrust.style.display = 'flex';
@@ -297,16 +296,20 @@
       }
     }
     
-    function checkExhaustion() {
+    async function checkExhaustion() {
         if (currentState.energy <= 0) {
-            currentState.energy = 30; // Restaura 30 de energia
-            currentState.trust = Math.max(0, (currentState.trust || 100) - 10); // Perde 10 de trust
+            currentState.energy = 30;
+            currentState.trust = Math.max(0, (currentState.trust || 100) - 10);
             updateHUD();
             saveGame();
             
-            setTimeout(() => {
-                addMessage('Narrador', 'Seus olhos pesam. Você apaga na espreguiçadeira. Quando acorda, o sol já nasceu e você perdeu um momento importante. (-10 Trust)', 'npc', true);
-            }, 1000);
+            // Espera a mensagem de exaustão terminar de digitar antes de continuar
+            toggleInputLock(true);
+            showTypingIndicator();
+            await new Promise(r => setTimeout(r, 1000));
+            removeTypingIndicator();
+            await addMessage('Narrador', 'Seus olhos pesam. Você apaga na espreguiçadeira. Quando acorda, o sol já nasceu e você perdeu um momento importante. (-10 Trust)', 'npc', true);
+            toggleInputLock(false);
             return true;
         }
         return false;
@@ -319,6 +322,7 @@
       quickRepliesContainer.querySelectorAll('button').forEach(b => b.disabled = lock);
       if (!lock) chatInput.focus();
     }
+    
     function showTypingIndicator() {
       const d = document.createElement('div');
       d.className = 'chat-message npc typing-indicator-container';
@@ -327,41 +331,39 @@
       chatHistory.appendChild(d);
       chatHistory.scrollTop = chatHistory.scrollHeight;
     }
+    
     function removeTypingIndicator() { const i = document.getElementById('typing-indicator'); if (i) i.remove(); }
     
-    // Promise para garantir que o texto termine de digitar
     function typeWriterEffect(el, text, speed = 15) {
       return new Promise(resolve => {
-        if (textAnimInterval) clearInterval(textAnimInterval);
-        el.textContent = ''; let i = 0;
-        textAnimInterval = setInterval(() => {
+        let i = 0;
+        el.textContent = '';
+        const interval = setInterval(() => {
           if (i < text.length) { 
               el.textContent += text.charAt(i); 
               i++; 
               chatHistory.scrollTop = chatHistory.scrollHeight; 
           }
           else { 
-              clearInterval(textAnimInterval); 
+              clearInterval(interval); 
+              activeTypers = activeTypers.filter(t => t !== interval);
               resolve(); 
           }
         }, speed);
+        activeTypers.push(interval);
       });
     }
 
-    function loadScene(sceneId) {
+    async function loadScene(sceneId) {
       currentSceneId = sceneId;
       currentScene = gameData.scenes[sceneId];
       if (!currentScene) { console.warn('Scene not found:', sceneId); return; }
 
       setFlags(currentScene.addFlags);
       
-      // Fundo dinâmico
       if (mainChatContainer) {
           mainChatContainer.dataset.bg = currentScene.bg || '';
       }
-
-      // Não deduzimos mais energia da cena inteira para evitar cobrança dupla
-      // if (currentScene.energyCost) { ... }
 
       saveGame();
       if (currentScene.isEnd && gameData.charId) markCompleted();
@@ -479,7 +481,7 @@
       chatHistory.scrollTop = chatHistory.scrollHeight;
     }
 
-    function handleUserInput(text) {
+    async function handleUserInput(text) {
       toggleInputLock(true);
       playSound('send');
 
@@ -491,12 +493,10 @@
 
       let matchedIntent = null;
       if (currentScene.intents) {
-        // 1. Tenta bater o texto exato das opções rápidas
         const qrIndex = (currentScene.quickReplies || []).findIndex(q => (typeof q === 'string' ? q : q.text) === text);
         if (qrIndex >= 0 && currentScene.intents[qrIndex]) {
             matchedIntent = currentScene.intents[qrIndex];
         } else {
-            // 2. Fallback: Busca por Regex no texto que o usuário digitou
             for (const intent of currentScene.intents) {
                 if (intent.match && intent.match.test(text)) { matchedIntent = intent; break; }
             }
@@ -507,7 +507,6 @@
         playSound('success');
         if (matchedIntent.addsFlags) setFlags(matchedIntent.addsFlags);
         
-        // NOVO SISTEMA DE EFEITOS (FX)
         if (matchedIntent.fx) {
             if (matchedIntent.fx.energy) currentState.energy = Math.min(100, Math.max(0, currentState.energy + matchedIntent.fx.energy));
             if (matchedIntent.fx.trust !== undefined) currentState.trust = Math.min(100, Math.max(0, (currentState.trust || 100) + matchedIntent.fx.trust));
@@ -517,13 +516,18 @@
             saveGame();
         }
 
-        // Fallback para energia antiga (se houver)
         if (matchedIntent.energyCost) {
             currentState.energy = Math.max(0, currentState.energy - matchedIntent.energyCost);
             updateHUD();
         }
 
-        if (currentState.energy <= 0) checkExhaustion();
+        // CHECA EXAUSTÃO ANTES DE CONTINUAR
+        if (currentState.energy <= 0) {
+            if (await checkExhaustion()) {
+                toggleInputLock(false);
+                return; // Para por aqui se desmaiou
+            }
+        }
 
         if (matchedIntent.explanation) {
             setTimeout(() => {
@@ -536,13 +540,12 @@
           showTypingIndicator();
           setTimeout(async () => {
             removeTypingIndicator();
-            // Await garante que o texto termine de digitar antes de mudar de cena
             await addMessage(currentScene.npcName, matchedIntent.response, 'npc', true);
             playSound('receive');
             setTimeout(() => {
               if (matchedIntent.nextScene) loadScene(matchedIntent.nextScene);
               else toggleInputLock(false);
-            }, 1000); // 1s extra após digitação
+            }, 1000);
           }, 1000);
         } else if (matchedIntent.nextScene) { 
             loadScene(matchedIntent.nextScene); 
@@ -564,7 +567,12 @@
         updateHUD();
         saveGame();
 
-        if (currentState.energy <= 0) checkExhaustion();
+        if (currentState.energy <= 0) {
+            if (await checkExhaustion()) {
+                toggleInputLock(false);
+                return;
+            }
+        }
 
         showTypingIndicator();
         setTimeout(async () => {
