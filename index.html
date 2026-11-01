@@ -56,13 +56,21 @@
     .hero .cta{display:flex;gap:12px;flex-wrap:wrap;margin:28px 0 22px}
     .trust{display:flex;gap:22px;flex-wrap:wrap;color:var(--muted);font-size:.85rem}
     .trust b{color:var(--text)}
-    @media(max-width:900px){.hero-grid{grid-template-columns:1fr}.phone-col{order:2}}
+    
+    /* --- PHONE MOCKUP RESPONSIVO --- */
+    @media(max-width:900px){
+      .hero-grid{grid-template-columns:1fr;gap:40px}
+      .phone-col{order:2; margin-top: 20px;}
+      .hero{padding:40px 0 60px; text-align: center;}
+      .hero .cta{justify-content: center;}
+      .trust{justify-content: center;}
+      .lead{margin: 0 auto;}
+    }
 
-    /* phone */
     .phone-col{display:flex;justify-content:center;position:relative}
     .phone-col::before{content:"";position:absolute;inset:8% 6%;background:radial-gradient(circle, rgba(251,191,36,.15) 0%, transparent 70%);border-radius:50%;z-index:-1}
     .phone{position:relative;width:min(100%,330px);background:#05080f;border:1px solid #26314a;border-radius:38px;padding:10px;box-shadow:0 30px 70px rgba(0,0,0,.55)}
-    .screen{background:var(--panel2);border-radius:30px;overflow:hidden;display:flex;flex-direction:column;height:560px;max-height:70vh;transition:background .6s}
+    .screen{background:var(--panel2);border-radius:30px;overflow:hidden;display:flex;flex-direction:column;height:560px;max-height:65vh;transition:background .6s}
     .scr-top{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
     .ava{width:34px;height:34px;border-radius:50%;background:#ea580c;display:grid;place-items:center;font-size:1.1rem}
     .scr-top b{font-size:.9rem;display:block;line-height:1.2}.scr-top small{color:var(--muted);font-size:.72rem}
@@ -83,6 +91,12 @@
     .opt:hover{border-color:var(--gold);background:rgba(251,191,36,.07)}
     .replay{align-self:center;background:none;border:none;color:var(--gold);font:600 .85rem var(--fb);cursor:pointer;text-decoration:underline}
     .hint{color:var(--muted);font-size:.72rem;text-align:center}
+    
+    /* --- MOCK INPUT AREA --- */
+    .mock-input-area { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--border); background: var(--panel2); }
+    .mock-input-area input { flex: 1; background: #05080f; border: 1px solid var(--border); border-radius: 20px; padding: 8px 12px; color: var(--muted); font-size: 0.8rem; outline: none; cursor: not-allowed; }
+    .mock-input-area button { background: var(--gold); color: var(--bg); border: none; border-radius: 50%; width: 32px; height: 32px; display: grid; place-items: center; cursor: not-allowed; opacity: 0.7; }
+    
     @keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
     @keyframes blink{50%{opacity:.25}}
 
@@ -96,7 +110,7 @@
     .step p{color:var(--muted);font-size:.95rem;max-width:90%;margin:0 auto}
     @media(max-width:800px){.steps{grid-template-columns:1fr;gap:36px}}
 
-    /* features (MANTIDO INTACTO) */
+    /* features */
     .feat{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-top:80px;text-align:left}
     .feat.rev .ft{order:2}
     .feat h3{font-size:1.9rem;margin-bottom:12px}
@@ -122,51 +136,23 @@
     @keyframes eq{0%,100%{height:12px}50%{height:58px}}
     .score{display:flex;gap:10px;justify-content:center}.score span{background:var(--panel2);border:1px solid var(--border);padding:6px 12px;border-radius:10px;font-size:.8rem;color:var(--muted)}.score b{color:var(--ok)}
 
-    /* --- NOVA TRILHA PREMIUM --- */
+    /* TRILHA PREMIUM */
     .trail{background:var(--panel);border-block:1px solid var(--border);text-align:center;padding-bottom:100px}
     .trail .lead{margin:0 auto}
-    
-    .trail-section-title {
-      text-align: left; font-size: 1.1rem; font-weight: 700; color: var(--text);
-      margin: 50px 0 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; gap: 10px; font-family: var(--fb); letter-spacing: 0.5px;
-    }
+    .trail-section-title {text-align: left; font-size: 1.1rem; font-weight: 700; color: var(--text); margin: 50px 0 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; font-family: var(--fb); letter-spacing: 0.5px;}
     .trail-section-title span { color: var(--gold); font-size: 1.3rem; }
-
-    .lv-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: left;
-    }
+    .lv-grid {display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: left;}
     @media(max-width: 900px) { .lv-grid { grid-template-columns: repeat(2, 1fr); } }
     @media(max-width: 600px) { .lv-grid { grid-template-columns: 1fr; } }
-
-    .l {
-      position: relative; display: flex; flex-direction: column; padding: 24px;
-      background: linear-gradient(145deg, rgba(21,27,43,0.9), var(--bg));
-      border: 1px solid var(--border); border-radius: 16px;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); overflow: hidden;
-    }
-    .l::before {
-      content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
-      background: var(--c); opacity: 0.8; transition: opacity 0.3s;
-    }
-    .l:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 30px rgba(0,0,0,0.4), 0 0 20px color-mix(in srgb, var(--c) 30%, transparent);
-      border-color: color-mix(in srgb, var(--c) 50%, transparent);
-    }
+    .l {position: relative; display: flex; flex-direction: column; padding: 24px; background: linear-gradient(145deg, rgba(21,27,43,0.9), var(--bg)); border: 1px solid var(--border); border-radius: 16px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); overflow: hidden;}
+    .l::before {content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--c); opacity: 0.8; transition: opacity 0.3s;}
+    .l:hover {transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.4), 0 0 20px color-mix(in srgb, var(--c) 30%, transparent); border-color: color-mix(in srgb, var(--c) 50%, transparent);}
     .l:hover::before { opacity: 1; }
-
-    .l-level-mark {
-      position: absolute; top: -10px; right: 10px;
-      font: 900 4.5rem var(--fh); color: var(--c); opacity: 0.08;
-      pointer-events: none; user-select: none; transition: transform 0.3s;
-    }
+    .l-level-mark {position: absolute; top: -10px; right: 10px; font: 900 4.5rem var(--fh); color: var(--c); opacity: 0.08; pointer-events: none; user-select: none; transition: transform 0.3s;}
     .l:hover .l-level-mark { transform: scale(1.1) rotate(5deg); opacity: 0.15; }
-
     .l-content { position: relative; z-index: 2; }
     .l-title { font: 800 1.3rem var(--fh); color: var(--text); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
     .l-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
-
     .l-special { background: var(--panel2); }
     .l-special .l-level-mark { display: none; }
     .l-special .l-emoji { font-size: 2rem; position: absolute; top: 15px; right: 20px; opacity: 0.8; transition: transform 0.3s; }
@@ -244,6 +230,10 @@
         </div>
         <div class="chat" id="chat" aria-live="polite"></div>
         <div class="opts" id="opts"></div>
+        <div class="mock-input-area">
+          <input type="text" placeholder="Ouça e toque nos botões ao lado..." readonly onclick="alert('Para interagir, use os botões de resposta acima! 🦊')">
+          <button type="button" onclick="alert('Para interagir, use os botões de resposta acima! 🦊')">➤</button>
+        </div>
       </div>
     </div>
   </div>
@@ -451,28 +441,20 @@
   function typing(cb,ms){var d=document.createElement('div');d.className='msg npc dots';d.innerHTML='<i></i><i></i><i></i>';chat.appendChild(d);scroll();later(function(){d.remove();cb()},ms)}
   function lens(html){var d=document.createElement('div');d.className='lens';d.innerHTML=html;chat.appendChild(d);scroll()}
   
-  // --- WEB SPEECH API MELHORADA (COM BUSCA POR VOZ MASCULINA) ---
+  // FUNÇÃO DE ÁUDIO
   function speak(text, lang) {
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
     var u = new SpeechSynthesisUtterance(text);
     u.lang = lang || 'en-US';
     u.rate = 0.95;
-
     var voices = window.speechSynthesis.getVoices();
     var maleKeywords = ['male', 'david', 'alex', 'daniel', 'fred', 'george', 'guy', 'james', 'paul'];
     var selectedVoice = null;
-
     for (var i = 0; i < voices.length; i++) {
       var v = voices[i];
-      var vName = v.name.toLowerCase();
-      var vLang = v.lang.toLowerCase();
-      
-      if (vLang.indexOf('en') === 0) {
-        if (maleKeywords.some(function(k) { return vName.indexOf(k) !== -1; })) {
-          selectedVoice = v;
-          break;
-        }
+      if (v.lang.indexOf('en') === 0 && maleKeywords.some(function(k) { return v.name.toLowerCase().indexOf(k) !== -1; })) {
+        selectedVoice = v; break;
       }
     }
     if (selectedVoice) u.voice = selectedVoice;
@@ -508,14 +490,14 @@
     typing(function(){
       var nMsg = "Welcome to Burger Palace! What can I get you?";
       say(nMsg,'npc');
-      speak(nMsg, 'en-US'); 
+      // REMOVIDO O SPEAK AUTOMÁTICO AQUI
       
       opts.innerHTML='';
       choices.forEach(function(c){
         var b=document.createElement('button');b.type='button';b.className='opt';b.textContent=c.t;
         b.onclick=function(){pick(c)};opts.appendChild(b);
       });
-      var h=document.createElement('p');h.className='hint';h.textContent='Toque numa resposta para jogar';opts.appendChild(h);
+      var h=document.createElement('p');h.className='hint';h.textContent='Toque numa resposta para jogar e ouvir';opts.appendChild(h);
     },1100);
   }
 
@@ -525,6 +507,7 @@
     
     typing(function(){
       say(c.reply,'npc');
+      // O ÁUDIO SÓ TOCA QUANDO O USUÁRIO CLICA E O NPC RESPONDE
       speak(c.reply, 'en-US'); 
       
       later(function(){
