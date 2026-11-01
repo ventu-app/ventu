@@ -15,6 +15,7 @@
       initialState: { money: 200.00, energy: 100 },
       startScene: 'alex_1',
       scenes: {
+        // --- ATO 1: A CHEGADA ---
         alex_1: {
           npcName: 'Arthur (Father-in-law)',
           npcText: "Alex. Welcome to our home. Claire has told us so much about you. Your English is remarkably good, by the way. How long did it take you to lose the accent?",
@@ -95,6 +96,7 @@
           fallback: "Everyone is staring at the wine on the carpet. Say something!",
           offensiveScene: 'alex_bad_2'
         },
+        // --- ATO 2: O JANTAR ---
         alex_6: {
           npcName: 'Arthur (Father-in-law)',
           npcText: "Well. Now that the carpet has been... baptized. Please, take your seat. You are sitting above the salt, Alex. Consider yourself lucky.",
@@ -176,6 +178,7 @@
           fallback: "The table is silent. Arthur is controlling the conversation.",
           offensiveScene: 'alex_bad_2'
         },
+        // --- ATO 3: O CAOS E O EX ---
         alex_11: {
           npcName: 'Narrador',
           npcText: "The doorbell rings. Arthur smiles for the first time tonight. 'Ah, that must be Julian.' The butler opens the door, and a man in an Armani suit walks in. It's Claire's ex.",
@@ -249,16 +252,92 @@
             { label: 'Desafiar o Arthur.', text: "Only if you promise not to invite any more exes, Arthur." }
           ],
           intents: [
-            { match: /(honored|accept|promise|exes|challenge)/i, response: "Arthur's eyes narrow. Claire suppresses a smile. Everyone raises their glasses. (End of Part 3).", nextScene: 'alex_end_part3' }
+            { match: /(honored|accept|promise|exes|challenge)/i, response: "Arthur's eyes narrow. Claire suppresses a smile. Everyone raises their glasses. (End of Part 3).", nextScene: 'alex_16' }
           ],
           fallback: "Everyone is waiting for your toast.",
           offensiveScene: 'alex_bad_2'
         },
-        alex_end_part3: {
+        // --- ATO 4: O BRINDE E O FINAL ---
+        alex_16: {
+          npcName: 'Julian (The Ex)',
+          npcText: "Yes, Alex. Give us a toast. Try not to choke on your words. Or the wine, for that matter.",
+          energyCost: 15,
+          glossary: [{ word: 'Choke', meaning: 'Engasgar' }],
+          quickReplies: [
+            { label: 'Ignorar o Julian.', text: "I'll do my best, Julian. Thank you for your concern." },
+            { label: 'Responder à altura.', text: "At least I know how to hold a glass, Julian. Unlike your tact." }
+          ],
+          intents: [
+            { match: /(best|concern|glass|tact|hold)/i, response: "Julian's face flushes. Richard snorts into his wine. Claire looks at you, proud. Arthur clears his throat. 'The toast, Alex.'", nextScene: 'alex_17' }
+          ],
+          fallback: "Julian is waiting for your comeback. The room is watching.",
+          offensiveScene: 'alex_bad_2'
+        },
+        alex_17: {
           npcName: 'Narrador',
-          npcText: "The room is silent. All eyes are on you. You have the floor. (End of Act 3 - To be continued in Act 4: The Toast)",
+          npcText: "You stand up. The entire room is looking at you. Margaret looks terrified. Arthur looks skeptical. Claire holds your hand under the table.",
+          energyCost: 10,
+          quickReplies: [
+            { label: 'Elegante: Agradecer e focar no amor.', text: "I am grateful for tonight. For the food, the home, and most of all, for Claire." },
+            { label: 'C1: Usar Inversão Avassaladora.', text: "Never have I felt so challenged, yet so welcomed. To Arthur, for testing me. And to Claire, for believing in me." },
+            { label: 'Sincero e Emocional.', text: "I know I don't come from your world. But I promise to build a new one with her." }
+          ],
+          intents: [
+            { match: /(grateful|love|claire|food|home)/i, response: "The table claps politely. Julian rolls his eyes. Arthur nods slowly. (A safe, elegant toast.)", nextScene: 'alex_18', energyCost: 0 },
+            { match: /(never have i|challenged|welcomed|testing me|believing)/i, response: "There is a moment of silence. Then Richard says: 'I'll drink to that!' Margaret raises her glass immediately. Arthur stares at you, the corner of his mouth twitching. He raises his glass.", nextScene: 'alex_18', energyCost: -15 },
+            { match: /(world|promise|build|new one|don't come)/i, response: "Claire squeezes your hand tighter. Margaret wipes a tear. Arthur looks down at his plate, silent for a moment. (An emotional, honest toast.)", nextScene: 'alex_18', energyCost: -5 }
+          ],
+          fallback: "The silence is deafening. You must finish your toast.",
+          offensiveScene: 'alex_bad_2'
+        },
+        alex_18: {
+          npcName: 'Arthur (Father-in-law)',
+          npcText: "Well. That was... unexpected. Julian, pass the brandy. Alex, a word in the hall. Now.",
+          energyCost: 15,
+          glossary: [{ word: 'Unexpected', meaning: 'Inesperado' }],
+          quickReplies: [
+            { label: 'Seguir o Arthur com confiança.', text: "Of course, Arthur. Lead the way." },
+            { label: 'Olhar para a Claire antes de ir.', text: "I'll be right back, Claire." }
+          ],
+          intents: [
+            { match: /(lead the way|of course|right back|claire)/i, response: "You follow Arthur into the hallway. He closes the door behind him. The noise of the dining room fades. He looks at you, his expression unreadable.", nextScene: 'alex_19' }
+          ],
+          fallback: "Arthur is waiting for you in the hallway.",
+          offensiveScene: 'alex_bad_2'
+        },
+        alex_19: {
+          npcName: 'Arthur (Father-in-law)',
+          npcText: "I have been in business for forty years. I can spot a fake a mile away. But you... you have something. Maybe it's the accent. Maybe it's the fact that you didn't take my money. I don't know if I like you. But Claire does. So, here is the deal. One mistake, and you are out. Understood?",
+          energyCost: 20,
+          glossary: [{ word: 'Spot a fake', meaning: 'Reconhecer uma farsa' }, { word: 'A mile away', meaning: 'De longe' }, { word: 'Understood', meaning: 'Entendido' }],
+          quickReplies: [
+            { label: 'Aceitar o desafio com elegância.', text: "Understood. I will not let her down." },
+            { label: 'Fazer uma piada leve.', text: "Understood. And thank you for not making me wash the carpet." }
+          ],
+          intents: [
+            { match: /(understood|not let her down|thank you|wash)/i, response: "Arthur: 'Good.' He opens the door. 'Go. The pie is getting cold.'", nextScene: 'alex_20' }
+          ],
+          fallback: "Arthur is waiting for your final answer.",
+          offensiveScene: 'alex_bad_2'
+        },
+        alex_20: {
+          npcName: 'Narrador',
+          npcText: "You walk back into the dining room. The tension has broken. Richard is pouring brandy for everyone. Margaret gives you a small, secret nod. Julian is quietly sulking. Claire runs to you and kisses your cheek. You survived the dinner.",
+          energyCost: 10,
+          quickReplies: [
+            { label: 'Finalizar.', text: "I made it." }
+          ],
+          intents: [
+            { match: /(made it|survived|final)/i, response: "You made it. You are officially 'Above the Salt'.", nextScene: 'alex_end_good' }
+          ],
+          fallback: "Enjoy the moment.",
+          offensiveScene: 'alex_bad_2'
+        },
+        alex_end_good: {
+          npcName: 'Narrador',
+          npcText: "You survived Thanksgiving. Arthur hasn't accepted you completely, but he respects you. You have a long road ahead, but you have Claire, and you kept your dignity. That's a win. (Final Bom)",
           isEnd: true,
-          endingType: 'ok'
+          endingType: 'bom'
         },
         alex_bad_1: {
           npcName: 'Arthur',
