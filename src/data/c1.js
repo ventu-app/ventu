@@ -68,7 +68,7 @@
           energyCost: -10,
           glossary: [{ word: 'Testing you', meaning: 'Testando você' }],
           quickReplies: [
-            { label: 'Agradecer o apoio.', text: "Thanks, Claire. I'll try not to spill wine on the carpet." },
+            { label: 'Agradecer o apoio.', text: "Thanks, honey. I'll try not to spill wine on the carpet." },
             { label: 'Mostrar preocupação.', text: "I feel like I'm walking on eggshells here. What if I say the wrong thing?" }
           ],
           intents: [
