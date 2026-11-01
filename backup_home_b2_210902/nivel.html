@@ -1,0 +1,219 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cenário da Missão — Ventu</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    try { document.documentElement.setAttribute('data-theme', localStorage.getItem('ventu-theme') || 'dark'); } catch(e) {}
+  </script>
+  <style>
+    :root {
+      --bg: #0b0f19; --panel: #151b2b; --text: #e2e8f0; --text-muted: #94a3b8;
+      --gold: #fbbf24; --gold-hover: #f59e0b; --border: #1e293b; --error: #ef4444;
+      --font-heading: 'Playfair Display', serif; --font-body: 'Inter', sans-serif;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc; --panel: #ffffff; --text: #0f172a; --text-muted: #64748b;
+      --gold: #d97706; --gold-hover: #b45309; --border: #e2e8f0; --error: #dc2626;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; display: flex; flex-direction: column; transition: 0.3s; overflow-x: hidden; }
+    .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; width: 100%; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    a { text-decoration: none; color: inherit; }
+
+    .site-header { background: var(--bg); border-bottom: 1px solid var(--border); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; width: 100%; z-index: 10; }
+    .logo { display: flex; align-items: center; gap: 12px; font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; color: var(--text); }
+    
+    .theme-toggle { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; padding: 8px; border-radius: 50%; }
+    .theme-toggle:hover { background: var(--border); }
+    [data-theme="dark"] .icon-sun { display: block; } [data-theme="dark"] .icon-moon { display: none; }
+    [data-theme="light"] .icon-sun { display: none; } [data-theme="light"] .icon-moon { display: block; }
+
+    .dossier-box {
+      background: var(--panel); border: 2px solid var(--level-color, var(--border)); border-radius: 24px;
+      padding: 40px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      animation: fadeIn 0.5s ease;
+      position: relative;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+    .level-icon-big { font-size: 5rem; margin-bottom: 15px; animation: float 3s infinite ease-in-out; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    
+    .level-title { font-family: var(--font-heading); font-size: 3rem; color: var(--text); margin-bottom: 5px; line-height: 1.1; }
+    .level-subtitle { font-size: 1rem; color: var(--level-color, var(--gold)); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; font-weight: bold; }
+
+    .ventu-bubble { 
+      background: var(--level-color-bg, rgba(251, 191, 36, 0.1)); 
+      border-left: 6px solid var(--level-color, var(--gold)); 
+      border-radius: 0 16px 16px 0; padding: 25px; text-align: left; margin-bottom: 30px; 
+      display: flex; gap: 20px; align-items: flex-start;
+    }
+    .ventu-avatar { font-size: 3rem; flex-shrink: 0; }
+    .ventu-text { font-size: 1.1rem; line-height: 1.6; color: var(--text); font-style: italic; }
+    .ventu-name { font-size: 0.85rem; font-weight: bold; color: var(--level-color, var(--gold)); margin-bottom: 5px; text-transform: uppercase; }
+
+    .objectives-box { 
+      background: var(--bg); border: 1px solid var(--border); border-radius: 16px; 
+      padding: 25px; text-align: left; margin-bottom: 40px; 
+    }
+    .objectives-box h3 { color: var(--level-color, var(--gold)); font-size: 1.2rem; margin-bottom: 15px; text-transform: uppercase; }
+    .objectives-box ul { list-style: none; }
+    .objectives-box li { margin-bottom: 10px; font-size: 1rem; color: var(--text-muted); display: flex; align-items: center; gap: 10px; }
+    .objectives-box li::before { content: '🎯'; font-size: 1.1rem; }
+
+    .actions { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+    .btn { padding: 15px 30px; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.2s; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; }
+    .btn-back { background: var(--bg); color: var(--text); border: 1px solid var(--border); flex: 1; min-width: 200px; }
+    .btn-back:hover { border-color: var(--text); }
+    .btn-play { background: var(--level-color, var(--gold)); color: var(--bg); flex: 2; min-width: 250px; }
+    .btn-play:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); filter: brightness(1.1); }
+    
+    .btn-play.disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; transform: none; box-shadow: none; filter: none; }
+    
+    .toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 15px 30px; border-radius: 30px; font-weight: bold; transition: bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center;}
+    .toast.show { bottom: 30px; }
+
+    @media (max-width: 600px) {
+      .dossier-box { padding: 30px 20px; }
+      .level-title { font-size: 2.2rem; }
+      .ventu-bubble { flex-direction: column; text-align: center; align-items: center; border-left: none; border-top: 6px solid var(--level-color); border-radius: 0 0 16px 16px; }
+      .actions { flex-direction: column; }
+      .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="index.html" class="logo">
+      <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 22 46 L 25 22 L 36 38 Z" fill="#ea580c"/><path d="M 78 46 L 75 22 L 64 38 Z" fill="#ea580c"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><circle cx="36" cy="56" r="1.2" fill="#fff"/><circle cx="66" cy="56" r="1.2" fill="#fff"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/></svg>
+      <span class="logo-text">VENTU</span>
+    </a>
+    <button id="theme-toggle" class="theme-toggle"><span class="icon-sun">☀️</span><span class="icon-moon">🌙</span></button>
+  </header>
+
+  <main class="container">
+    <div class="dossier-box" id="dossier-box">
+      <div class="level-icon-big" id="level-icon">🏘️</div>
+      <h1 class="level-title" id="level-title">Vila Sobrevivente</h1>
+      <p class="level-subtitle" id="level-subtitle">NÍVEL A1</p>
+
+      <div class="ventu-bubble">
+        <div class="ventu-avatar" id="ventu-avatar">🦊</div>
+        <div>
+          <div class="ventu-name">Ventu diz:</div>
+          <div class="ventu-text" id="ventu-says">"Bem-vindo ao caos..."</div>
+        </div>
+      </div>
+
+      <div class="objectives-box">
+        <h3>Seus Objetivos:</h3>
+        <ul id="objectives-list"></ul>
+      </div>
+
+      <div class="actions">
+        <a href="index.html" class="btn btn-back">Voltar para Home</a>
+        <button class="btn btn-play" id="btn-play">Iniciar Missão</button>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast" class="toast">Em breve! Este nível está em desenvolvimento. 🦊</div>
+
+  <script src="src/data/levels.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Tema
+      try {
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', t);
+                localStorage.setItem('ventu-theme', t);
+            });
+        }
+      } catch(e) {}
+
+      // 2. Carregar Dados
+      const urlParams = new URLSearchParams(window.location.search);
+      const levelId = urlParams.get('l');
+
+      if (!levelId || typeof levelsData === 'undefined') {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      const level = levelsData.find(l => l.id === levelId);
+      if (!level) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // 3. Preencher a Tela
+      const box = document.getElementById('dossier-box');
+      box.style.setProperty('--level-color', level.color);
+      
+      const hex = level.color.replace('#', '');
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      box.style.setProperty('--level-color-bg', `rgba(${r}, ${g}, ${b}, 0.1)`);
+
+      document.getElementById('level-icon').innerText = level.icon;
+      document.getElementById('level-title').innerText = level.title;
+      document.getElementById('level-subtitle').innerText = `NÍVEL ${level.cefr}`;
+      
+      document.getElementById('ventu-avatar').innerText = level.mascot || '🦊';
+      document.getElementById('ventu-says').innerText = `"${level.ventuSays}"`;
+      
+      const list = document.getElementById('objectives-list');
+      level.objectives.forEach(obj => {
+        const li = document.createElement('li');
+        li.innerText = obj;
+        list.appendChild(li);
+      });
+
+      // 4. Botão de Jogar (Com Auth Check)
+      const btnPlay = document.getElementById('btn-play');
+      
+      if (level.available) {
+          btnPlay.addEventListener('click', async () => {
+              btnPlay.innerText = 'Carregando...';
+              
+              try {
+                  const supabase = window.supabase.createClient('https://hbqjoadubrwuafbfykre.supabase.co', 'sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_');
+                  const { data: { session } } = await supabase.auth.getSession();
+                  
+                  if (!session) {
+                      // Se não tiver logado, vai pro Auth
+                      window.location.href = 'auth.html';
+                  } else {
+                      // Se tiver logado, vai pro Jogo
+                      window.location.href = `jogo.html?l=${level.id}`;
+                  }
+              } catch(e) {
+                  // Fallback se o Supabase falhar
+                  window.location.href = `jogo.html?l=${level.id}`;
+              }
+          });
+      } else {
+          btnPlay.classList.add('disabled');
+          btnPlay.innerText = '🔒 Aguardando Lançamento';
+          btnPlay.addEventListener('click', () => {
+              const toast = document.getElementById('toast');
+              toast.classList.add('show');
+              setTimeout(() => { toast.classList.remove('show'); }, 3000);
+          });
+      }
+    });
+  </script>
+</body>
+</html>
