@@ -50,9 +50,11 @@
         .msg-sender { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
         .player .msg-sender { text-align: right; }
         
+        /* FIX CRÍTICO AQUI: max-height e overflow para não cortar o texto */
         .msg-bubble { 
             background-color: var(--npc-bubble); padding: 10px 14px; border-radius: 0 12px 12px 12px; 
-            font-size: 0.95rem; line-height: 1.4; color: var(--text); white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;
+            font-size: 0.95rem; line-height: 1.5; color: var(--text); white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;
+            max-height: none !important; overflow: visible !important; 
         }
         .player .msg-bubble { background-color: var(--player-bubble); border-radius: 12px 0 12px 12px; }
         
