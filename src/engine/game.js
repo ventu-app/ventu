@@ -166,74 +166,59 @@
     async function markCompleted() {
       if (!gameData.charId) return;
       
-      const key = 'ventu_' + gameData.level + '_completed';
+      const key = `ventu_${gameData.level}_completed`;
       try {
         const c = JSON.parse(localStorage.getItem(key) || '{}');
         c[gameData.charId] = true;
         localStorage.setItem(key, JSON.stringify(c));
-      } catch (e) { console.error('Erro no localStorage:', e); }
+      } catch (e) {}
 
       if (supabaseClient) {
           try {
-              console.log('Tentando salvar XP no Supabase...');
               const { data: { session } } = await supabaseClient.auth.getSession();
-              if (!session) {
-                  console.warn('Sem sessao ativa. XP nao sera salvo no banco.');
-                  return;
-              }
-              
-              const userId = session.user.id;
-              const levelId = gameData.level;
-              const xpGanho = currentScene.endingType === 'bom' ? 150 : 50;
+              if (session) {
+                  const userId = session.user.id;
+                  const levelId = gameData.level;
+                  const xpGanho = currentScene.endingType === 'bom' ? 150 : 50;
 
-              const { data: profile, error: profileError } = await supabaseClient.from('profiles').select('xp, levels_completed').eq('id', userId).single();
-              
-              if (profileError) {
-                  console.error('Erro ao buscar perfil:', profileError.message);
-                  return;
-              }
-
-              if (profile) {
-                  let newCompleted = profile.levels_completed || {};
+                  const { data: profile } = await supabaseClient.from('profiles').select('xp, levels_completed').eq('id', userId).single();
                   
-                  // Garante que é um objeto
-                  if (typeof newCompleted === 'string') {
-                      try { newCompleted = JSON.parse(newCompleted); } catch { newCompleted = {}; }
-                  }
-
-                  let alreadyCompleted = false;
-                  if (newCompleted[levelId]) {
-                      if (Array.isArray(newCompleted[levelId])) {
-                          alreadyCompleted = newCompleted[levelId].includes(gameData.charId);
-                      } else if (newCompleted[levelId] === gameData.charId) {
-                          alreadyCompleted = true;
+                  if (profile) {
+                      let newCompleted = profile.levels_completed || {};
+                      
+                      // CORREÇÃO DO XP: Garante que o objeto e o array existam
+                      if (typeof newCompleted === 'string') {
+                          try { newCompleted = JSON.parse(newCompleted); } catch(e) { newCompleted = {}; }
                       }
-                  }
+                      if (!newCompleted[levelId] || !Array.isArray(newCompleted[levelId])) {
+                          newCompleted[levelId] = [];
+                      }
 
-                  if (!alreadyCompleted) {
-                      const newXp = (profile.xp || 0) + xpGanho;
-                      if (!newCompleted[levelId]) newCompleted[levelId] = [];
-                      if (!newCompleted[levelId].includes(gameData.charId)) {
+                      const alreadyCompleted = newCompleted[levelId].includes(gameData.charId);
+
+                      if (!alreadyCompleted) {
+                          const newXp = (profile.xp || 0) + xpGanho;
                           newCompleted[levelId].push(gameData.charId);
-                      }
 
-                      const { error: updateError } = await supabaseClient.from('profiles').update({
-                          xp: newXp,
-                          levels_completed: newCompleted
-                      }).eq('id', userId);
+                          const { error: updateError } = await supabaseClient.from('profiles').update({
+                              xp: newXp,
+                              levels_completed: newCompleted
+                          }).eq('id', userId);
 
-                      if (updateError) {
-                          console.error('ERRO AO ATUALIZAR XP:', updateError.message);
-                          alert('Erro ao salvar XP: ' + updateError.message); // Mostra o erro pro jogador
+                          if (updateError) {
+                              console.error("Erro no update do Supabase:", updateError.message);
+                          } else {
+                              console.log(`XP salvo! +${xpGanho} XP. Total: ${newXp}`);
+                          }
                       } else {
-                          console.log('XP SALVO COM SUCESSO! +' + xpGanho + ' XP. Total: ' + newXp);
+                          console.log(`Nível já concluído, sem XP extra.`);
                       }
-                  } else {
-                      console.log('Nivel ja concluido, sem XP extra.');
                   }
+              } else {
+                  console.warn("Sessão não encontrada. Faça login novamente.");
               }
           } catch (error) {
-              console.error('Erro crítico ao salvar progresso:', error);
+              console.error("Erro ao salvar progresso:", error);
           }
       }
     }
