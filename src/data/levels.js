@@ -49,11 +49,11 @@
   },
   {
     id: 'c1',
-    title: 'O Mediador',
+    title: 'Above the Salt',
     cefr: 'C1',
     color: '#ef4444',
     icon: '🎭',
-    available: false,
+    available: true,
     desc: 'Jantares com a sogra, piadas pesadas, ironia fina e flertes ousados em eventos sociais.',
     mascot: '🎭',
     ventuSays: "Seu sarcasmo precisa ser afiado. Você vai precisar mediar conflitos e usar o duplo sentido sem ofender ninguém.",
