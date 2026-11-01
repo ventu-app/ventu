@@ -170,15 +170,93 @@
             { label: 'Ficar quieto.', text: "..." }
           ],
           intents: [
-            { match: /(let her finish|respect|thanksgiving)/i, response: "Arthur glares at you, but Margaret smiles. 'Thank you, Alex.' (You gained an ally).", nextScene: 'alex_end_part2', addsFlags: ['alex_defended_margaret'] },
-            { match: /(\.\.\.)/i, response: "Arthur cuts her off: 'Margaret, we're discussing business.' She looks down at her plate, defeated.", nextScene: 'alex_end_part2', energyCost: 10 }
+            { match: /(let her finish|respect|thanksgiving)/i, response: "Arthur glares at you, but Margaret smiles. 'Thank you, Alex.' (You gained an ally).", nextScene: 'alex_11', addsFlags: ['alex_defended_margaret'] },
+            { match: /(\.\.\.)/i, response: "Arthur cuts her off: 'Margaret, we're discussing business.' She looks down at her plate, defeated.", nextScene: 'alex_11', energyCost: 10 }
           ],
           fallback: "The table is silent. Arthur is controlling the conversation.",
           offensiveScene: 'alex_bad_2'
         },
-        alex_end_part2: {
+        alex_11: {
           npcName: 'Narrador',
-          npcText: "The main course is over. But the night is not. The doorbell rings. Who could it be at this hour? (End of Part 2 - Act 2)",
+          npcText: "The doorbell rings. Arthur smiles for the first time tonight. 'Ah, that must be Julian.' The butler opens the door, and a man in an Armani suit walks in. It's Claire's ex.",
+          energyCost: 20,
+          glossary: [{ word: 'Must be', meaning: 'Deve ser' }],
+          quickReplies: [
+            { label: 'Ficar calmo e analisar.', text: "I see. Julian. Nice to meet you." },
+            { label: 'Olhar para Claire.', text: "Claire? Did you know about this?" }
+          ],
+          intents: [
+            { match: /(calm|nice to meet|claire|know about this|julian)/i, response: "Julian smirks. 'The famous Alex. Arthur told me so much about you.' Claire looks furious at her father. Margaret drops her fork.", nextScene: 'alex_12' }
+          ],
+          fallback: "Julian is waiting for your reaction. Arthur is watching.",
+          offensiveScene: 'alex_bad_2'
+        },
+        alex_12: {
+          npcName: 'Julian (The Ex)',
+          npcText: "So, you're the self-made man. How quaint. Arthur tells me you're in software. Must be nice to work with... computers. I'm in private equity, by the way.",
+          energyCost: 15,
+          glossary: [{ word: 'Quaint', meaning: 'Pitoresco / Fofo (de forma condescendente)' }, { word: 'Private equity', meaning: 'Capital privado (mercado financeiro)' }],
+          quickReplies: [
+            { label: 'Usar Cleft Sentence para brilhar.', text: "It is not what we do, Julian, but how we do it. I build things that last." },
+            { label: 'Ser sarcástico.', text: "Private equity. So you buy companies and fire people. Very noble." }
+          ],
+          intents: [
+            { match: /(how we do it|build things|last|noble|fire people|buy companies)/i, response: "Julian's smile falters. 'Clever.' Arthur looks annoyed that Julian didn't win the exchange.", nextScene: 'alex_13' }
+          ],
+          fallback: "Julian is waiting to see if you'll bite.",
+          offensiveScene: 'alex_bad_2'
+        },
+        alex_13: {
+          npcName: 'Claire (Your Partner)',
+          npcText: "Dad, what the hell is he doing here? You know Julian and I are over. This is completely out of line.",
+          energyCost: 10,
+          glossary: [{ word: 'Out of line', meaning: 'Ultrapassando os limites' }],
+          quickReplies: [
+            { label: 'Apoiar a Claire.', text: "I agree with Claire. This is disrespectful to both of us." },
+            { label: 'Deixar a Claire liderar.', text: "This is between you and your father, Claire." }
+          ],
+          intents: [
+            { match: /(agree|disrespectful|between you|claire)/i, response: "Arthur: 'I invited a family friend. Show some manners.' He turns to you. 'Alex, come to my study. Now.'", nextScene: 'alex_14' }
+          ],
+          fallback: "Arthur is ignoring Claire's protest. He is waiting for you.",
+          offensiveScene: 'alex_bad_2'
+        },
+        alex_14: {
+          npcName: 'Arthur (Father-in-law)',
+          npcText: "Sit down. I will be blunt. Claire is meant for someone like Julian. Not you. I am offering you $5,000 to walk away from my daughter. Tonight.",
+          energyCost: 30,
+          glossary: [{ word: 'Blunt', meaning: 'Direto / Sem rodeios' }, { word: 'Walk away', meaning: 'Ir embora / Desistir' }],
+          quickReplies: [
+            { label: 'Recusar com Inversão (C1).', text: "Under no circumstances will I take your money. I love her." },
+            { label: 'Negociar (Ganhar dinheiro).', text: "Make it $10,000, and I'll think about it." },
+            { label: 'Ofender o Arthur.', text: "You think I'm that cheap? Go to hell, Arthur." }
+          ],
+          intents: [
+            { match: /(under no circumstances|lose her|love her|refuse)/i, response: "Arthur: 'Hmph. You have a spine. That's rare.' He puts the check away. 'Get back to the table.'", nextScene: 'alex_15', energyCost: -10 },
+            { match: /(10,000|think about it|negotiate)/i, response: "Arthur: 'So you can be bought. I knew it.' He tears the check. 'Get out of my house.' (You are a gold digger now.)", nextScene: 'alex_bad_2' },
+            { match: /(cheap|hell|offend)/i, response: "Arthur: 'I have lawyers that will bury you. You are nothing.' He opens the door. 'We are done here.'", nextScene: 'alex_bad_2' }
+          ],
+          fallback: "The $5,000 check is on the table. Make your choice.",
+          offensiveScene: 'alex_bad_2'
+        },
+        alex_15: {
+          npcName: 'Narrador',
+          npcText: "You return to the table. The tension is unbearable. Julian is smirking. Claire looks at you, searching for answers. Arthur says: 'Alex, you missed the pie. But I believe you owe us a toast.'",
+          energyCost: 10,
+          glossary: [{ word: 'Owe', meaning: 'Deve (obrigação)' }],
+          quickReplies: [
+            { label: 'Aceitar o brinde.', text: "Of course. I would be honored." },
+            { label: 'Desafiar o Arthur.', text: "Only if you promise not to invite any more exes, Arthur." }
+          ],
+          intents: [
+            { match: /(honored|accept|promise|exes|challenge)/i, response: "Arthur's eyes narrow. Claire suppresses a smile. Everyone raises their glasses. (End of Part 3).", nextScene: 'alex_end_part3' }
+          ],
+          fallback: "Everyone is waiting for your toast.",
+          offensiveScene: 'alex_bad_2'
+        },
+        alex_end_part3: {
+          npcName: 'Narrador',
+          npcText: "The room is silent. All eyes are on you. You have the floor. (End of Act 3 - To be continued in Act 4: The Toast)",
           isEnd: true,
           endingType: 'ok'
         },
