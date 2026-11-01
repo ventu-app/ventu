@@ -150,8 +150,6 @@ const gameDataC2 = {
           fallback: "They're right there. The water is still. The night is silent. What do you do?",
           offensiveScene: 'noah_bad_2'
         },
-        // ... (Aqui continua a cena 6, 7, etc, com a mesma lógica de fx e bg)
-        // Para encurtar a resposta, repito as cenas abaixo com os fx e bg aplicados.
         noah_6: {
           npcName: 'Ruby (Your Partner)',
           bg: 'terrace',
@@ -319,10 +317,6 @@ const gameDataC2 = {
           npcName: 'Narrador',
           bg: 'firepit',
           npcText: "The final results are in. The public has voted. Bree opens the envelope. 'The winners of Cove of Secrets are...'",
-                  noah_15_ruby: {
-          npcName: 'Narrador',
-          bg: 'firepit',
-          npcText: "The final results are in. The public has voted. Bree opens the envelope. 'The winners of Cove of Secrets are...'",
           quickReplies: [ { label: 'Aguardar o resultado.', text: "Wait for the result." } ],
           intents: [ { match: /(wait|result|\.\.\.)/i, response: "The lights flash. The music swells. You brace yourself for the announcement.", nextScene: 'noah_end_good' } ],
           fallback: "The moment of truth.",
@@ -331,13 +325,9 @@ const gameDataC2 = {
         noah_15_chloe: {
           npcName: 'Narrador',
           bg: 'firepit',
-          npcText: "The final results are in. The public has voted. Bree opens the envelope, looking slightly terrified of what you might do next. 'The winners of Cove of Secrets are...'",
+          npcText: "The final results are in. The public has voted. Bree opens the envelope, looking terrified. 'The winners of Cove of Secrets are...'",
           quickReplies: [ { label: 'Aguardar o resultado.', text: "Wait for the result." } ],
           intents: [ { match: /(wait|result|\.\.\.)/i, response: "Chloe squeezes your hand so hard it hurts. The lights flash.", nextScene: 'noah_end_chaos' } ],
-          fallback: "The moment of truth.",
-          offensiveScene: 'noah_bad_2'
-        },
-          intents: [ { match: /(\.\.\.)/i, response: "Chloe squeezes your hand so hard it hurts. The lights flash.", nextScene: 'noah_end_chaos' } ],
           fallback: "The moment of truth.",
           offensiveScene: 'noah_bad_2'
         },
@@ -374,8 +364,257 @@ const gameDataC2 = {
       }
     },
     sienna: {
-      // (Mantive a Sienna igual, mas você precisa aplicar as mesmas regras de regex e fx nela)
-      // ...
+      charId: 'sienna',
+      name: 'Sienna',
+      role: 'The Villain',
+      emoji: '💅',
+      description: "You are the villa's resident bombshell. You know exactly how this game is played, and you're here to win. But when a new bad boy arrives who sees right through your ice-cold facade, will you stick to the safe bet, or risk it all for real chemistry?",
+      initialState: { money: 100.00, trust: 100, rizz: 50, energy: 100 },
+      startScene: 'sienna_1',
+      scenes: {
+        sienna_1: {
+          npcName: 'Dylan (Your Partner)',
+          bg: 'bedroom',
+          npcText: `Morning, gorgeous. I made you a coffee. Just the way you like it. And I saved you the good sunnies.\n\n*He smiles, so eager to please.*\n\n"What's the plan today? Grafting in the sun?"`,
+          glossary: [
+            { word: 'Grafting', meaning: 'Trabalhar duro (no sentido de flertar/conquistar alguém no reality)' },
+            { word: 'Safe bet', meaning: 'Aposta segura (alguém confiável, mas talvez sem graça)' },
+            { word: 'Golden retriever energy', meaning: 'Energia de cachorrinho (carinhoso, leal, mas previsível)' }
+          ],
+          quickReplies: [
+            { label: 'Agradecer com charme.', text: "Thanks, babe. You're too good to me. Let's just chill by the pool." },
+            { label: 'Ser sincera sobre o tédio.', text: "Honestly, Dylan? I'm bored out of my mind. Same thing every day." },
+            { label: 'Planejar o jogo.', text: "We need to talk about our strategy. We have to stay on top." }
+          ],
+          intents: [
+            { match: /(thanks|chill|pool|charme)/i, response: `Dylan beams. 'Anything for you.' He kisses your forehead.\n\nIt's sweet. It's safe. It's... incredibly predictable.\n\nYou look over his shoulder and see Bree, the producer, waving at you. 'Sienna! Confessional time.'\n\nTime to put on the show.`, nextScene: 'sienna_2', fx: { energy: -5, trust: 5 } },
+            { match: /(bored|same thing|sincera)/i, response: `Dylan's face falls. 'Oh. Right. Well... we could go for a swim? Or...' He trails off.\n\nYou feel a tiny pang of guilt. But before you can apologize, the speakers crackle: 'ISLANDERS. A new bombshell is arriving. And he's a ripper.'\n\nDylan swallows hard. You just smile.`, nextScene: 'sienna_2', fx: { energy: -5, trust: -10 } },
+            { match: /(strategy|top|game|planejar)/i, response: `Dylan nods seriously. 'Exactly. We're the strongest couple here. Noah and Ruby are a mess, and the others are irrelevant.'\n\nHe looks at you with pure trust. 'We're gonna win this.' You smile. 'Yes, we are.'\n\nBut the speakers crackle before you can say anything else: 'ISLANDERS. A new bombshell is arriving.'`, nextScene: 'sienna_2', fx: { energy: -5, rizz: 5 } }
+          ],
+          fallback: "Dylan is waiting for your answer, looking like a lost puppy.",
+          offensiveScene: 'sienna_bad_1'
+        },
+        sienna_2: {
+          npcName: 'Narrador',
+          bg: 'terrace',
+          npcText: "The door opens and he walks in. Unlike the other guys, he doesn't try to be charming. He's got dark hair, a sleeve of tattoos, and a leather jacket in the middle of a heatwave. Zane. He looks around the villa, completely unfazed, until his eyes lock on you. He smirks. 'Alright. I'm taking her for a chat.'",
+          glossary: [
+            { word: 'Unfazed', meaning: 'Não abalado / Indiferente' },
+            { word: 'Ripper', meaning: 'Alguém ou algo incrível / fantástico' },
+            { word: 'Lock on', meaning: 'Travar o olhar em alguém' }
+          ],
+          quickReplies: [
+            { label: 'Aceitar o desafio.', text: "Lead the way, Zane. Let's see if you're as interesting as you think you are." },
+            { label: 'Olhar para o Dylan.', text: "Dylan? Are you going to say something?" },
+            { label: 'Ficar fria.', text: "I'm busy right now. Maybe later." }
+          ],
+          intents: [
+            { match: /(lead the way|challenge|aceitar)/i, response: `Zane's smirk widens. He doesn't wait for you to stand up. He just turns and walks to the daybeds.\n\nYou follow. You can feel Dylan's eyes burning into your back, and the rest of the villa whispering.\n\nWhen you sit down, Zane leans in. 'So. You're the villain everyone's talking about.'`, nextScene: 'sienna_3', fx: { energy: -10, rizz: 10 } },
+            { match: /(dylan|say something|olhar)/i, response: `Dylan steps forward. 'Mate, we were in the middle of a conversation.'\n\nZane doesn't even look at him. He just keeps staring at you. 'She can speak for herself, can't she?'\n\nDylan looks at you, desperate for backup. You just shrug. 'We'll talk later, Dylan.' You walk off with Zane.`, nextScene: 'sienna_3', fx: { energy: -10, trust: -5 } },
+            { match: /(busy|later|fria)/i, response: `Zane laughs. It's a low, raspy sound. 'Busy. Right.'\n\nHe walks over, takes your hand, and pulls you up gently but firmly. 'I'll bring her back in one piece. Promise.'\n\nHe leads you away. And you let him. You hate that you let him.`, nextScene: 'sienna_3', fx: { energy: -10, trust: 5 } }
+          ],
+          fallback: "Zane is waiting. The whole villa is holding its breath.",
+          offensiveScene: 'sienna_bad_1'
+        },
+        sienna_3: {
+          npcName: 'Zane (The Bombshell)',
+          bg: 'terrace',
+          npcText: `You've got them all fooled, don't you? They think you're just the pretty villain. But I see you, Sienna. You're not playing the game. You're running from something.`,
+          glossary: [
+            { word: 'Fooled', meaning: 'Enganados / Feitos de trouxa' },
+            { word: 'Running from', meaning: 'Fugindo de algo' },
+            { word: 'Showmance', meaning: 'Romance de fachada (jargão de reality)' }
+          ],
+          quickReplies: [
+            { label: 'Atacar de volta.', text: "And you're just another wannabe bad boy trying to get screen time. Am I wrong?" },
+            { label: 'Ser vulnerável (raro).', text: "Maybe I am. Maybe being the villain is easier than getting hurt." },
+            { label: 'Rejeitar a psicanálise.', text: "You don't know me. Don't pretend you do." }
+          ],
+          intents: [
+            { match: /(wannabe|screen time|attack|wrong)/i, response: `Zane smiles, and this time it actually reaches his eyes. 'There she is. The real Sienna.'\n\nHe leans closer. 'I like this one better.' He stands up. 'We should do this again.'\n\nHe walks away without looking back. And you realize you're breathing a little harder.`, nextScene: 'sienna_4', fx: { energy: -15, rizz: 10 } },
+            { match: /(vulnerable|hurt|easier)/i, response: `Zane doesn't laugh. He doesn't smirk. He just looks at you. 'I get it. Trust me, I get it.'\n\nHe reaches out and puts his hand over yours. 'But the best things in life aren't safe, Sienna.'\n\nHe squeezes your hand once, then stands up and walks away. You're left staring at your hand.`, nextScene: 'sienna_4', fx: { energy: -15, trust: 10 } },
+            { match: /(don't know|pretend|rejeitar)/i, response: `Zane nods. 'Fair enough. But for the record? I'm not the one pretending.'\n\nHe stands up. 'Oh, and Sienna? The showmance with Dylan? It's boring the audience. And it's boring you.'\n\nHe walks away. You want to throw a drink at him. You also want him to come back.`, nextScene: 'sienna_4', fx: { energy: -15, trust: -10 } }
+          ],
+          fallback: "Zane is staring at you. He's not blinking.",
+          offensiveScene: 'sienna_bad_1'
+        },
+        sienna_4: {
+          npcName: 'Bree (Producer, Off-Camera)',
+          bg: 'firepit',
+          npcText: "Alright, Islanders! Time for the Heart Rate Challenge. The boys are going to dance for you. Sienna, we're starting with you. Zane is up first. Then Dylan. Let's see who makes your heart race.",
+          glossary: [
+            { word: 'Heart Rate Challenge', meaning: 'Desafio de dança sensual para ver quem acelera o coração' },
+            { word: 'Race', meaning: 'Corrida (aqui, "quem faz o coração bater mais rápido")' }
+          ],
+          quickReplies: [
+            { label: 'Focar no Zane.', text: "Focus on Zane." },
+            { label: 'Focar no Dylan (Lealdade).', text: "Focus on Dylan." },
+            { label: 'Jogar o jogo.', text: "Play the game." }
+          ],
+          intents: [
+            { match: /(zane)/i, response: `Zane doesn't dance. He just walks over, pulls you up, and whispers in your ear. 'You're the only one I see.'\n\nHis breath is hot against your neck. The monitor goes crazy, hitting 180 BPM.\n\nDylan is next. He does a funny, choreographed dance with a fake rose. It's cute. The monitor barely moves.\n\nEveryone knows who won.`, nextScene: 'sienna_5', fx: { energy: -20, rizz: 15 } },
+            { match: /(dylan)/i, response: `When Dylan dances, he looks at you with pure love. He's trying so hard. Your heart monitor goes up.\n\nBut then Zane takes the stage. He locks eyes with you, takes his shirt off slowly, and smirks.\n\nThe monitor spikes to 170. Dylan's face falls. The chemistry is undeniable.`, nextScene: 'sienna_5', fx: { energy: -20, trust: 10 } },
+            { match: /(game)/i, response: `You barely look at either of them. You just sit there, cold and calculating.\n\nWhen Zane dances, you smile. When Dylan dances, you clap. Both monitors go up.\n\nBut nobody can tell who made your heart race more. The audience is going wild.`, nextScene: 'sienna_5', fx: { energy: -20, trust: -5 } }
+          ],
+          fallback: "The music starts. Time to see who makes your heart race.",
+          offensiveScene: 'sienna_bad_2'
+        },
+        sienna_5: {
+          npcName: 'Narrador',
+          bg: 'firepit',
+          npcText: "It's the Recoupling. The fire pit is lit. The boys are standing in a line. Dylan is sweating, holding a speech. Zane is leaning against a pillar, looking completely bored. Bree looks at you. 'Sienna, it's your turn.'",
+          glossary: [
+            { word: 'Recoupling', meaning: 'Cerimônia de escolha de casal' },
+            { word: 'Sweating', meaning: 'Suando / Nervoso' },
+            { word: 'Speech', meaning: 'Discurso' }
+          ],
+          quickReplies: [
+            { label: 'Escolher Dylan.', text: "I'm choosing Dylan. He's my rock. I need safe." },
+            { label: 'Escolher Zane.', text: "I'm choosing Zane. I want to see what happens when I'm not being safe." },
+            { label: 'Fazer um discurso confuso.', text: "I... I don't know. I like you both. Can I flip a coin?" }
+          ],
+          intents: [
+            { match: /(choosing dylan|rock)/i, response: `Dylan exhales, almost crying with relief. He runs over and hugs you.\n\nBut Zane just watches. He doesn't look hurt. He looks disappointed.\n\n'You're making a mistake, Sienna,' he says loud enough for everyone to hear. 'But I'll wait.'`, nextScene: 'sienna_6', fx: { energy: -25, trust: 15 } },
+            { match: /(choosing zane|not being safe)/i, response: `The villa gasps. Dylan looks like you slapped him. Zane's face lights up.\n\nHe walks over, cups your face, and kisses you right there in front of everyone.\n\nIt's a hard, hungry kiss that sends a shockwave through the villa. 'You just made this interesting,' he whispers.`, nextScene: 'sienna_6', fx: { energy: -25, rizz: 10, trust: -15 } },
+            { match: /(don't know|coin|confuso|flip)/i, response: `The villa goes silent. Dylan looks mortified. Zane just smirks.\n\nBree raises an eyebrow. 'You have to choose, Sienna.'\n\nYou look at them both. You're playing the game, but you've backed yourself into a corner. The audience is ripping you apart.`, nextScene: 'sienna_6', fx: { energy: -25, trust: -10 } }
+          ],
+          fallback: "The fire crackles. Who do you choose?",
+          offensiveScene: 'sienna_bad_2'
+        },
+        sienna_6: {
+          npcName: 'Dylan (Your Partner)',
+          bg: 'terrace',
+          npcText: `Sienna. I just want to be enough for you. Why am I not enough? What does he have that I don't? He's looking at you with such pain in his eyes.`,
+          glossary: [
+            { word: 'Enough', meaning: 'Suficiente' },
+            { word: 'Pain', meaning: 'Dor / Tristeza' }
+          ],
+          quickReplies: [
+            { label: 'Ser honesta e cruel.', text: "He has a pulse, Dylan. You're too nice. It's suffocating." },
+            { label: 'Ser carinhosa e falsa.', text: "You are enough, Dylan. I'm just confused. I'm sorry." },
+            { label: 'Ficar em silêncio.', text: "..." }
+          ],
+          intents: [
+            { match: /(pulse|too nice|suffocating|cruel)/i, response: `Dylan steps back as if you slapped him. 'Right. Okay. I get it.'\n\nHe walks away, not crying, but clearly shattered.\n\nZane is watching from the pool. He raises his beer to you. You're officially the villain. And it feels... powerful.`, nextScene: 'sienna_7', fx: { energy: -15, trust: -15 } },
+            { match: /(enough|confused|sorry|falsa)/i, response: `Dylan nods, tears in his eyes. 'Thank you.' He hugs you. You feel like a complete monster.\n\nZane is watching from the pool. He doesn't raise his beer. He just stares, waiting to see what you do next.`, nextScene: 'sienna_7', fx: { energy: -15, trust: 5 } },
+            { match: /(\.\.\.)/i, response: `You say nothing. Dylan waits. Then he nods. 'Right.' He walks away, shoulders slumped.\n\nYou watch him go. Zane appears beside you. 'Cold,' he whispers. 'I like it.'\n\nBut even he seems a little put off.`, nextScene: 'sienna_7', fx: { energy: -15, trust: -5 } }
+          ],
+          fallback: "Dylan is waiting for an answer that will make him feel better.",
+          offensiveScene: 'sienna_bad_1'
+        },
+        sienna_7: {
+          npcName: 'Bree (Producer, Off-Camera)',
+          bg: 'firepit',
+          npcText: "Gather round, Islanders! Movie Night! We're going to show you exactly what you've been saying behind each other's backs. Roll the tape!",
+          glossary: [
+            { word: 'Roll the tape', meaning: 'Rodar a fita / Passar o vídeo' },
+            { word: 'Movie Night', meaning: 'Noite de cinema do reality (onde os segredos são expostos)' }
+          ],
+          quickReplies: [
+            { label: 'Preparar para o caos.', text: "Prepare for chaos." },
+            { label: 'Fingir calma.', text: "Pretend to be calm." },
+            { label: 'Olhar para o Zane.', text: "Look at Zane." }
+          ],
+          intents: [
+            { match: /(chaos)/i, response: `The screen lights up. It's you in the confessional, talking to Bree. 'Dylan is a safe bet. But Zane... Zane makes me want to risk it all. I don't know if I can stay faithful.'\n\nThe villa erupts. Dylan stands up, furious. Zane just smiles.`, nextScene: 'sienna_8', fx: { energy: -20, trust: -10 } },
+            { match: /(calm)/i, response: `The screen lights up. First is Zane's confessional: 'Sienna's a challenge. But I don't lose.'\n\nThen, your confessional plays. You admit that Dylan is just a game piece. Dylan is devastated.\n\nThe villa is in chaos. You've been caught out.`, nextScene: 'sienna_8', fx: { energy: -20, trust: -15 } },
+            { match: /(zane)/i, response: `The screen lights up. It's not you first. It's Kai. 'Noah's a mug.' Everyone gasps.\n\nBut then, the tape switches to you. 'Dylan is boring. Zane is dangerous.'\n\nDylan stands up and walks inside. The damage is done.`, nextScene: 'sienna_8', fx: { energy: -20, trust: -5 } }
+          ],
+          fallback: "The screen is about to play your biggest secrets.",
+          offensiveScene: 'sienna_bad_2'
+        },
+        sienna_8: {
+          npcName: 'Zane (The Bombshell)',
+          bg: 'terrace',
+          npcText: `Well. Looks like the cat's out of the bag.\n\n*He laughs.*\n\n"So, what's the play now, Sienna? Are you going to run after the puppy and beg for forgiveness? Or are you going to be the villain everyone thinks you are?"`,
+          glossary: [
+            { word: 'Cat\'s out of the bag', meaning: 'O segredo foi revelado' },
+            { word: 'Play', meaning: 'Jogada / Estratégia' },
+            { word: 'Puppy', meaning: 'Cachorrinho (aqui se referindo ao Dylan)' }
+          ],
+          quickReplies: [
+            { label: 'Assumir a vilania.', text: "I'm done playing nice. Let's be the villains together, Zane." },
+            { label: 'Correr atrás do Dylan.', text: "I need to fix this with Dylan. I'm sorry, Zane." },
+            { label: 'Sair sozinha.', text: "I'm done with both of you. I'm playing for myself." }
+          ],
+          intents: [
+            { match: /(villains|done playing)/i, response: `Zane grabs your waist and pulls you in. 'Now we're talking.'\n\nThe villa watches in shock as you kiss him deeply.\n\nDylan walks out with his suitcase, leaving the show. You're the ultimate villain now. And you're going to win.`, nextScene: 'sienna_9', fx: { energy: -25, rizz: 15, trust: -15 } },
+            { match: /(fix this|sorry)/i, response: `Zane steps back, surprised. 'Really? The puppy?' He shakes his head. 'You're making a mistake.'\n\nBut you run inside. You find Dylan packing.\n\nYou have to convince him to stay. Or maybe you just want to salvage your image.`, nextScene: 'sienna_9', fx: { energy: -25, trust: 15 } },
+            { match: /(both of you|myself|alone)/i, response: `Zane laughs, but it's hollow. 'Playing alone? Good luck with that.' He walks away.\n\nYou are left standing alone in the middle of the villa. The cameras are all on you.\n\nIt's the most vulnerable you've ever been.`, nextScene: 'sienna_9', fx: { energy: -25, trust: 0 } }
+          ],
+          fallback: "Zane is waiting. He's got his hand out. What do you do?",
+          offensiveScene: 'sienna_bad_2'
+        },
+        sienna_9: {
+          npcName: 'Bree (Producer, Off-Camera)',
+          bg: 'firepit',
+          npcText: "Alright, Islanders. It's the FINAL RECOUPLING. Sienna, it's your turn. Make your speech.",
+          glossary: [
+            { word: 'Final Recoupling', meaning: 'A última cerimônia de escolha' },
+            { word: 'Speech', meaning: 'Discurso de declaração' }
+          ],
+          quickReplies: [
+            { label: 'Ficar com o Zane.', text: "I choose Zane. We're the villains, and we're winning this." },
+            { label: 'Ficar com o Dylan.', text: "I choose Dylan. I'm sorry for everything. I want to be better." },
+            { label: 'Sair do programa.', text: "I choose myself. I'm leaving." }
+          ],
+          intents: [
+            { match: /(zane|villains|winning|escolher zane)/i, response: `Zane walks over and takes your hand. 'Told you,' he whispers. 'Best things aren't safe.'\n\nThe audience is divided. Some hate you, some love you. But you're in the final.`, nextScene: 'sienna_10_zane', fx: { energy: -30, rizz: 10 } },
+            { match: /(dylan|sorry|better|escolher dylan)/i, response: `Dylan hesitates, then walks over and hugs you. 'We can fix this. We can be good.'\n\nZane just shakes his head and walks away. You've chosen the redemption arc. The audience is eating it up.`, nextScene: 'sienna_10_dylan', fx: { energy: -30, trust: 20 } },
+            { match: /(myself|leaving|sair|sozinha)/i, response: `You step back. 'I choose myself. I'm done.'\n\nYou drop your microphone. The villa gasps. Bree screams at the cameramen.\n\nYou walk out of the villa and into the night.`, nextScene: 'sienna_end_chaos', fx: { energy: -30 } }
+          ],
+          fallback: "The fire pit is silent. Who do you choose?",
+          offensiveScene: 'sienna_bad_2'
+        },
+        sienna_10_zane: {
+          npcName: 'Narrador',
+          bg: 'firepit',
+          npcText: "The final results are in. The public has voted. You stand in front of Bree. The tension is palpable. Bree opens the envelope, looking furious that the villains made it this far. 'The winners of Cove of Secrets are...'",
+          quickReplies: [ { label: 'Aguardar o resultado.', text: "Wait for the result." } ],
+          intents: [ { match: /(wait|result|\.\.\.)/i, response: "The lights flash. The music swells. You brace yourself.", nextScene: 'sienna_end_good' } ],
+          fallback: "The moment of truth.",
+          offensiveScene: 'sienna_bad_2'
+        },
+        sienna_10_dylan: {
+          npcName: 'Narrador',
+          bg: 'firepit',
+          npcText: "The final results are in. The public has voted. You stand in front of Bree. The tension is palpable. Bree opens the envelope. 'The winners of Cove of Secrets are...'",
+          quickReplies: [ { label: 'Aguardar o resultado.', text: "Wait for the result." } ],
+          intents: [ { match: /(wait|result|\.\.\.)/i, response: "Dylan squeezes your hand so hard it hurts. He's crying. The lights flash.", nextScene: 'sienna_end_dylan' } ],
+          fallback: "The moment of truth.",
+          offensiveScene: 'sienna_bad_2'
+        },
+        sienna_end_good: {
+          npcName: 'Narrador',
+          bg: 'firepit',
+          npcText: "Bree smiles through gritted teeth. 'The winners are Sienna and Zane!' The villa explodes. Zane lifts you up and kisses you. You won. You were the villain, you played the game, and you got exactly what you wanted. The audience loves to hate you, and you love every second of it. (Final Bom)",
+          isEnd: true, endingType: 'bom'
+        },
+        sienna_end_dylan: {
+          npcName: 'Narrador',
+          bg: 'firepit',
+          npcText: "Bree forces a smile. 'The winners are Sienna and Dylan!' Dylan picks you up, crying happy tears. You might not have won as the ruthless villain, but you won as the girl who chose the good guy. The audience loves a redemption arc. (Final Bom - Redenção)",
+          isEnd: true, endingType: 'bom'
+        },
+        sienna_end_chaos: {
+          npcName: 'Narrador',
+          bg: 'firepit',
+          npcText: "You walked out of the villa. The producers tried to stop you, but you were done. You exposed the fake nature of the show. The public might hate you, but you're free. And honestly? That's better than any prize money. (Final de Caos)",
+          isEnd: true, endingType: 'bom'
+        },
+        sienna_bad_1: {
+          npcName: 'Bree (Producer)',
+          bg: 'confess',
+          npcText: "Sienna, you've become irrelevant. The audience finds you boring. The producers have decided to cut your screen time. You're out. Leave. (Final Ruim)",
+          isEnd: true, endingType: 'ruim'
+        },
+        sienna_bad_2: {
+          npcName: 'Narrador',
+          bg: 'terrace',
+          npcText: "You played both of them, and it backfired. Both Dylan and Zane dumped you in the final. You left the villa alone, humiliated, and without the prize money. The audience is laughing. The villain has been defeated. (Final Ruim)",
+          isEnd: true, endingType: 'ruim'
+        }
+      }
     }
   }
 };
