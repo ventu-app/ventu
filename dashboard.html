@@ -30,7 +30,7 @@
     .site-header { background: var(--bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
     .header-inner { display: flex; justify-content: space-between; align-items: center; height: 80px; }
     .logo { display: flex; align-items: center; gap: 12px; font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; color: var(--text); }
-    .header-nav { display: flex; align-items: center; gap: 20px; }
+    .header-nav { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
     .nav-link { font-weight: 600; color: var(--text); transition: 0.2s; }
     .nav-link:hover { color: var(--gold); }
     .btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; border: none; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px; }
@@ -88,20 +88,9 @@
     .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; color: var(--text-muted); font-size: 0.85rem; }
     .creator-credit a { color: var(--gold); font-weight: 600; }
 
-    /* AQUI ESTÁ O CONSERTO DO MOBILE HEADER */
     @media (max-width: 768px) {
-      .header-inner { 
-          height: auto; 
-          padding: 15px 0; 
-          flex-direction: column; 
-          gap: 15px; 
-      }
-      .header-nav { 
-          width: 100%; 
-          justify-content: center; 
-          flex-wrap: wrap; 
-          gap: 10px;
-      }
+      .header-inner { height: auto; padding: 15px 0; flex-direction: column; gap: 15px; }
+      .header-nav { width: 100%; justify-content: center; }
       .btn { padding: 8px 12px; font-size: 0.85rem; }
       .nav-link { font-size: 0.85rem; }
       .footer-bottom { flex-direction: column; text-align: center; }
@@ -167,8 +156,8 @@
       <p class="creator-credit">Desenvolvido com <span class="heart">❤️</span> por <a href="https://instagram.com/porphirio.brayam" target="_blank" rel="noopener">Brayam Porphirio</a></p>
       <div style="width: 100%; text-align: center; margin-top: 15px; font-size: 0.85rem;">
         <a href="sobre.html" style="color: var(--text-muted); margin-right: 15px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">Sobre</a>
-<a href="termos.html" style="color: var(--text-muted); margin-right: 15px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">Termos</a>
-<a href="privacidade.html" style="color: var(--text-muted); text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">Privacidade</a>
+        <a href="termos.html" style="color: var(--text-muted); margin-right: 15px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">Termos</a>
+        <a href="privacidade.html" style="color: var(--text-muted); text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">Privacidade</a>
       </div>
     </div>
   </footer>
@@ -237,9 +226,11 @@
             ventuMsg.innerText = `"Olha só, ${firstName}! ${xp} XP! Você tá virando um veterano. Os próximos níveis vão te testar de verdade."`;
         }
 
+        // Adicionado o botão "Meu Perfil" aqui
         const authArea = document.getElementById('auth-area');
         authArea.innerHTML = `
             <span style="color: var(--gold); font-weight: bold; background: rgba(251, 191, 36, 0.1); padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(251, 191, 36, 0.2); font-size:0.85rem;">⭐ ${xp} XP</span>
+            <a href="perfil.html" class="btn btn-ghost">Meu Perfil</a>
             <a href="/" class="btn btn-ghost">Home</a>
             <button class="btn btn-ghost" id="btn-logout">Sair</button>
         `;
@@ -251,20 +242,18 @@
 
       } catch(e) { console.error("Erro no Header:", e); }
 
-      // --- 3. RENDERIZAR O GRID ---
+      // --- 3. RENDERIZAR O GRID (SEM O CÓDIGO DE DEBUG) ---
       try {
         const levelsData = [
-  // DEBUG: B2 status =  + JSON.stringify(levelsData.find(l => l.id === 'b2')) + 
-
             { id: 'a1', cefr: 'A1', title: 'Vila Sobrevivente', icon: '🏘️', color: '#10b981', available: true, desc: 'Pedir comida, andar pela cidade e se virar no básico.' },
             { id: 'a2', cefr: 'A2', title: 'Porto Hotel', icon: '🏨', color: '#3b82f6', available: true, desc: 'Resolver pepinos do dia a dia, check-in e farmácia.' },
             { id: 'b1', cefr: 'B1', title: 'Caos Cotidiano', icon: '🚑', color: '#f97316', available: true, desc: 'Clínica de madrugada, apartamento alagado e burocracia.' },
             { id: 'b2', cefr: 'B2', title: 'O Negociador', icon: '💼', color: '#8b5cf6', available: true, desc: 'Clientes furiosos, entrevistas de emprego e acordos.' },
-            { id: 'c1', cefr: 'C1', title: 'O Mediador', icon: '🎭', color: '#ef4444', available: true, desc: 'Jantares de família, ironia, sarcasmo e política.' },
-            { id: 'c2', cefr: 'C2', title: 'O Estrategista', icon: '♟️', color: '#eab308', available: true, desc: 'Conselhos hostis, crises de imprensa e persuasão pura.' },
-            { id: 'social', cefr: 'B1+', title: 'Bairro do Flerte', icon: '💕', color: '#ec4899', available: true, badge: '18+', desc: 'Dates, flerte, humor e detecção de red flags.' },
-            { id: 'street', cefr: 'B2+', title: 'Beco da Rua', icon: '🔥', color: '#e11d48', available: true, badge: '18+', desc: 'Conflito, insultos, palavrões e como se impor.' },
-            { id: 'abroad', cefr: 'B1+/B2+', title: 'Vida no Exterior', icon: '✈️', color: '#06b6d4', available: true, badge: 'MORAR FORA', desc: 'Entrevistas, host family, aluguel e sobrevivência fora do país.' }
+            { id: 'c1', cefr: 'C1', title: 'O Mediador', icon: '🎭', color: '#ef4444', available: false, desc: 'Jantares de família, ironia, sarcasmo e política.' },
+            { id: 'c2', cefr: 'C2', title: 'O Estrategista', icon: '♟️', color: '#eab308', available: false, desc: 'Conselhos hostis, crises de imprensa e persuasão pura.' },
+            { id: 'social', cefr: 'B1+', title: 'Bairro do Flerte', icon: '💕', color: '#ec4899', available: false, badge: '18+', desc: 'Dates, flerte, humor e detecção de red flags.' },
+            { id: 'street', cefr: 'B2+', title: 'Beco da Rua', icon: '🔥', color: '#e11d48', available: false, badge: '18+', desc: 'Conflito, insultos, palavrões e como se impor.' },
+            { id: 'abroad', cefr: 'B1+/B2+', title: 'Vida no Exterior', icon: '✈️', color: '#06b6d4', available: false, badge: 'MORAR FORA', desc: 'Entrevistas, host family, aluguel e sobrevivência fora do país.' }
         ];
 
         const grid = document.getElementById('levels-grid');
@@ -279,7 +268,7 @@
             if (completedLevels[level.id] && completedLevels[level.id].length > 0) {
                 statusHtml = `<span class="status-tag status-done">✅ Concluído</span>`;
             } else if (!level.available) {
-                statusHtml = `<span class="status-tag status-locked"> Bloqueado</span>`;
+                statusHtml = `<span class="status-tag status-locked">🔒 Bloqueado</span>`;
             } else {
                 statusHtml = `<span class="status-tag" style="color:var(--gold);">▶ Jogar</span>`;
             }
@@ -298,7 +287,7 @@
 
             if (level.available) {
                 card.addEventListener('click', () => {
-                    window.location.href = `nivel.html?l=${level.id}`; // Mudou para nivel.html
+                    window.location.href = `nivel.html?l=${level.id}`;
                 });
             } else {
                 card.addEventListener('click', () => {

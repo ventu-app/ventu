@@ -1,40 +1,75 @@
 ﻿<!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - Raposa tirando um cochilo</title>
-    <style>
-        body { background-color: #0b0f19; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; overflow: hidden; }
-        .fox-container { font-size: 8rem; position: relative; animation: float 3s ease-in-out infinite; margin-bottom: 20px; }
-        .zzz { position: absolute; top: -20px; right: -30px; font-size: 2rem; color: #fbbf24; font-weight: bold; animation: sleep 2s ease-in-out infinite; opacity: 0; }
-        .zzz:nth-child(2) { top: -40px; right: -60px; font-size: 1.5rem; animation-delay: 1s; }
-        
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        @keyframes sleep { 0%, 100% { opacity: 0; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-15px); } }
-        
-        h1 { color: #fbbf24; font-size: 4rem; margin: 0 0 10px 0; }
-        p { color: #94a3b8; font-size: 1.1rem; max-width: 550px; line-height: 1.6; margin-bottom: 30px; padding: 0 20px; }
-        .highlight { color: #e2e8f0; font-weight: bold; }
-        a { background-color: #fbbf24; color: #0b0f19; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; transition: 0.2s; }
-        a:hover { background-color: #f59e0b; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Você se perdeu — Ventu</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #0b0f19; --panel: #151b2b; --text: #e2e8f0; --text-muted: #94a3b8; --gold: #fbbf24; --border: #1e293b; --font-heading: 'Playfair Display', serif; --font-body: 'Inter', sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; overflow: hidden; }
+    a { text-decoration: none; color: inherit; }
+    
+    .container { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; }
+    
+    .fox-container { position: relative; margin-bottom: 30px; animation: float 4s infinite ease-in-out; }
+    .fox-svg { width: 200px; height: 200px; filter: drop-shadow(0 10px 20px rgba(251, 191, 36, 0.2)); }
+    
+    /* ZZZ Animation */
+    .zzz-container { position: absolute; top: -20px; right: -20px; }
+    .zzz { position: absolute; font-family: var(--font-heading); color: var(--gold); font-weight: bold; opacity: 0; }
+    .z1 { font-size: 1.5rem; animation: floatZ 3s infinite ease-in-out; }
+    .z2 { font-size: 2rem; animation: floatZ 3s infinite ease-in-out 1s; }
+    .z3 { font-size: 2.5rem; animation: floatZ 3s infinite ease-in-out 2s; }
+    
+    @keyframes floatZ {
+      0% { opacity: 0; transform: translate(0, 0) scale(0.8) rotate(-10deg); }
+      50% { opacity: 1; transform: translate(15px, -30px) scale(1.1) rotate(5deg); }
+      100% { opacity: 0; transform: translate(30px, -60px) scale(1.2) rotate(10deg); }
+    }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+    h1 { font-family: var(--font-heading); font-size: 4rem; color: var(--gold); margin-bottom: 10px; line-height: 1; }
+    h2 { font-size: 1.5rem; margin-bottom: 20px; color: var(--text); }
+    p { color: var(--text-muted); font-size: 1.1rem; max-width: 400px; margin-bottom: 30px; line-height: 1.6; }
+    
+    .btn { background: var(--gold); color: var(--bg); padding: 15px 30px; border-radius: 12px; font-weight: bold; font-size: 1.1rem; transition: 0.2s; display: inline-block; }
+    .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); filter: brightness(1.1); }
+  </style>
 </head>
 <body>
+  <div class="container">
     <div class="fox-container">
-        🦊
-        <div class="zzz">Z</div>
-        <div class="zzz">Z</div>
+      <svg class="fox-svg" viewBox="0 0 100 100">
+        <!-- Orelhas -->
+        <path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/>
+        <path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/>
+        <path d="M 22 46 L 25 22 L 36 38 Z" fill="#ea580c"/>
+        <path d="M 78 46 L 75 22 L 64 38 Z" fill="#ea580c"/>
+        <!-- Cabeça -->
+        <path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/>
+        <!-- Focinho -->
+        <path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/>
+        <!-- Olhos Dormindo (Curvas) -->
+        <path d="M 28 58 Q 35 64 42 58" stroke="#0b0f19" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M 58 58 Q 65 64 72 58" stroke="#0b0f19" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- Nariz -->
+        <path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/>
+      </svg>
+      <div class="zzz-container">
+        <span class="zzz z1">Z</span>
+        <span class="zzz z2">Z</span>
+        <span class="zzz z3">Z</span>
+      </div>
     </div>
-    
+
     <h1>404</h1>
-    <p>
-        <span class="highlight">Page not found.</span> Página não encontrada.<br><br>
-        A nossa raposinha tirou uma soneca e esqueceu onde guardou essa página. 
-        <i>(Our little fox took a nap and forgot where she put this page).</i><br><br>
-        Zzz...
-    </p>
+    <h2>Você saiu do mapa, dude.</h2>
+    <p>A Ventu tirou um cochilo e a página que você tentou acessar não existe (ou fugiu do caos).</p>
     
-    <a href="/">Acordar a raposa e voltar ao início</a>
+    <a href="/" class="btn">Voltar para a Home</a>
+  </div>
 </body>
 </html>
