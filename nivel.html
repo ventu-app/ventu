@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cenário da Missão — Ventu</title>
+  <meta name="description" content="Prepare-se para o próximo desafio no Ventu.">
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,6 +27,11 @@
     body { background-color: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; display: flex; flex-direction: column; transition: 0.3s; overflow-x: hidden; }
     .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; width: 100%; flex: 1; display: flex; flex-direction: column; justify-content: center; }
     a { text-decoration: none; color: inherit; }
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+    /* Skip link */
+    .skip-link { position: absolute; left: -9999px; top: 0; background: var(--gold); color: var(--bg); padding: 10px 20px; z-index: 9999; border-radius: 0 0 8px 0; font-weight: 700; }
+    .skip-link:focus { left: 0; }
 
     .site-header { background: var(--bg); border-bottom: 1px solid var(--border); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; width: 100%; z-index: 10; }
     .logo { display: flex; align-items: center; gap: 12px; font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; color: var(--text); }
@@ -69,7 +75,7 @@
     .objectives-box li::before { content: '🎯'; font-size: 1.1rem; }
 
     .actions { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
-    .btn { padding: 15px 30px; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.2s; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; }
+    .btn { padding: 15px 30px; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.2s; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; font-family: var(--font-body); }
     .btn-back { background: var(--bg); color: var(--text); border: 1px solid var(--border); flex: 1; min-width: 200px; }
     .btn-back:hover { border-color: var(--text); }
     .btn-play { background: var(--level-color, var(--gold)); color: var(--bg); flex: 2; min-width: 250px; }
@@ -87,26 +93,32 @@
       .actions { flex-direction: column; }
       .btn { width: 100%; }
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }
   </style>
 </head>
 <body>
 
+  <a href="#conteudo" class="skip-link">Pular para o conteúdo</a>
+
   <header class="site-header">
-    <a href="/" class="logo">
-      <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 22 46 L 25 22 L 36 38 Z" fill="#ea580c"/><path d="M 78 46 L 75 22 L 64 38 Z" fill="#ea580c"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><circle cx="36" cy="56" r="1.2" fill="#fff"/><circle cx="66" cy="56" r="1.2" fill="#fff"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/></svg>
+    <a href="jogar.html" class="logo" aria-label="Voltar para o Hub de Jogos">
+      <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 22 46 L 25 22 L 36 38 Z" fill="#ea580c"/><path d="M 78 46 L 75 22 L 64 38 Z" fill="#ea580c"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><circle cx="36" cy="56" r="1.2" fill="#fff"/><circle cx="66" cy="56" r="1.2" fill="#fff"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/></svg>
       <span class="logo-text">VENTU</span>
     </a>
-    <button id="theme-toggle" class="theme-toggle"><span class="icon-sun">☀️</span><span class="icon-moon">🌙</span></button>
+    <button id="theme-toggle" class="theme-toggle" aria-label="Alternar tema claro/escuro"><span class="icon-sun">☀️</span><span class="icon-moon">🌙</span></button>
   </header>
 
-  <main class="container">
+  <main class="container" id="conteudo">
     <div class="dossier-box" id="dossier-box">
-      <div class="level-icon-big" id="level-icon">🏘️</div>
+      <div class="level-icon-big" id="level-icon" aria-hidden="true">🏘️</div>
       <h1 class="level-title" id="level-title">Vila Sobrevivente</h1>
       <p class="level-subtitle" id="level-subtitle">NÍVEL A1</p>
 
       <div class="ventu-bubble">
-        <div class="ventu-avatar" id="ventu-avatar">🦊</div>
+        <div class="ventu-avatar" id="ventu-avatar" aria-hidden="true">🦊</div>
         <div>
           <div class="ventu-name">Ventu diz:</div>
           <div class="ventu-text" id="ventu-says">"Bem-vindo ao caos..."</div>
@@ -119,15 +131,15 @@
       </div>
 
       <div class="actions">
-        <a href="/" class="btn btn-back">Voltar para Home</a>
+        <a href="jogar.html" class="btn btn-back">Voltar para o Hub</a>
         <button class="btn btn-play" id="btn-play">Iniciar Missão</button>
       </div>
     </div>
   </main>
 
-  <div id="toast" class="toast">Em breve! Este nível está em desenvolvimento. 🦊</div>
+  <div id="toast" class="toast" role="alert" aria-live="assertive">Em breve! Este nível está em desenvolvimento. 🦊</div>
 
-  <script src="src/data/levels.js"></script>
+  <script src="src/data/levels.js?v=2"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       // 1. Tema
@@ -137,7 +149,7 @@
             themeToggle.addEventListener('click', () => {
                 const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
                 document.documentElement.setAttribute('data-theme', t);
-                localStorage.setItem('ventu-theme', t);
+                try { localStorage.setItem('ventu-theme', t); } catch(e) {}
             });
         }
       } catch(e) {}
@@ -146,14 +158,21 @@
       const urlParams = new URLSearchParams(window.location.search);
       const levelId = urlParams.get('l');
 
-      if (!levelId || typeof levelsData === 'undefined') {
-        window.location.href = 'index.html';
+      if (!levelId) {
+        alert("ERRO: O link não tem o parâmetro de nível (?l=a1). Voltando para o hub.");
+        window.location.href = 'jogar.html';
         return;
+      }
+
+      if (typeof levelsData === 'undefined') {
+        alert("ERRO CRÍTICO: A variável levelsData não foi encontrada. O arquivo levels.js não carregou. Verifique a pasta src/data/.");
+        return; // Deixei sem redirecionar para a tela ficar travada no erro
       }
 
       const level = levelsData.find(l => l.id === levelId);
       if (!level) {
-        window.location.href = 'index.html';
+        alert("ERRO: O nível '" + levelId + "' não existe dentro do levels.js. Voltando.");
+        window.location.href = 'jogar.html';
         return;
       }
 
@@ -167,46 +186,52 @@
       const b = parseInt(hex.substring(4, 6), 16);
       box.style.setProperty('--level-color-bg', `rgba(${r}, ${g}, ${b}, 0.1)`);
 
-      document.getElementById('level-icon').innerText = level.icon;
-      document.getElementById('level-title').innerText = level.title;
-      document.getElementById('level-subtitle').innerText = `NÍVEL ${level.cefr}`;
+      document.getElementById('level-icon').textContent = level.icon;
+      document.getElementById('level-title').textContent = level.title;
+      document.getElementById('level-subtitle').textContent = `NÍVEL ${level.cefr}`;
       
-      document.getElementById('ventu-avatar').innerText = level.mascot || '🦊';
-      document.getElementById('ventu-says').innerText = `"${level.ventuSays}"`;
+      document.getElementById('ventu-avatar').textContent = level.mascot || '🦊';
+      document.getElementById('ventu-says').textContent = `"${level.ventuSays}"`;
       
       const list = document.getElementById('objectives-list');
-      level.objectives.forEach(obj => {
-        const li = document.createElement('li');
-        li.innerText = obj;
-        list.appendChild(li);
-      });
+      list.textContent = ''; // Limpa
+      if (level.objectives && Array.isArray(level.objectives)) {
+        level.objectives.forEach(obj => {
+          const li = document.createElement('li');
+          li.textContent = obj;
+          list.appendChild(li);
+        });
+      }
 
       // 4. Botão de Jogar (Com Auth Check)
       const btnPlay = document.getElementById('btn-play');
       
       if (level.available) {
           btnPlay.addEventListener('click', async () => {
-              btnPlay.innerText = 'Carregando...';
+              btnPlay.textContent = 'Carregando...';
+              btnPlay.disabled = true;
               
               try {
+                  if (!window.supabase) throw new Error("Supabase não carregado");
                   const supabase = window.supabase.createClient('https://hbqjoadubrwuafbfykre.supabase.co', 'sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_');
                   const { data: { session } } = await supabase.auth.getSession();
                   
                   if (!session) {
-                      // Se não tiver logado, vai pro Auth
-                      window.location.href = 'auth.html';
+                      // Se não tiver logado, vai pro Auth com redirect de volta pro nivel (SEM O .html)
+                      window.location.href = `auth?redirect=${encodeURIComponent('nivel?l=' + level.id)}`;
                   } else {
-                      // Se tiver logado, vai pro Jogo
-                      window.location.href = `jogo.html?l=${level.id}`;
+                      // Se tiver logado, vai pro Jogo (SEM O .html)
+                      window.location.href = `jogo?l=${level.id}`;
                   }
               } catch(e) {
-                  // Fallback se o Supabase falhar
-                  window.location.href = `jogo.html?l=${level.id}`;
+                  console.warn("Erro no auth, usando fallback:", e);
+                  // Fallback se o Supabase falhar ou demorar (SEM O .html)
+                  window.location.href = `jogo?l=${level.id}`;
               }
           });
       } else {
           btnPlay.classList.add('disabled');
-          btnPlay.innerText = '🔒 Iniciar Missão';
+          btnPlay.textContent = '🔒 Iniciar Missão';
           btnPlay.addEventListener('click', () => {
               const toast = document.getElementById('toast');
               toast.classList.add('show');

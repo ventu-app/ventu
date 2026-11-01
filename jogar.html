@@ -1,0 +1,424 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ventu — Escolha sua missão</title>
+  <meta name="description" content="Escolha seu nível no Ventu: do A1 ao C2, cada cenário é um mundo com histórias e desafios reais em inglês.">
+  <link rel="canonical" href="https://ventu-nine.vercel.app/jogar.html">
+  <meta name="theme-color" content="#0b0f19">
+  <meta property="og:title" content="Ventu — Play. Speak. Survive.">
+  <meta property="og:description" content="Você não estuda inglês. Você sobrevive a ele.">
+  <meta property="og:image" content="https://ventu-nine.vercel.app/assets/preview.jpg">
+  <meta property="og:url" content="https://ventu-nine.vercel.app/">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    try { document.documentElement.setAttribute('data-theme', localStorage.getItem('ventu-theme') || 'dark'); } catch(e) {}
+  </script>
+  <style>
+    :root {
+      --bg: #0b0f19; --panel: #151b2b; --text: #e2e8f0; --text-muted: #94a3b8;
+      --gold: #fbbf24; --gold-hover: #f59e0b; --border: #1e293b; --error: #ef4444;
+      --font-heading: 'Playfair Display', serif; --font-body: 'Inter', sans-serif;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc; --panel: #ffffff; --text: #0f172a; --text-muted: #64748b;
+      --gold: #d97706; --gold-hover: #b45309; --border: #e2e8f0; --error: #dc2626;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background-color: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; display: flex; flex-direction: column; transition: 0.3s; overflow-x: hidden; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; width: 100%; }
+    a { text-decoration: none; color: inherit; }
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+    /* Skip link */
+    .skip-link { position: absolute; left: -9999px; top: 0; background: var(--gold); color: var(--bg); padding: 10px 20px; z-index: 9999; border-radius: 0 0 8px 0; font-weight: 700; }
+    .skip-link:focus { left: 0; }
+
+    /* Header */
+    .site-header { background: var(--bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    .header-inner { display: flex; justify-content: space-between; align-items: center; height: 80px; position: relative; }
+    .logo { display: flex; align-items: center; gap: 12px; font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; color: var(--text); }
+    .header-nav { display: flex; align-items: center; gap: 20px; }
+    .nav-link { font-weight: 600; color: var(--text); transition: 0.2s; font-size: 0.95rem; }
+    .nav-link:hover { color: var(--gold); }
+    .btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; border: none; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-body); }
+    .btn-primary { background: var(--gold); color: var(--bg); }
+    .btn-primary:hover { background: var(--gold-hover); transform: translateY(-2px); }
+    .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-support { background: rgba(251, 191, 36, 0.1); color: var(--gold); border: 1px solid rgba(251, 191, 36, 0.3); }
+    .btn-support:hover { background: rgba(251, 191, 36, 0.2); }
+    .auth-area { display: flex; align-items: center; gap: 10px; }
+
+    .theme-toggle { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; padding: 8px; border-radius: 50%; }
+    .theme-toggle:hover { background: var(--border); }
+    [data-theme="dark"] .icon-sun { display: block; } [data-theme="dark"] .icon-moon { display: none; }
+    [data-theme="light"] .icon-sun { display: none; } [data-theme="light"] .icon-moon { display: block; }
+
+    /* Menu mobile */
+    .menu-toggle { display: none; background: transparent; border: 1px solid var(--border); color: var(--text); font-size: 1.4rem; cursor: pointer; padding: 6px 12px; border-radius: 8px; }
+    .menu-toggle:hover { border-color: var(--gold); color: var(--gold); }
+
+    @media (max-width: 768px) {
+      .header-inner { height: auto; min-height: 64px; padding: 12px 0; }
+      .menu-toggle { display: block; }
+      .header-nav {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+        flex-direction: column;
+        align-items: stretch;
+        padding: 16px 20px;
+        gap: 12px;
+        z-index: 99;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      }
+      .header-nav.open { display: flex; }
+      .header-nav .btn, .header-nav .nav-link { justify-content: center; text-align: center; }
+      .auth-area { flex-direction: column; align-items: stretch; gap: 8px; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+    }
+
+    /* Hero */
+    .hero { padding: 60px 0 40px; text-align: center; }
+    .hero-title { font-family: var(--font-heading); font-size: 3rem; line-height: 1.1; margin-bottom: 15px; }
+    .text-gold { color: var(--gold); font-style: italic; }
+    .hero-subtitle { font-size: 1.1rem; color: var(--text-muted); line-height: 1.6; max-width: 600px; margin: 0 auto; }
+
+    /* Grid de níveis */
+    .levels-section { padding: 20px 0 80px; }
+    .levels-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
+    @media (max-width: 900px) { .levels-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .levels-grid { grid-template-columns: 1fr; } }
+
+    .level-card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 20px; padding: 30px 25px;
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+      transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative; overflow: hidden; cursor: pointer;
+    }
+    .level-card:hover:not(.locked) {
+      border-color: var(--level-color, var(--gold));
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.4), 0 0 15px var(--level-color, rgba(251, 191, 36, 0.2));
+    }
+    .level-card.locked { opacity: 0.6; filter: grayscale(0.8); cursor: not-allowed; }
+
+    .card-top { width: 100%; display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; gap: 8px; }
+    .level-badge { background: var(--border); color: var(--text); font-weight: 700; font-size: 0.75rem; padding: 4px 10px; border-radius: 6px; letter-spacing: 1px; }
+    .card-tag { font-size: 0.65rem; padding: 4px 8px; border-radius: 12px; font-weight: 800; text-transform: uppercase; box-shadow: 0 0 10px rgba(255,255,255,0.2); animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
+    .lock-icon { font-size: 1.2rem; }
+
+    .card-icon-wrapper {
+        width: 120px; height: 120px; border-radius: 24px; display: flex; align-items: center; justify-content: center;
+        font-size: 4.5rem; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border);
+        margin-bottom: 20px; transition: 0.3s;
+    }
+    [data-theme="light"] .card-icon-wrapper { background: rgba(0, 0, 0, 0.03); }
+    .level-card:hover:not(.locked) .card-icon-wrapper { transform: scale(1.1); background: rgba(255, 255, 255, 0.06); border-color: var(--level-color); }
+
+    .card-title { font-size: 1.5rem; margin-bottom: 10px; color: var(--text); font-family: var(--font-heading); }
+    .card-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; flex: 1; margin-bottom: 20px; }
+    .play-btn { width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; text-align: center; transition: 0.2s; font-size: 1rem; display: block; }
+
+    /* Footer */
+    .site-footer { background: var(--panel); border-top: 1px solid var(--border); padding: 30px 0; margin-top: auto; }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; color: var(--text-muted); font-size: 0.85rem; }
+    .creator-credit a { color: var(--gold); font-weight: 600; }
+    .footer-legal { width: 100%; text-align: center; margin-top: 15px; font-size: 0.85rem; }
+    .footer-legal a { color: var(--text-muted); margin-right: 15px; transition: 0.2s; }
+    .footer-legal a:hover { color: var(--gold); }
+
+    /* Modal de apoio */
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
+        display: none; justify-content: center; align-items: center; z-index: 9999; padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-content {
+        background: var(--panel); border: 1px solid var(--border); border-radius: 24px;
+        padding: 40px 30px; max-width: 500px; width: 100%; text-align: center;
+        position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.6); animation: fadeIn 0.3s ease;
+    }
+    .close-btn {
+        position: absolute; top: 15px; right: 15px; background: var(--bg); border: none;
+        width: 35px; height: 35px; border-radius: 50%; color: var(--text-muted); font-size: 1.2rem;
+        cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s;
+    }
+    .close-btn:hover { background: var(--border); color: var(--text); }
+    .modal-desc { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px; text-align: left; }
+    .qr-container { background: white; padding: 15px; border-radius: 16px; display: inline-block; margin-bottom: 20px; }
+    .qr-container img { display: block; width: 180px; height: 180px; }
+    .pix-box {
+        background: var(--bg); border: 1px dashed var(--gold); padding: 12px;
+        border-radius: 12px; font-family: monospace; font-size: 0.85rem;
+        color: var(--gold); word-break: break-all; cursor: pointer;
+        display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
+    }
+    .pix-box:hover { background: rgba(251, 191, 36, 0.1); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Acessibilidade */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="#conteudo" class="skip-link">Pular para o conteúdo</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="logo" aria-label="Ventu, página inicial">
+        <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 22 46 L 25 22 L 36 38 Z" fill="#ea580c"/><path d="M 78 46 L 75 22 L 64 38 Z" fill="#ea580c"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><circle cx="36" cy="56" r="1.2" fill="#fff"/><circle cx="66" cy="56" r="1.2" fill="#fff"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/></svg>
+        <span class="logo-text">VENTU</span>
+      </a>
+      <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="header-nav">☰</button>
+      <nav class="header-nav" id="header-nav" aria-label="Principal">
+        <button id="theme-toggle" class="theme-toggle" aria-label="Alternar tema claro/escuro"><span class="icon-sun">☀️</span><span class="icon-moon">🌙</span></button>
+        <button class="btn btn-support" id="btn-apoie" type="button">Apoiar <span aria-hidden="true">🦊</span></button>
+        <div id="auth-area" class="auth-area">
+            <a href="auth.html" class="nav-link" id="nav-login">Entrar</a>
+            <a href="auth.html" class="btn btn-primary" id="nav-register">Criar conta</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    <section class="hero">
+      <div class="container">
+        <h1 class="hero-title">Você não estuda inglês.<br>Você <span class="text-gold">sobrevive</span> a ele.</h1>
+        <p class="hero-subtitle">Escolha sua missão abaixo. Do básico ao avançado, cada nível é um mundo com histórias e desafios reais.</p>
+      </div>
+    </section>
+
+    <section id="niveis" class="levels-section" aria-label="Níveis disponíveis">
+      <div class="container">
+        <div class="levels-grid" id="levels-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-bottom">
+      <p>&copy; 2026 Ventu. Todos os direitos reservados.</p>
+      <p class="creator-credit">Desenvolvido com <span aria-hidden="true">❤️</span> por <a href="https://instagram.com/porphirio.brayam" target="_blank" rel="noopener">Brayam Porphirio</a></p>
+      <div class="footer-legal">
+        <a href="sobre.html">Sobre</a>
+        <a href="termos.html">Termos</a>
+        <a href="privacidade.html">Privacidade</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modal de apoio -->
+  <div class="modal-overlay" id="modal-apoie" role="dialog" aria-modal="true" aria-labelledby="modal-apoie-title">
+    <div class="modal-content">
+      <button class="close-btn" id="btn-close-apoie" aria-label="Fechar">✕</button>
+
+      <div class="modal-desc">
+        <p id="modal-apoie-title" style="margin-bottom: 15px; font-size: 1.1rem;">🦊 A <strong style="color: var(--gold); font-weight: 800;">Ventu</strong> precisa de você (e de café).</p>
+        <p style="margin-bottom: 15px;">Ela te joga em hotel bagunçado, voo cancelado e cliente nervoso, tudo para você aprender inglês de verdade. Mas servidor, domínio e IA não se pagam sozinhos, e a raposa já vendeu até o chapéu de explorador.</p>
+        <p style="margin-bottom: 20px;">Se a <strong style="color: var(--gold); font-weight: 800;">Ventu</strong> te ajudou a falar sem travar, manda um apoio e ajuda a manter ela no ar. Qualquer valor vira café, e café vira mais cenas, mais caos e mais inglês pra todo mundo. ☕</p>
+        <p style="text-align: center; font-weight: bold; color: var(--text); font-size: 1.1rem; margin-bottom: 0;">Apoie a <strong style="color: var(--gold); font-weight: 800;">Ventu</strong> 💛</p>
+      </div>
+
+      <div class="qr-container">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=cd5e70df-ddb5-4c74-8589-bee68ed718d0" alt="QR Code para PIX">
+      </div>
+
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Ou copie a chave PIX:</p>
+      <div class="pix-box" id="btn-copy-pix" role="button" tabindex="0" aria-label="Copiar chave PIX">
+        <span>cd5e70df-ddb5-4c74-8589-bee68ed718d0</span>
+        <span aria-hidden="true" style="font-size: 1.1rem;">📋</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="src/data/levels.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      /* -------- 1. Menu mobile -------- */
+      try {
+        const menuToggle = document.getElementById('menu-toggle');
+        const headerNav = document.getElementById('header-nav');
+        if (menuToggle && headerNav) {
+          menuToggle.addEventListener('click', () => {
+            const isOpen = headerNav.classList.toggle('open');
+            menuToggle.setAttribute('aria-expanded', String(isOpen));
+            menuToggle.setAttribute('aria-label', isOpen ? 'Fechar menu' : 'Abrir menu');
+          });
+        }
+      } catch(e) { console.error('Erro menu mobile:', e); }
+
+      /* -------- 2. Grid de níveis -------- */
+      try {
+        const grid = document.getElementById('levels-grid');
+        if (grid && typeof levelsData !== 'undefined') {
+          levelsData.forEach(level => {
+            const card = document.createElement('a');
+            card.className = `level-card ${level.available ? '' : 'locked'}`;
+            card.style.setProperty('--level-color', level.color);
+
+            if (level.available) {
+              card.href = `nivel?l=${level.id}`;
+            } else {
+              card.href = '#';
+              card.setAttribute('aria-disabled', 'true');
+              card.setAttribute('tabindex', '0');
+              card.addEventListener('click', (e) => e.preventDefault());
+              card.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  card.click();
+                }
+              });
+            }
+
+            card.innerHTML = `
+              <div class="card-top">
+                <span class="level-badge">${level.cefr}</span>
+                ${level.badge ? `<span class="card-tag" style="background:${level.color}; color:#fff;">${level.badge}</span>` : ''}
+                ${!level.available ? '<span class="lock-icon" aria-hidden="true">🔒</span>' : ''}
+              </div>
+              <div class="card-icon-wrapper" aria-hidden="true">${level.icon}</div>
+              <h3 class="card-title">${level.title}</h3>
+              <p class="card-desc">${level.desc}</p>
+              <span class="play-btn" style="background: ${level.available ? level.color : 'var(--border)'}; color: ${level.available ? '#fff' : 'var(--text-muted)'}; border: 1px solid ${level.available ? level.color : 'var(--border)'};">
+                ${level.available ? 'Ver Cenários' : 'Em breve'}
+              </span>
+            `;
+
+            grid.appendChild(card);
+          });
+        }
+      } catch(e) { console.error('Erro Grid:', e); }
+
+      /* -------- 3. Tema (com try/catch) -------- */
+      try {
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+          themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            try { localStorage.setItem('ventu-theme', next); } catch(e) { /* fallback silencioso */ }
+          });
+        }
+      } catch(e) { console.error('Erro tema:', e); }
+
+      /* -------- 4. Modal de apoio -------- */
+      const modalApoie = document.getElementById('modal-apoie');
+      const btnApoie = document.getElementById('btn-apoie');
+      const btnClose = document.getElementById('btn-close-apoie');
+      const btnCopy = document.getElementById('btn-copy-pix');
+
+      const openModal = () => { if (modalApoie) { modalApoie.classList.add('open'); modalApoie.setAttribute('aria-hidden', 'false'); } };
+      const closeModal = () => { if (modalApoie) { modalApoie.classList.remove('open'); modalApoie.setAttribute('aria-hidden', 'true'); } };
+
+      if (btnApoie) btnApoie.addEventListener('click', openModal);
+      if (btnClose) btnClose.addEventListener('click', closeModal);
+      if (modalApoie) {
+        modalApoie.addEventListener('click', (e) => {
+          if (e.target === modalApoie) closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && modalApoie.classList.contains('open')) closeModal();
+        });
+      }
+
+      const copyPix = () => {
+        const copyFallback = () => {
+          try {
+            const ta = document.createElement('textarea');
+            ta.value = 'cd5e70df-ddb5-4c74-8589-bee68ed718d0';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            return true;
+          } catch(e) { return false; }
+        };
+        const doFeedback = () => {
+          if (!btnCopy) return;
+          const original = btnCopy.innerHTML;
+          btnCopy.innerHTML = '<span style="color: #10b981;">Copiado!</span><span aria-hidden="true">✅</span>';
+          setTimeout(() => { btnCopy.innerHTML = original; }, 2000);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText('cd5e70df-ddb5-4c74-8589-bee68ed718d0').then(doFeedback).catch(() => { if (copyFallback()) doFeedback(); });
+        } else if (copyFallback()) {
+          doFeedback();
+        }
+      };
+      if (btnCopy) {
+        btnCopy.addEventListener('click', copyPix);
+        btnCopy.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); copyPix(); }
+        });
+      }
+
+      /* -------- 5. Supabase auth (safe DOM) -------- */
+      try {
+        if (window.supabase) {
+          const supabase = window.supabase.createClient(
+            'https://hbqjoadubrwuafbfykre.supabase.co',
+            'sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_'
+          );
+
+          supabase.auth.getSession().then(async ({ data: { session } }) => {
+            if (!session) return;
+            const authArea = document.getElementById('auth-area');
+            if (!authArea) return;
+
+            const email = session.user.email || '';
+            const { data: profile } = await supabase.from('profiles').select('xp').eq('id', session.user.id).maybeSingle();
+            const userXp = (profile && profile.xp) || 0;
+
+            authArea.textContent = '';
+
+            const xpSpan = document.createElement('span');
+            xpSpan.style.cssText = 'color: var(--gold); font-weight: bold; background: rgba(251, 191, 36, 0.1); padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(251, 191, 36, 0.2); font-size: 0.85rem;';
+            xpSpan.textContent = `⭐ ${userXp} XP`;
+            authArea.appendChild(xpSpan);
+
+            const dashLink = document.createElement('a');
+            dashLink.href = 'dashboard.html';
+            dashLink.className = 'btn btn-ghost';
+            dashLink.textContent = 'Meu Dashboard';
+            authArea.appendChild(dashLink);
+
+            const logoutBtn = document.createElement('button');
+            logoutBtn.type = 'button';
+            logoutBtn.className = 'btn btn-ghost';
+            logoutBtn.id = 'btn-logout';
+            logoutBtn.textContent = 'Sair';
+            logoutBtn.addEventListener('click', async () => {
+              await supabase.auth.signOut();
+              window.location.reload();
+            });
+            authArea.appendChild(logoutBtn);
+          }).catch(err => console.warn('Auth check falhou:', err));
+        }
+      } catch(e) { console.warn('Supabase não disponível:', e); }
+    });
+  </script>
+</body>
+</html>

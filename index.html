@@ -1,11 +1,14 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ventu — Play. Speak. Survive.</title>
-  <meta property="og:title" content="Ventu — Play. Speak. Survive.">
-  <meta property="og:description" content="Você não estuda inglês. Você sobrevive a ele. O RPG de idiomas mais caótico do Brasil.">
+  <title>Ventu: aprenda inglês sobrevivendo a ele</title>
+  <meta name="description" content="Um RPG de mensagens onde você aprende inglês de verdade: cenas de alta pressão, escolhas que importam, feedback que explica e revisão que fixa.">
+  <link rel="canonical" href="https://ventu-nine.vercel.app/">
+  <meta name="theme-color" content="#0b0f19">
+  <meta property="og:title" content="Ventu: Play. Speak. Survive.">
+  <meta property="og:description" content="Você não estuda inglês. Você sobrevive a ele.">
   <meta property="og:image" content="https://ventu-nine.vercel.app/assets/preview.jpg">
   <meta property="og:url" content="https://ventu-nine.vercel.app/">
   <meta property="og:type" content="website">
@@ -13,309 +16,549 @@
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    try { document.documentElement.setAttribute('data-theme', localStorage.getItem('ventu-theme') || 'dark'); } catch(e) {}
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('ventu-theme')||'dark')}catch(e){}</script>
   <style>
-    :root {
-      --bg: #0b0f19; --panel: #151b2b; --text: #e2e8f0; --text-muted: #94a3b8;
-      --gold: #fbbf24; --gold-hover: #f59e0b; --border: #1e293b; --error: #ef4444;
-      --font-heading: 'Playfair Display', serif; --font-body: 'Inter', sans-serif;
-    }
-    [data-theme="light"] {
-      --bg: #f8fafc; --panel: #ffffff; --text: #0f172a; --text-muted: #64748b;
-      --gold: #d97706; --gold-hover: #b45309; --border: #e2e8f0; --error: #dc2626;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background-color: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; display: flex; flex-direction: column; transition: 0.3s; overflow-x: hidden; }
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; width: 100%; }
-    a { text-decoration: none; color: inherit; }
+    :root{--bg:#0b0f19;--panel:#151b2b;--panel2:#0e1424;--text:#e2e8f0;--muted:#94a3b8;--gold:#fbbf24;--gold-h:#f59e0b;--blue:#2563eb;--border:#1e293b;--ok:#22c55e;--bad:#ef4444;--fh:'Playfair Display',serif;--fb:'Inter',sans-serif}
+    [data-theme="light"]{--bg:#f8fafc;--panel:#fff;--panel2:#f1f5f9;--text:#0f172a;--muted:#475569;--gold:#b45309;--gold-h:#92400e;--border:#e2e8f0}
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:var(--fb);line-height:1.6;overflow-x:hidden}
+    a{color:inherit;text-decoration:none}
+    :focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+    .wrap{max-width:1160px;margin:0 auto;padding:0 20px}
+    h1,h2,h3{font-family:var(--fh);line-height:1.1}
+    h2{font-size:clamp(1.9rem,4vw,2.8rem);margin-bottom:14px}
+    .lead{color:var(--muted);max-width:56ch;font-size:1.05rem}
+    .gold{color:var(--gold);font-style:italic}
+    section{padding:90px 0}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:10px;font-weight:600;font-size:.95rem;cursor:pointer;border:1px solid transparent;transition:.2s;font-family:var(--fb)}
+    .btn-p{background:var(--gold);color:#0b0f19}.btn-p:hover{background:var(--gold-h);transform:translateY(-2px)}
+    .btn-g{background:transparent;color:var(--text);border-color:var(--border)}.btn-g:hover{border-color:var(--gold);color:var(--gold);background:rgba(251,191,36,.05)}
+    .soon{display:inline-block;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(59,130,246,.15);color:var(--blue);vertical-align:middle;margin-left:6px;font-family:var(--fb)}
 
-    .site-header { background: var(--bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-    .header-inner { display: flex; justify-content: space-between; align-items: center; height: 80px; }
-    .logo { display: flex; align-items: center; gap: 12px; font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; color: var(--text); }
-    .header-nav { display: flex; align-items: center; gap: 20px; }
-    .nav-link { font-weight: 600; color: var(--text); transition: 0.2s; font-size: 0.95rem; }
-    .nav-link:hover { color: var(--gold); }
-    .btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; border: none; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px; }
-    .btn-primary { background: var(--gold); color: var(--bg); }
-    .btn-primary:hover { background: var(--gold-hover); transform: translateY(-2px); }
-    .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
-    .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
-    .btn-support { background: rgba(251, 191, 36, 0.1); color: var(--gold); border: 1px solid rgba(251, 191, 36, 0.3); }
-    .btn-support:hover { background: rgba(251, 191, 36, 0.2); }
-
-    .theme-toggle { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; padding: 8px; border-radius: 50%; }
-    .theme-toggle:hover { background: var(--border); }
+    /* HEADER PREMIUM */
+    header{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+    .hd{display:flex;justify-content:space-between;align-items:center;height:72px;gap:12px}
+    .logo{display:flex;align-items:center;gap:10px;font-family:var(--fh);font-weight:900;font-size:1.4rem;letter-spacing:2px}
+    .nav{display:flex;align-items:center;gap:8px}
+    .nav a.l{font-weight:500;font-size:.92rem;color:var(--muted);padding:8px 16px;border-radius:8px;transition:all 0.2s ease}
+    .nav a.l:hover{color:var(--gold);background:rgba(251,191,36,.08)}
+    .theme-toggle{background:transparent;border:none;font-size:1.2rem;cursor:pointer;padding:8px;border-radius:50%;margin-right:8px}
+    .theme-toggle:hover{background:var(--border)}
     [data-theme="dark"] .icon-sun { display: block; } [data-theme="dark"] .icon-moon { display: none; }
     [data-theme="light"] .icon-sun { display: none; } [data-theme="light"] .icon-moon { display: block; }
+    @media(max-width:860px){.nav a.l{display:none}}
 
-    .hero { padding: 60px 0 40px; text-align: center; }
-    .hero-title { font-family: var(--font-heading); font-size: 3rem; line-height: 1.1; margin-bottom: 15px; }
-    .text-gold { color: var(--gold); font-style: italic; }
-    .hero-subtitle { font-size: 1.1rem; color: var(--text-muted); line-height: 1.6; max-width: 600px; margin: 0 auto; }
+    .hero{padding:70px 0 90px}
+    .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:50px;align-items:center}
+    .hero h1{font-size:clamp(2.4rem,5.5vw,4.1rem);margin-bottom:20px}
+    .hero .cta{display:flex;gap:12px;flex-wrap:wrap;margin:28px 0 22px}
+    .trust{display:flex;gap:22px;flex-wrap:wrap;color:var(--muted);font-size:.85rem}
+    .trust b{color:var(--text)}
+    @media(max-width:900px){.hero-grid{grid-template-columns:1fr}.phone-col{order:2}}
 
-    .levels-section { padding: 20px 0 80px; }
-    .levels-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
-    @media (max-width: 900px) { .levels-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 600px) { .levels-grid { grid-template-columns: 1fr; } }
+    /* phone */
+    .phone-col{display:flex;justify-content:center;position:relative}
+    .phone-col::before{content:"";position:absolute;inset:8% 6%;background:radial-gradient(circle, rgba(251,191,36,.15) 0%, transparent 70%);border-radius:50%;z-index:-1}
+    .phone{position:relative;width:min(100%,330px);background:#05080f;border:1px solid #26314a;border-radius:38px;padding:10px;box-shadow:0 30px 70px rgba(0,0,0,.55)}
+    .screen{background:var(--panel2);border-radius:30px;overflow:hidden;display:flex;flex-direction:column;height:560px;max-height:70vh;transition:background .6s}
+    .scr-top{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+    .ava{width:34px;height:34px;border-radius:50%;background:#ea580c;display:grid;place-items:center;font-size:1.1rem}
+    .scr-top b{font-size:.9rem;display:block;line-height:1.2}.scr-top small{color:var(--muted);font-size:.72rem}
+    .hud{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:10px 12px;border-bottom:1px solid var(--border);font-size:.68rem;color:var(--muted)}
+    .hud div{background:rgba(255,255,255,.04);border-radius:8px;padding:5px 6px}
+    .hud b{display:block;color:var(--text);font-size:.8rem;transition:color .3s}
+    .hud b.up{color:var(--ok)}.hud b.down{color:var(--bad)}
+    .chat{flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:9px;scrollbar-width:none}
+    .chat::-webkit-scrollbar{display:none}
+    .msg{max-width:84%;padding:9px 13px;border-radius:16px;font-size:.88rem;line-height:1.4;animation:pop .25s ease}
+    .msg.npc{background:#1b2338;border-bottom-left-radius:4px;align-self:flex-start;color:#e2e8f0}
+    .msg.me{background:var(--blue);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+    .dots{display:flex;gap:4px;padding:12px 14px}.dots i{width:6px;height:6px;border-radius:50%;background:#64748b;animation:blink 1s infinite}.dots i:nth-child(2){animation-delay:.2s}.dots i:nth-child(3){animation-delay:.4s}
+    .lens{align-self:stretch;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.35);border-radius:14px;padding:10px 12px;font-size:.8rem;color:#e2e8f0;animation:pop .3s ease}
+    .lens b{color:var(--gold)}
+    .opts{padding:10px 12px 14px;display:flex;flex-direction:column;gap:7px;border-top:1px solid var(--border);min-height:116px;justify-content:center}
+    .opt{background:transparent;color:#e2e8f0;border:1px solid #2b3856;border-radius:12px;padding:9px 12px;font:500 .83rem var(--fb);text-align:left;cursor:pointer;transition:.2s}
+    .opt:hover{border-color:var(--gold);background:rgba(251,191,36,.07)}
+    .replay{align-self:center;background:none;border:none;color:var(--gold);font:600 .85rem var(--fb);cursor:pointer;text-decoration:underline}
+    .hint{color:var(--muted);font-size:.72rem;text-align:center}
+    @keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+    @keyframes blink{50%{opacity:.25}}
 
-    .level-card {
-      background: var(--panel); border: 1px solid var(--border); border-radius: 20px; padding: 30px 25px;
-      display: flex; flex-direction: column; align-items: center; text-align: center;
-      transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      position: relative; overflow: hidden; cursor: pointer;
-    }
-    .level-card:hover:not(.locked) {
-      border-color: var(--level-color, var(--gold));
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 0 15px 30px rgba(0,0,0,0.4), 0 0 15px var(--level-color, rgba(251, 191, 36, 0.2));
-    }
-    .level-card.locked { opacity: 0.6; filter: grayscale(0.8); cursor: not-allowed; }
-    
-    .card-top { width: 100%; display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-    .level-badge { background: var(--border); color: var(--text); font-weight: 700; font-size: 0.75rem; padding: 4px 10px; border-radius: 6px; letter-spacing: 1px; }
-    .card-tag { font-size: 0.65rem; padding: 4px 8px; border-radius: 12px; font-weight: 800; text-transform: uppercase; box-shadow: 0 0 10px rgba(255,255,255,0.2); animation: pulse 2s infinite; }
-    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
-    .lock-icon { font-size: 1.2rem; }
-    
-    .card-icon-wrapper {
-        width: 120px; height: 120px; border-radius: 24px; display: flex; align-items: center; justify-content: center; 
-        font-size: 4.5rem; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border);
-        margin-bottom: 20px; transition: 0.3s;
-    }
-    [data-theme="light"] .card-icon-wrapper { background: rgba(0, 0, 0, 0.03); }
-    .level-card:hover:not(.locked) .card-icon-wrapper { transform: scale(1.1); background: rgba(255, 255, 255, 0.06); border-color: var(--level-color); }
-    
-    .card-title { font-size: 1.5rem; margin-bottom: 10px; color: var(--text); font-family: var(--font-heading); }
-    .card-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; flex: 1; margin-bottom: 20px; }
-    .play-btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; text-align: center; transition: 0.2s; font-size: 1rem; }
-    
-    .site-footer { background: var(--panel); border-top: 1px solid var(--border); padding: 30px 0; margin-top: auto; }
-    .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; color: var(--text-muted); font-size: 0.85rem; }
-    .creator-credit a { color: var(--gold); font-weight: 600; }
+    /* TRÊS PASSOS CENTRALIZADOS */
+    .loop{background:var(--panel);border-block:1px solid var(--border);text-align:center}
+    .loop .lead{margin:0 auto}
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:54px;counter-reset:s;text-align:center}
+    .step{position:relative}
+    .step h3{font-size:1.5rem;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:12px}
+    .step h3::before{counter-increment:s;content:counter(s);display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--gold);color:#0b0f19;font:800 .95rem var(--fb)}
+    .step p{color:var(--muted);font-size:.95rem;max-width:90%;margin:0 auto}
+    @media(max-width:800px){.steps{grid-template-columns:1fr;gap:36px}}
 
-    /* --- ESTILO DO MODAL DE APOIO --- */
-    .modal-overlay {
-        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-        background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
-        display: none; justify-content: center; align-items: center; z-index: 9999; padding: 20px;
-    }
-    .modal-content {
-        background: var(--panel); border: 1px solid var(--border); border-radius: 24px;
-        padding: 40px 30px; max-width: 500px; width: 100%; text-align: center;
-        position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.6); animation: fadeIn 0.3s ease;
-    }
-    .close-btn {
-        position: absolute; top: 15px; right: 15px; background: var(--bg); border: none;
-        width: 35px; height: 35px; border-radius: 50%; color: var(--text-muted); font-size: 1.2rem;
-        cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s;
-    }
-    .close-btn:hover { background: var(--border); color: var(--text); }
-    
-    .modal-fox { font-size: 4rem; margin-bottom: 15px; animation: float 3s infinite ease-in-out; }
-    .modal-title { font-family: var(--font-heading); color: var(--gold); font-size: 1.8rem; margin-bottom: 10px; }
-    .modal-desc { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px; text-align: left; }
-    
-    .qr-container { background: white; padding: 15px; border-radius: 16px; display: inline-block; margin-bottom: 20px; }
-    .qr-container img { display: block; width: 180px; height: 180px; }
-    
-    .pix-box { 
-        background: var(--bg); border: 1px dashed var(--gold); padding: 12px; 
-        border-radius: 12px; font-family: monospace; font-size: 0.85rem; 
-        color: var(--gold); word-break: break-all; cursor: pointer; 
-        display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
-    }
-    .pix-box:hover { background: rgba(251, 191, 36, 0.1); }
+    /* features (MANTIDO INTACTO) */
+    .feat{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-top:80px;text-align:left}
+    .feat.rev .ft{order:2}
+    .feat h3{font-size:1.9rem;margin-bottom:12px}
+    .feat p{color:var(--muted);margin-bottom:14px}
+    .feat ul{list-style:none;color:var(--muted);font-size:.93rem}
+    .feat li{padding:6px 0 6px 24px;position:relative}
+    .feat li::before{content:"✓";position:absolute;left:0;color:var(--gold);font-weight:700}
+    @media(max-width:860px){.feat{grid-template-columns:1fr;gap:28px}.feat.rev .ft{order:0}}
+    .mock{background:var(--panel);border:1px solid var(--border);border-radius:22px;padding:26px;min-height:270px;display:flex;flex-direction:column;justify-content:center;gap:12px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+    .mock .msg{max-width:92%}
+    .u{border-bottom:2px dotted var(--gold);cursor:help}
+    .tag{font-size:.72rem;color:var(--muted)}
+    .stack{position:relative;height:210px;display:grid;place-items:center}
+    .card{position:absolute;width:78%;max-width:300px;height:170px;background:var(--panel2);border:1px solid var(--border);border-radius:18px;padding:20px;display:flex;flex-direction:column;justify-content:space-between}
+    .card:nth-child(1){transform:rotate(-7deg) translateX(-26px);opacity:.55}
+    .card:nth-child(2){transform:rotate(5deg) translateX(22px);opacity:.8}
+    .card:nth-child(3){border-color:var(--gold);box-shadow:0 10px 30px rgba(251,191,36,.12)}
+    .card strong{font:700 1.35rem var(--fh)}
+    .rate{display:flex;gap:6px;font-size:.7rem}.rate span{padding:3px 8px;border-radius:99px;border:1px solid var(--border);color:var(--muted)}
+    .wave{display:flex;align-items:center;justify-content:center;gap:4px;height:70px}
+    .wave i{width:5px;border-radius:3px;background:var(--gold);animation:eq 1.1s ease-in-out infinite}
+    .wave i:nth-child(odd){background:var(--blue)}
+    @keyframes eq{0%,100%{height:12px}50%{height:58px}}
+    .score{display:flex;gap:10px;justify-content:center}.score span{background:var(--panel2);border:1px solid var(--border);padding:6px 12px;border-radius:10px;font-size:.8rem;color:var(--muted)}.score b{color:var(--ok)}
 
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* --- CONSERTO DO MOBILE --- */
-    @media (max-width: 768px) {
-      .header-inner { height: auto; padding: 15px 0; flex-direction: column; gap: 15px; }
-      .header-nav { width: 100%; justify-content: center; flex-wrap: wrap; gap: 10px; }
-      .btn { padding: 8px 12px; font-size: 0.85rem; }
-      .nav-link { font-size: 0.85rem; }
-      .footer-bottom { flex-direction: column; text-align: center; }
+    /* --- NOVA TRILHA PREMIUM --- */
+    .trail{background:var(--panel);border-block:1px solid var(--border);text-align:center;padding-bottom:100px}
+    .trail .lead{margin:0 auto}
+    
+    .trail-section-title {
+      text-align: left; font-size: 1.1rem; font-weight: 700; color: var(--text);
+      margin: 50px 0 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px; font-family: var(--fb); letter-spacing: 0.5px;
     }
+    .trail-section-title span { color: var(--gold); font-size: 1.3rem; }
+
+    .lv-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: left;
+    }
+    @media(max-width: 900px) { .lv-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media(max-width: 600px) { .lv-grid { grid-template-columns: 1fr; } }
+
+    .l {
+      position: relative; display: flex; flex-direction: column; padding: 24px;
+      background: linear-gradient(145deg, rgba(21,27,43,0.9), var(--bg));
+      border: 1px solid var(--border); border-radius: 16px;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); overflow: hidden;
+    }
+    .l::before {
+      content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+      background: var(--c); opacity: 0.8; transition: opacity 0.3s;
+    }
+    .l:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.4), 0 0 20px color-mix(in srgb, var(--c) 30%, transparent);
+      border-color: color-mix(in srgb, var(--c) 50%, transparent);
+    }
+    .l:hover::before { opacity: 1; }
+
+    .l-level-mark {
+      position: absolute; top: -10px; right: 10px;
+      font: 900 4.5rem var(--fh); color: var(--c); opacity: 0.08;
+      pointer-events: none; user-select: none; transition: transform 0.3s;
+    }
+    .l:hover .l-level-mark { transform: scale(1.1) rotate(5deg); opacity: 0.15; }
+
+    .l-content { position: relative; z-index: 2; }
+    .l-title { font: 800 1.3rem var(--fh); color: var(--text); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    .l-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+
+    .l-special { background: var(--panel2); }
+    .l-special .l-level-mark { display: none; }
+    .l-special .l-emoji { font-size: 2rem; position: absolute; top: 15px; right: 20px; opacity: 0.8; transition: transform 0.3s; }
+    .l-special:hover .l-emoji { transform: scale(1.2) rotate(-10deg); opacity: 1; }
+
+    /* test */
+    .test-box{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center;background:var(--panel);border:1px solid var(--border);border-radius:26px;padding:48px;text-align:left}
+    @media(max-width:860px){.test-box{grid-template-columns:1fr;padding:28px}}
+    .tl{list-style:none;margin:18px 0 26px}
+    .tl li{padding:9px 0;border-bottom:1px solid var(--border);color:var(--muted);font-size:.94rem}
+    .tl li b{color:var(--text)}
+    .prog{background:var(--panel2);border:1px solid var(--border);border-radius:18px;padding:22px}
+    .bar{height:8px;border-radius:99px;background:var(--border);margin:8px 0 16px;overflow:hidden}
+    .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ok),var(--gold));border-radius:99px}
+
+    /* why */
+    .why{display:grid;grid-template-columns:repeat(2,1fr);gap:40px 60px;margin-top:40px;text-align:left}
+    @media(max-width:760px){.why{grid-template-columns:1fr}}
+    .why h3{font-size:1.25rem;margin-bottom:6px}.why p{color:var(--muted);font-size:.94rem}
+
+    .final{text-align:center}
+    .final h2{font-size:clamp(2.2rem,5vw,3.6rem)}
+    .final .lead{margin:0 auto 28px}
+    footer{border-top:1px solid var(--border);padding:30px 0;color:var(--muted);font-size:.85rem}
+    .ft-in{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
+    .ft-in a:hover{color:var(--gold)}
+
+    @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
   </style>
 </head>
 <body>
 
-  <header class="site-header">
-    <div class="container header-inner">
-      <a href="/" class="logo">
-        <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 22 46 L 25 22 L 36 38 Z" fill="#ea580c"/><path d="M 78 46 L 75 22 L 64 38 Z" fill="#ea580c"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><circle cx="36" cy="56" r="1.2" fill="#fff"/><circle cx="66" cy="56" r="1.2" fill="#fff"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/></svg>
-        <span class="logo-text">VENTU</span>
-      </a>
-      <nav class="header-nav">
-        <button id="theme-toggle" class="theme-toggle"><span class="icon-sun">☀️</span><span class="icon-moon">🌙</span></button>
-        <button class="btn btn-support" id="btn-apoie">Apoiar <span>🦊</span></button>
-        
-        <div id="auth-area" style="display:flex; align-items:center; gap:10px;">
-            <a href="auth.html" class="nav-link" id="nav-login">Entrar</a>
-            <a href="auth.html" class="btn btn-primary" id="nav-register">Criar conta</a>
-        </div>
-      </nav>
+<header>
+<div class="wrap hd">
+  <a href="/" class="logo" aria-label="Ventu, página inicial">
+    <svg width="38" height="38" viewBox="0 0 100 100" aria-hidden="true"><path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 22 46 L 25 22 L 36 38 Z" fill="#ea580c"/><path d="M 78 46 L 75 22 L 64 38 Z" fill="#ea580c"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><circle cx="36" cy="56" r="1.2" fill="#fff"/><circle cx="66" cy="56" r="1.2" fill="#fff"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/></svg>
+    VENTU
+  </a>
+  <nav class="nav" aria-label="Principal">
+    <a class="l" href="#como">Como funciona</a>
+    <a class="l" href="#recursos">Recursos</a>
+    <a class="l" href="#niveis">Níveis</a>
+    <a class="l" href="#teste">Teste de nível</a>
+    <button id="theme-toggle" class="theme-toggle" aria-label="Alternar tema claro/escuro"><span class="icon-sun">☀️</span><span class="icon-moon">🌙</span></button>
+    <span id="auth" style="display:flex; gap:8px; margin-left:12px;">
+      <a class="btn btn-g" href="auth.html">Entrar</a>
+      <a class="btn btn-p" href="auth.html">Criar conta</a>
+    </span>
+  </nav>
+</div>
+</header>
+
+<main>
+<section class="hero">
+<div class="wrap hero-grid">
+  <div>
+    <h1>Você não estuda inglês.<br>Você <span class="gold">sobrevive</span> a ele.</h1>
+    <p class="lead">O Ventu é um RPG de mensagens. Você cai em cenas reais e tensas, como um balcão de lanchonete lotado, um jantar de família rica ou um reality show na Austrália, e precisa responder em inglês para se safar.</p>
+    <div class="cta">
+      <a class="btn btn-p" id="cta-main" href="jogar.html">Jogar grátis agora</a>
+      <a class="btn btn-g" href="#teste">Descobrir meu nível</a>
     </div>
-  </header>
-
-  <main>
-    <section class="hero">
-      <div class="container">
-        <h1 class="hero-title">Você não estuda inglês.<br>Você <span class="text-gold">sobrevive</span> a ele.</h1>
-        <p class="hero-subtitle">Escolha sua missão abaixo. Do básico ao avançado, cada nível é um mundo com histórias e desafios reais.</p>
-      </div>
-    </section>
-
-    <section id="niveis" class="levels-section">
-      <div class="container">
-        <div class="levels-grid" id="levels-grid"></div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="container footer-bottom">
-      <p>&copy; 2026 Ventu. Todos os direitos reservados.</p>
-      <p class="creator-credit">Desenvolvido com <span class="heart">❤️</span> por <a href="https://instagram.com/porphirio.brayam" target="_blank" rel="noopener">Brayam Porphirio</a></p>
-      <div style="width: 100%; text-align: center; margin-top: 15px; font-size: 0.85rem;">
-        <a href="sobre.html" style="color: var(--text-muted); margin-right: 15px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">Sobre</a>
-<a href="termos.html" style="color: var(--text-muted); margin-right: 15px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">Termos</a>
-<a href="privacidade.html" style="color: var(--text-muted); text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">Privacidade</a>
-      </div>
-    </div>
-  </footer>
-
-  <!-- MODAL APOIE -->
-  <div class="modal-overlay" id="modal-apoie">
-      <div class="modal-content">
-          <button class="close-btn" id="btn-close-apoie">✕</button>
-          
-          <div class="modal-desc">
-              <p style="margin-bottom: 15px; font-size: 1.1rem;">🦊 A <strong style="color: var(--gold); font-weight: 800;">Ventu</strong> precisa de você (e de café).</p>
-              
-              <p style="margin-bottom: 15px;">Ela te joga em hotel bagunçado, voo cancelado e cliente nervoso, tudo para você aprender inglês de verdade. Mas servidor, domínio e IA não se pagam sozinhos, e a raposa já vendeu até o chapéu de explorador.</p>
-              
-              <p style="margin-bottom: 20px;">Se a <strong style="color: var(--gold); font-weight: 800;">Ventu</strong> te ajudou a falar sem travar, manda um apoio e ajuda a manter ela no ar. Qualquer valor vira café, e café vira mais cenas, mais caos e mais inglês pra todo mundo. ☕</p>
-              
-              <p style="text-align: center; font-weight: bold; color: var(--text); font-size: 1.1rem; margin-bottom: 0;">Apoie a <strong style="color: var(--gold); font-weight: 800;">Ventu</strong> 💛</p>
-          </div>
-          
-          <div class="qr-container">
-              <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=cd5e70df-ddb5-4c74-8589-bee68ed718d0" alt="QR Code PIX">
-          </div>
-          
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Ou copie a chave PIX:</p>
-          <div class="pix-box" id="btn-copy-pix">
-              <span>cd5e70df-ddb5-4c74-8589-bee68ed718d0</span>
-              <span style="font-size: 1.1rem;">📋</span>
-          </div>
-      </div>
+    <div class="trust"><span><b>A1 a C2</b> com cenas por nível</span><span><b>Sem cartão</b> para começar</span><span><b>Celular ou PC</b>, no navegador</span></div>
   </div>
 
-  <script src="src/data/levels.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Grid
-      try {
-        const grid = document.getElementById('levels-grid');
-        if (grid && typeof levelsData !== 'undefined') {
-          levelsData.forEach(level => {
-            const card = document.createElement('div');
-            card.className = `level-card ${level.available ? '' : 'locked'}`;
-            card.style.setProperty('--level-color', level.color);
-            
-            card.innerHTML = `
-              <div class="card-top">
-                <span class="level-badge">${level.cefr}</span>
-                ${level.badge ? `<span class="card-tag" style="background:${level.color}; color:#fff;">${level.badge}</span>` : ''}
-                ${!level.available ? `<span class="lock-icon"></span>` : ''}
-              </div>
-              
-              <div class="card-icon-wrapper">${level.icon}</div>
-              
-              <h3 class="card-title">${level.title}</h3>
-              <p class="card-desc">${level.desc}</p>
-              
-              <button class="play-btn" style="background: ${level.available ? level.color : 'var(--border)'}; color: ${level.available ? '#fff' : 'var(--text-muted)'}; border: 1px solid ${level.available ? level.color : 'var(--border)'};">
-                ${level.available ? 'Ver Cenários' : 'Ver Cenários'}
-              </button>
-            `;
+  <div class="phone-col">
+    <div class="phone" role="region" aria-label="Demonstração jogável do Ventu">
+      <div class="screen" id="screen">
+        <div class="scr-top"><div class="ava">🍔</div><div><b>Jake, Burger Palace</b><small>nível A1 · cena ao vivo</small></div></div>
+        <div class="hud" aria-live="polite" aria-atomic="true">
+          <div>Trust <b id="h-trust" aria-label="Trust: 50">50</b></div>
+          <div>Rizz <b id="h-rizz" aria-label="Rizz: 20">20</b></div>
+          <div>Energia <b id="h-en" aria-label="Energia: 80">80</b></div>
+          <div>R$ <b id="h-mon" aria-label="Dinheiro: 35">35</b></div>
+        </div>
+        <div class="chat" id="chat" aria-live="polite"></div>
+        <div class="opts" id="opts"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
 
-            card.addEventListener('click', () => {
-                window.location.href = `nivel.html?l=${level.id}`;
-            });
-            grid.appendChild(card);
-          });
+<section class="loop" id="como">
+<div class="wrap">
+  <h2>Três passos, sem aula chata</h2>
+  <p class="lead">A mesma sequência de um intercâmbio, comprimida em partidas de poucos minutos.</p>
+  <div class="steps">
+    <div class="step"><h3>Entre na cena</h3><p>Você recebe uma situação, um objetivo e alguém esperando sua resposta. Nada de lista de vocabulário antes.</p></div>
+    <div class="step"><h3>Responda de verdade</h3><p>Escolha, escreva ou fale. Cada resposta muda a confiança do outro personagem, o seu carisma e a história.</p></div>
+    <div class="step"><h3>Entenda e fixe</h3><p>O jogo mostra por que uma frase soou natural ou seca, e as palavras que você errou voltam para revisão no dia certo.</p></div>
+  </div>
+</div>
+</section>
+
+<section id="recursos">
+<div class="wrap">
+  <h2>O que você leva daqui</h2>
+  <p class="lead">Imersão para prender, método para você realmente lembrar no dia seguinte.</p>
+
+  <div class="feat">
+    <div class="ft">
+      <h3>Feedback que explica, não só corrige</h3>
+      <p>Em inglês, muita frase certa ainda soa estranha. A Lente de Inglês mostra o tom, o registro e a alternativa que um nativo usaria.</p>
+      <ul><li>Natural, seco, formal demais ou gíria: você vê a diferença</li><li>Consequência na história, não só um X vermelho</li><li>Volte um passo e teste outra resposta</li></ul>
+    </div>
+    <div class="mock" aria-hidden="true">
+      <div class="msg me">I <span class="u">want</span> a cheeseburger.</div>
+      <div class="lens"><b>Lente de Inglês</b><br>Gramaticalmente certo, mas soa abrupto no balcão. Nativos preferem <b>“Can I get…”</b> ou <b>“I’ll have…”</b>.</div>
+      <span class="tag">Trust −5 · Rizz +0</span>
+    </div>
+  </div>
+
+  <div class="feat rev">
+    <div class="ft">
+      <h3>Revisão que acontece sozinha <span class="soon">em breve</span></h3>
+      <p>Toda palavra que você tocou ou errou vira carta. O Ventu traz de volta no momento em que você está prestes a esquecer.</p>
+      <ul><li>Deck montado automaticamente a partir das suas cenas</li><li>Sessões de 3 a 5 minutos por dia</li><li>Caderno com seus erros mais repetidos</li></ul>
+    </div>
+    <div class="mock" aria-hidden="true">
+      <div class="stack"><div class="card"></div><div class="card"></div><div class="card"><span class="tag">Gíria australiana</span><strong>“No worries, mate”</strong><div class="rate"><span>Difícil</span><span>Bom</span><span>Fácil</span></div></div></div>
+    </div>
+  </div>
+
+  <div class="feat">
+    <div class="ft">
+      <h3>Fale em voz alta <span class="soon">em breve</span></h3>
+      <p>Ouça os personagens com sotaque americano, britânico ou australiano e responda com a sua voz. Repetir a fala deles treina ouvido e pronúncia juntos.</p>
+      <ul><li>Personagens falam com o sotaque da cena</li><li>Shadowing: repita e compare</li><li>Modo ouvido: a cena vira um podcast</li></ul>
+    </div>
+    <div class="mock" aria-hidden="true">
+      <div class="wave"><i style="animation-delay:0s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.25s"></i><i style="animation-delay:.05s"></i><i style="animation-delay:.35s"></i><i style="animation-delay:.2s"></i><i style="animation-delay:.4s"></i><i style="animation-delay:.15s"></i><i style="animation-delay:.3s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.45s"></i></div>
+      <div class="score"><span>Clareza <b>92%</b></span><span>Ritmo <b>81%</b></span><span>Sotaque <b>AUS</b></span></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<section class="trail" id="niveis">
+<div class="wrap">
+  <h2>Uma trilha do primeiro “hello” ao sarcasmo</h2>
+  <p class="lead">Escolha sua imersão. Do básico ao avançado, e cenários especiais para o que você realmente vai viver.</p>
+  
+  <div class="trail-section-title"><span>🎓</span> A Jornada Oficial (CEFR)</div>
+  <div class="lv-grid">
+    <a class="l" href="jogar.html" style="--c:#22c55e">
+      <span class="l-level-mark">A1</span>
+      <div class="l-content">
+        <span class="l-title">Vila Sobrevivente</span>
+        <span class="l-desc">Pedir, pagar, sobreviver ao horário de pico.</span>
+      </div>
+    </a>
+    <a class="l" href="jogar.html" style="--c:#14b8a6">
+      <span class="l-level-mark">A2</span>
+      <div class="l-content">
+        <span class="l-title">Viagens & Hotel</span>
+        <span class="l-desc">Imprevistos do dia a dia e resolver pepinos.</span>
+      </div>
+    </a>
+    <a class="l" href="jogar.html" style="--c:#3b82f6">
+      <span class="l-level-mark">B1</span>
+      <div class="l-content">
+        <span class="l-title">Caos Cotidiano</span>
+        <span class="l-desc">Trabalho, amizades e conversas fora do roteiro.</span>
+      </div>
+    </a>
+    <a class="l" href="jogar.html" style="--c:#8b5cf6">
+      <span class="l-level-mark">B2</span>
+      <div class="l-content">
+        <span class="l-title">O Negociador</span>
+        <span class="l-desc">Opinar, discordar e negociar sem perder a pose.</span>
+      </div>
+    </a>
+    <a class="l" href="jogar.html" style="--c:#f59e0b">
+      <span class="l-level-mark">C1</span>
+      <div class="l-content">
+        <span class="l-title">Above the Salt</span>
+        <span class="l-desc">Jantar com a elite: inversões e ironias finas.</span>
+      </div>
+    </a>
+    <a class="l" href="jogar.html" style="--c:#ef4444">
+      <span class="l-level-mark">C2</span>
+      <div class="l-content">
+        <span class="l-title">O Estrategista</span>
+        <span class="l-desc">Gíria, sarcasmo e manipulação na Austrália.</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="trail-section-title"><span>🔥</span> Cenários Especiais</div>
+  <div class="lv-grid">
+    <a class="l l-special" href="jogar.html" style="--c:#eab308">
+      <span class="l-emoji">🛣️</span>
+      <div class="l-content">
+        <span class="l-title">Inglês de Rua</span>
+        <span class="l-desc">Uber, entrevista, bar, suporte. O inglês que ninguém ensina.</span>
+      </div>
+    </a>
+    <a class="l l-special" href="jogar.html" style="--c:#ec4899">
+      <span class="l-emoji">💘</span>
+      <div class="l-content">
+        <span class="l-title">Inglês de Flerte</span>
+        <span class="l-desc">Dates, red flags, small talk e como sobreviver ao ghosting.</span>
+      </div>
+    </a>
+    <a class="l l-special" href="jogar.html" style="--c:#06b6d4">
+      <span class="l-emoji">✈️</span>
+      <div class="l-content">
+        <span class="l-title">Intercâmbio</span>
+        <span class="l-desc">Burocracia, host family, aluguel e saudade de casa.</span>
+      </div>
+    </a>
+  </div>
+
+</div>
+</section>
+
+<section id="teste">
+<div class="wrap">
+  <div class="test-box">
+    <div>
+      <h2>Teste de nível que parece jogo</h2>
+      <p class="lead">Em vez de 40 questões de múltipla escolha, você vive uma cena curta que se adapta às suas respostas.</p>
+      <ul class="tl">
+        <li><b>Adaptativo:</b> a dificuldade sobe ou desce a cada resposta</li>
+        <li><b>Produção, não só marcação:</b> você escreve, e quando possível fala</li>
+        <li><b>Resultado útil:</b> nível inicial e os 3 pontos a reforçar</li>
+        <li><b>Rápido:</b> cerca de 5 minutos, sem cadastro para começar</li>
+      </ul>
+      <button type="button" class="btn btn-p" onclick="alert('O teste de nivelamento interativo chega na próxima atualização! Por enquanto, explore os níveis no painel principal. 🦊')">Fazer o teste</button>
+    </div>
+    <div class="prog" aria-hidden="true">
+      <span class="tag">Resultado de exemplo</span>
+      <h3 style="font-size:1.8rem;margin:6px 0 14px">Seu nível: <span class="gold">B1</span></h3>
+      <span class="tag">Compreensão</span><div class="bar"><i style="width:78%"></i></div>
+      <span class="tag">Vocabulário</span><div class="bar"><i style="width:64%"></i></div>
+      <span class="tag">Naturalidade</span><div class="bar"><i style="width:48%"></i></div>
+      <span class="tag">Foco sugerido: phrasal verbs, tom em pedidos educados</span>
+    </div>
+  </div>
+</div>
+</section>
+
+<section class="loop">
+<div class="wrap">
+  <h2>Por que isso funciona</h2>
+  <div class="why">
+    <div><h3>Emoção fixa vocabulário</h3><p>Você lembra do que causou tensão, riso ou constrangimento. Por isso as cenas têm drama, e não diálogos de livro.</p></div>
+    <div><h3>Produzir ensina mais que reconhecer</h3><p>Escolher entre três opções é o começo. O objetivo é você formular a frase sozinho, com consequência real na história.</p></div>
+    <div><h3>Erro sem humilhação</h3><p>Errar custa confiança do personagem, não nota. Você pode voltar, entender e tentar de novo na hora.</p></div>
+    <div><h3>Revisão no momento certo</h3><p>Repetição espaçada traz de volta o que está para ser esquecido, em doses pequenas todos os dias.</p></div>
+  </div>
+</div>
+</section>
+
+<section class="final">
+<div class="wrap">
+  <h2>Sua primeira cena começa em 10 segundos</h2>
+  <p class="lead">Sem aula, sem cartão, sem apresentação. Só você, um balcão cheio e uma pergunta em inglês.</p>
+  <a class="btn btn-p" id="cta-final" href="jogar.html">Jogar grátis</a>
+</div>
+</section>
+</main>
+
+<footer>
+<div class="wrap ft-in">
+  <span>&copy; 2026 Ventu. Feito por <a href="https://instagram.com/porphirio.brayam" target="_blank" rel="noopener" style="color:var(--gold)">Brayam Porphirio</a></span>
+  <span style="font-size:0.75rem; color:var(--muted); opacity:0.7;">Cenas com conteúdo adulto a partir do C2. Idade mínima recomendada: 16+.</span>
+  <span><a href="sobre.html">Sobre</a> &nbsp; <a href="termos.html">Termos</a> &nbsp; <a href="privacidade.html">Privacidade</a></span>
+</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  var chat=document.getElementById('chat'),opts=document.getElementById('opts'),
+      H={trust:document.getElementById('h-trust'),rizz:document.getElementById('h-rizz'),en:document.getElementById('h-en'),mon:document.getElementById('h-mon')},
+      st,timers=[];
+  function later(fn,ms){timers.push(setTimeout(fn,ms))}
+  function scroll(){chat.scrollTop=chat.scrollHeight}
+  function say(txt,who){var d=document.createElement('div');d.className='msg '+who;d.textContent=txt;chat.appendChild(d);scroll()}
+  function typing(cb,ms){var d=document.createElement('div');d.className='msg npc dots';d.innerHTML='<i></i><i></i><i></i>';chat.appendChild(d);scroll();later(function(){d.remove();cb()},ms)}
+  function lens(html){var d=document.createElement('div');d.className='lens';d.innerHTML=html;chat.appendChild(d);scroll()}
+  
+  // --- WEB SPEECH API MELHORADA (COM BUSCA POR VOZ MASCULINA) ---
+  function speak(text, lang) {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = lang || 'en-US';
+    u.rate = 0.95;
+
+    var voices = window.speechSynthesis.getVoices();
+    var maleKeywords = ['male', 'david', 'alex', 'daniel', 'fred', 'george', 'guy', 'james', 'paul'];
+    var selectedVoice = null;
+
+    for (var i = 0; i < voices.length; i++) {
+      var v = voices[i];
+      var vName = v.name.toLowerCase();
+      var vLang = v.lang.toLowerCase();
+      
+      if (vLang.indexOf('en') === 0) {
+        if (maleKeywords.some(function(k) { return vName.indexOf(k) !== -1; })) {
+          selectedVoice = v;
+          break;
         }
-      } catch(e) { console.error("Erro Grid:", e); }
-
-      // Tema
-      try {
-        const themeToggle = document.getElementById('theme-toggle');
-        if (themeToggle) {
-            themeToggle.addEventListener('click', () => {
-                const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-                document.documentElement.setAttribute('data-theme', t);
-                localStorage.setItem('ventu-theme', t);
-            });
-        }
-      } catch(e) {}
-
-      // Modal Apoie
-      const modalApoie = document.getElementById('modal-apoie');
-      const btnApoie = document.getElementById('btn-apoie');
-      const btnClose = document.getElementById('btn-close-apoie');
-      const btnCopy = document.getElementById('btn-copy-pix');
-
-      if (btnApoie) {
-          btnApoie.addEventListener('click', () => { modalApoie.style.display = 'flex'; });
       }
-      if (btnClose) {
-          btnClose.addEventListener('click', () => { modalApoie.style.display = 'none'; });
-      }
-      if (modalApoie) {
-          modalApoie.addEventListener('click', (e) => {
-              if (e.target === modalApoie) modalApoie.style.display = 'none'; // Fecha ao clicar fora
-          });
-      }
-      if (btnCopy) {
-          btnCopy.addEventListener('click', () => {
-              navigator.clipboard.writeText("cd5e70df-ddb5-4c74-8589-bee68ed718d0");
-              btnCopy.innerHTML = `<span style="color: #10b981;">Copiado!</span><span>✅</span>`;
-              setTimeout(() => { btnCopy.innerHTML = `<span>cd5e70df-ddb5-4c74-8589-bee68ed718d0</span><span style="font-size: 1.1rem;">📋</span>`; }, 2000);
-          });
-      }
+    }
+    if (selectedVoice) u.voice = selectedVoice;
+    window.speechSynthesis.speak(u);
+  }
 
-      // Supabase
-      try {
-        const supabase = window.supabase.createClient('https://hbqjoadubrwuafbfykre.supabase.co', 'sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_');
-        async function checkUser() {
-            const { data: { session } } = await supabase.auth.getSession();
-            const authArea = document.getElementById('auth-area');
-            if (session && authArea) {
-                const email = session.user.email;
-                const name = session.user.user_metadata?.full_name || email.split('@')[0];
-                const { data: profile } = await supabase.from('profiles').select('xp').eq('id', session.user.id).single();
-                const userXp = profile?.xp || 0;
+  function stat(k,delta){
+    st[k]+=delta;
+    H[k].textContent=st[k];
+    H[k].setAttribute('aria-label', H[k].parentElement.textContent.replace(st[k], '') + st[k]);
+    var c=delta>=0?'up':'down';
+    H[k].className=c;
+    setTimeout(function(){H[k].className=''},1400);
+  }
 
-                authArea.innerHTML = `
-                    <span style="color: var(--gold); font-weight: bold; background: rgba(251, 191, 36, 0.1); padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(251, 191, 36, 0.2); font-size:0.85rem;">⭐ ${userXp} XP</span>
-                    <a href="dashboard.html" class="btn btn-ghost">Meu Dashboard</a>
-                    <button class="btn btn-ghost" id="btn-logout">Sair</button>
-                `;
-                document.getElementById('btn-logout').addEventListener('click', async () => {
-                    await supabase.auth.signOut();
-                    window.location.reload();
-                });
-            }
-        }
-        checkUser();
-      } catch(e) {}
+  var choices=[
+    {t:"Can I get a cheeseburger and a small fries, please?",reply:"Coming right up! Anything to drink?",d:{trust:10,rizz:5,en:-5},
+     lens:"<b>Lente de Inglês</b><br>“Can I get…” é o jeito natural de pedir. Educado sem ficar formal. Boa."},
+    {t:"I want a cheeseburger.",reply:"…Sure. Next!",d:{trust:-8,rizz:0,en:-10},
+     lens:"<b>Lente de Inglês</b><br>Está correto, mas soa seco para quem atende. Experimente <b>“Can I get…”</b> ou <b>“I’ll have…”</b>."}
+  ];
+
+  function start(){
+    timers.forEach(clearTimeout);timers=[];
+    st={trust:50,rizz:20,en:80,mon:35};
+    for(var k in H){
+      H[k].textContent=st[k];
+      H[k].setAttribute('aria-label', H[k].parentElement.textContent.replace(H[k].textContent, '').trim() + ': ' + st[k]);
+      H[k].className='';
+    }
+    chat.innerHTML='';opts.innerHTML='<p class="hint">Jake está digitando…</p>';
+    
+    typing(function(){
+      var nMsg = "Welcome to Burger Palace! What can I get you?";
+      say(nMsg,'npc');
+      speak(nMsg, 'en-US'); 
+      
+      opts.innerHTML='';
+      choices.forEach(function(c){
+        var b=document.createElement('button');b.type='button';b.className='opt';b.textContent=c.t;
+        b.onclick=function(){pick(c)};opts.appendChild(b);
+      });
+      var h=document.createElement('p');h.className='hint';h.textContent='Toque numa resposta para jogar';opts.appendChild(h);
+    },1100);
+  }
+
+  function pick(c){
+    opts.innerHTML='';say(c.t,'me');
+    for(var k in c.d) stat(k,c.d[k]);
+    
+    typing(function(){
+      say(c.reply,'npc');
+      speak(c.reply, 'en-US'); 
+      
+      later(function(){
+        lens(c.lens);
+        var r=document.createElement('button');r.type='button';r.className='replay';r.textContent='Tentar de novo';r.onclick=start;
+        opts.innerHTML='';opts.appendChild(r);
+      },700);
+    },900);
+  }
+  start();
+
+  /* Tema */
+  try{
+    var themeToggle = document.getElementById('theme-toggle');
+    if(themeToggle){
+      themeToggle.addEventListener('click', function(){
+        var t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+        try{ localStorage.setItem('ventu-theme', t); }catch(e){}
+      });
+    }
+  }catch(e){}
+
+  /* Supabase Auth */
+  try{
+    var sb=window.supabase.createClient('https://hbqjoadubrwuafbfykre.supabase.co','sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_');
+    sb.auth.getSession().then(function(r){
+      if(!r.data.session)return;
+      document.getElementById('auth').innerHTML='<a class="btn btn-p" href="dashboard.html">Meu painel</a>';
+      document.getElementById('cta-main').textContent='Continuar jogando';
+      document.getElementById('cta-final').textContent='Continuar jogando';
     });
-  </script>
+  }catch(e){}
+})();
+</script>
 </body>
 </html>

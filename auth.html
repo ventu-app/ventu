@@ -57,6 +57,20 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // --- LÓGICA DE REDIRECIONAMENTO SEGURO ---
+    let redirectUrl = 'dashboard.html'; // Destino padrão
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramRedirect = urlParams.get('redirect');
+    
+    if (paramRedirect) {
+        const decoded = decodeURIComponent(paramRedirect);
+        // Proteção contra Open Redirect: impede redirecionar para sites externos (http, //)
+        if (!decoded.startsWith('http') && !decoded.startsWith('//')) {
+            redirectUrl = decoded;
+        }
+    }
+    // -----------------------------------------
+
     let isLogin = true;
     const form = document.getElementById('form-auth');
     const camposCadastro = document.getElementById('campos-cadastro');
@@ -100,7 +114,7 @@
             if (isLogin) {
                 const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: senha });
                 if (error) throw error;
-                window.location.href = 'dashboard.html';
+                window.location.href = redirectUrl; // <-- USA A URL DINÂMICA
             } else {
                 const nome = document.getElementById('nome').value;
                 const telefone = telefoneInput.value;
@@ -116,7 +130,7 @@
                     msgErro.innerHTML = 'Conta criada! Verifique seu e-mail para confirmar o cadastro antes de entrar.';
                     btnSubmit.innerText = 'Cadastrar';
                 } else {
-                    window.location.href = 'index.html';
+                    window.location.href = redirectUrl; // <-- USA A URL DINÂMICA
                 }
             }
         } catch (error) {
@@ -143,9 +157,12 @@
     });
 
     document.getElementById('btn-google').addEventListener('click', async () => {
+        // Constrói a URL absoluta para o Google OAuth respeitar o nível que o jogador clicou
+        const oauthRedirect = window.location.origin + '/' + redirectUrl;
+        
         await supabaseClient.auth.signInWithOAuth({
             provider: 'google',
-            options: { redirectTo: window.location.origin + '/dashboard.html' }
+            options: { redirectTo: oauthRedirect }
         });
     });
 

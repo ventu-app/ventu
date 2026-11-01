@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meu Dashboard — Ventu</title>
+  <meta name="description" content="Acompanhe seu progresso, XP, missões concluídas e continue sua jornada de aprendizado no Ventu.">
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,14 +27,20 @@
     body { background-color: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; display: flex; flex-direction: column; transition: 0.3s; overflow-x: hidden; }
     .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; width: 100%; }
     a { text-decoration: none; color: inherit; }
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 
+    /* Skip link */
+    .skip-link { position: absolute; left: -9999px; top: 0; background: var(--gold); color: var(--bg); padding: 10px 20px; z-index: 9999; border-radius: 0 0 8px 0; font-weight: 700; }
+    .skip-link:focus { left: 0; }
+
+    /* Header */
     .site-header { background: var(--bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-    .header-inner { display: flex; justify-content: space-between; align-items: center; height: 80px; }
+    .header-inner { display: flex; justify-content: space-between; align-items: center; height: 80px; position: relative; }
     .logo { display: flex; align-items: center; gap: 12px; font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; color: var(--text); }
     .header-nav { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
     .nav-link { font-weight: 600; color: var(--text); transition: 0.2s; }
     .nav-link:hover { color: var(--gold); }
-    .btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; border: none; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px; }
+    .btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; border: none; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-body); }
     .btn-primary { background: var(--gold); color: var(--bg); }
     .btn-primary:hover { background: var(--gold-hover); transform: translateY(-2px); }
     .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
@@ -43,6 +50,24 @@
     .theme-toggle:hover { background: var(--border); }
     [data-theme="dark"] .icon-sun { display: block; } [data-theme="dark"] .icon-moon { display: none; }
     [data-theme="light"] .icon-sun { display: none; } [data-theme="light"] .icon-moon { display: block; }
+
+    /* Menu mobile */
+    .menu-toggle { display: none; background: transparent; border: 1px solid var(--border); color: var(--text); font-size: 1.4rem; cursor: pointer; padding: 6px 12px; border-radius: 8px; }
+    .menu-toggle:hover { border-color: var(--gold); color: var(--gold); }
+
+    @media (max-width: 768px) {
+      .header-inner { height: auto; min-height: 64px; padding: 12px 0; }
+      .menu-toggle { display: block; }
+      .header-nav {
+        display: none; position: absolute; top: 100%; left: 0; right: 0;
+        background: var(--bg); border-bottom: 1px solid var(--border);
+        flex-direction: column; align-items: stretch; padding: 16px 20px;
+        gap: 12px; z-index: 99; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      }
+      .header-nav.open { display: flex; }
+      .header-nav .btn, .header-nav .nav-link { justify-content: center; text-align: center; }
+      #auth-area { flex-direction: column; align-items: stretch; gap: 8px; }
+    }
 
     .dash-header { background: var(--panel); border-bottom: 1px solid var(--border); padding: 40px 0; margin-bottom: 40px; text-align: center; border-radius: 0 0 20px 20px; }
     .dash-greeting { font-family: var(--font-heading); font-size: 2.5rem; color: var(--text); margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 15px; }
@@ -75,10 +100,10 @@
     }
     .level-card.locked { opacity: 0.6; filter: grayscale(0.8); cursor: not-allowed; }
 
-    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 8px; }
     .level-badge { background: var(--border); color: var(--text); font-weight: 700; font-size: 0.75rem; padding: 4px 10px; border-radius: 6px; letter-spacing: 1px; }
     .card-tag { font-size: 0.65rem; padding: 4px 8px; border-radius: 12px; font-weight: 700; text-transform: uppercase; }
-    .card-title { font-size: 1.4rem; margin-bottom: 10px; color: var(--text); }
+    .card-title { font-size: 1.4rem; margin-bottom: 10px; color: var(--text); font-family: var(--font-heading); }
     .card-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; flex: 1; margin-bottom: 15px; }
     
     .status-tag { font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 5px; }
@@ -88,30 +113,37 @@
     .site-footer { background: var(--panel); border-top: 1px solid var(--border); padding: 30px 0; margin-top: auto; }
     .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; color: var(--text-muted); font-size: 0.85rem; }
     .creator-credit a { color: var(--gold); font-weight: 600; }
+    .footer-legal { width: 100%; text-align: center; margin-top: 15px; font-size: 0.85rem; }
+    .footer-legal a { color: var(--text-muted); margin-right: 15px; transition: 0.2s; }
+    .footer-legal a:hover { color: var(--gold); }
 
     @media (max-width: 768px) {
-      .header-inner { height: auto; padding: 15px 0; flex-direction: column; gap: 15px; }
-      .header-nav { width: 100%; justify-content: center; }
-      .btn { padding: 8px 12px; font-size: 0.85rem; }
-      .nav-link { font-size: 0.85rem; }
       .footer-bottom { flex-direction: column; text-align: center; }
       .dash-header { padding: 30px 15px; }
-      .dash-greeting { flex-direction: column; gap: 5px; }
+      .dash-greeting { flex-direction: column; gap: 5px; font-size: 2rem; }
       .ventu-tip { flex-direction: column; text-align: center; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
     }
   </style>
 </head>
 <body>
 
+  <a href="#conteudo" class="skip-link">Pular para o conteúdo</a>
+
   <header class="site-header">
     <div class="container header-inner">
-      <a href="/" class="logo">
-        <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 22 46 L 25 22 L 36 38 Z" fill="#ea580c"/><path d="M 78 46 L 75 22 L 64 38 Z" fill="#ea580c"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><circle cx="36" cy="56" r="1.2" fill="#fff"/><circle cx="66" cy="56" r="1.2" fill="#fff"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/></svg>
+      <a href="/" class="logo" aria-label="Ventu, página inicial">
+        <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 22 46 L 25 22 L 36 38 Z" fill="#ea580c"/><path d="M 78 46 L 75 22 L 64 38 Z" fill="#ea580c"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><circle cx="36" cy="56" r="1.2" fill="#fff"/><circle cx="66" cy="56" r="1.2" fill="#fff"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/></svg>
         <span class="logo-text">VENTU</span>
       </a>
-      <nav class="header-nav">
-        <button id="theme-toggle" class="theme-toggle"><span class="icon-sun">☀️</span><span class="icon-moon">🌙</span></button>
-        
+      
+      <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="header-nav">☰</button>
+      
+      <nav class="header-nav" id="header-nav" aria-label="Principal">
+        <button id="theme-toggle" class="theme-toggle" aria-label="Alternar tema claro/escuro"><span class="icon-sun">☀️</span><span class="icon-moon">🌙</span></button>
         <div id="auth-area" style="display:flex; align-items:center; gap:10px;">
             <!-- Preenchido via JS -->
         </div>
@@ -119,16 +151,16 @@
     </div>
   </header>
 
-  <main>
+  <main id="conteudo">
     <section class="dash-header">
       <div class="container">
         <h1 class="dash-greeting" id="greeting-name">
-            <span id="user-avatar-display" style="font-size: 3rem;">🦊</span> 
+            <span id="user-avatar-display" style="font-size: 3rem;" aria-hidden="true">🦊</span> 
             Olá, <span id="greeting-first-name">Sobrevivente</span>
         </h1>
         <p class="dash-subtitle">Bem-vindo ao seu QG. Aqui está o seu progresso até agora.</p>
         
-        <div class="stats-grid">
+        <div class="stats-grid" aria-live="polite">
           <div class="stat-card">
             <span class="stat-value" id="stat-xp">0</span>
             <span class="stat-label">XP Total</span>
@@ -144,7 +176,7 @@
     <section class="levels-section">
       <div class="container">
         <div class="ventu-tip">
-          <div class="ventu-avatar">🦊</div>
+          <div class="ventu-avatar" aria-hidden="true">🦊</div>
           <div class="ventu-text" id="ventu-message">
             "Escolha o próximo desafio. Quanto mais você sobrevive, mais XP ganha. Bora pra cima!"
           </div>
@@ -158,24 +190,51 @@
   <footer class="site-footer">
     <div class="container footer-bottom">
       <p>&copy; 2026 Ventu. Todos os direitos reservados.</p>
-      <p class="creator-credit">Desenvolvido com <span class="heart">❤️</span> por <a href="https://instagram.com/porphirio.brayam" target="_blank" rel="noopener">Brayam Porphirio</a></p>
-      <div style="width: 100%; text-align: center; margin-top: 15px; font-size: 0.85rem;">
-        <a href="sobre.html" style="color: var(--text-muted); margin-right: 15px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">Sobre</a>
-        <a href="termos.html" style="color: var(--text-muted); margin-right: 15px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">Termos</a>
-        <a href="privacidade.html" style="color: var(--text-muted); text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">Privacidade</a>
+      <p class="creator-credit">Desenvolvido com <span aria-hidden="true">❤️</span> por <a href="https://instagram.com/porphirio.brayam" target="_blank" rel="noopener">Brayam Porphirio</a></p>
+      <div class="footer-legal">
+        <a href="sobre.html">Sobre</a>
+        <a href="termos.html">Termos</a>
+        <a href="privacidade.html">Privacidade</a>
       </div>
     </div>
   </footer>
 
+  <script src="src/data/levels.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
+      
+      /* --- MENU MOBILE --- */
+      try {
+        const menuToggle = document.getElementById('menu-toggle');
+        const headerNav = document.getElementById('header-nav');
+        if (menuToggle && headerNav) {
+          menuToggle.addEventListener('click', () => {
+            const isOpen = headerNav.classList.toggle('open');
+            menuToggle.setAttribute('aria-expanded', String(isOpen));
+            menuToggle.setAttribute('aria-label', isOpen ? 'Fechar menu' : 'Abrir menu');
+          });
+        }
+      } catch(e) {}
+
+      /* --- TEMA --- */
+      try {
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+          themeToggle.addEventListener('click', () => {
+            const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', t);
+            try { localStorage.setItem('ventu-theme', t); } catch(e) {}
+          });
+        }
+      } catch(e) {}
+
+      /* --- SUPABASE / AUTH --- */
       const SUPABASE_URL = 'https://hbqjoadubrwuafbfykre.supabase.co';
       const SUPABASE_ANON_KEY = 'sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_';
       
       if (!window.supabase) return;
       const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      // --- 1. VERIFICAÇÃO DE LOGIN E DADOS DO PERFIL ---
       let user = null;
       let profile = null;
 
@@ -183,13 +242,12 @@
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error || !session) {
-          window.location.href = 'index.html';
+          window.location.href = 'index.html'; // Redireciona para a vitrine se não tiver logado
           return;
         }
 
         user = session.user;
         
-        // Usando maybeSingle() para evitar erro se a tabela ainda não tiver o registro
         const { data: dbProfile, error: profileError } = await supabase
             .from('profiles')
             .select('xp, levels_completed')
@@ -197,7 +255,6 @@
             .maybeSingle();
             
         if (profileError) console.error("Erro ao buscar perfil:", profileError);
-            
         profile = dbProfile || { xp: 0, levels_completed: {} };
 
       } catch (err) {
@@ -206,12 +263,12 @@
         return;
       }
 
-      // --- 2. PREENCHER A NAVBAR E STATS ---
+      /* --- PREENCHER NAVBAR E STATS (Safe DOM) --- */
       try {
-        const email = user.email;
+        const email = user.email || '';
         const name = user.user_metadata?.full_name || email.split('@')[0];
         const firstName = name.split(' ')[0];
-        const avatarEmoji = user.user_metadata?.avatar_emoji || '🦊'; // Puxa o avatar do perfil
+        const avatarEmoji = user.user_metadata?.avatar_emoji || '🦊';
         const xp = profile.xp || 0;
         const completedLevels = profile.levels_completed || {};
         
@@ -222,59 +279,73 @@
             }
         });
 
-        // Atualiza a saudação com o avatar
-        document.getElementById('greeting-first-name').innerText = firstName;
-        document.getElementById('user-avatar-display').innerText = avatarEmoji;
-        document.getElementById('stat-xp').innerText = xp;
-        document.getElementById('stat-levels').innerText = totalCompleted;
+        document.getElementById('greeting-first-name').textContent = firstName;
+        document.getElementById('user-avatar-display').textContent = avatarEmoji;
+        document.getElementById('stat-xp').textContent = xp;
+        document.getElementById('stat-levels').textContent = totalCompleted;
         
         const ventuMsg = document.getElementById('ventu-message');
         if (xp === 0) {
-            ventuMsg.innerText = `"Primeira vez aqui, ${firstName}? O caos te espera. Comece pelo nível A1."`;
+            ventuMsg.textContent = `"Primeira vez aqui, ${firstName}? O caos te espera. Comece pelo nível A1."`;
         } else if (xp < 500) {
-            ventuMsg.innerText = `"Mandando bem, ${firstName}! Já são ${xp} XP. Ainda tem muita coisa quebrando por aí. Continue!"`;
+            ventuMsg.textContent = `"Mandando bem, ${firstName}! Já são ${xp} XP. Ainda tem muita coisa quebrando por aí. Continue!"`;
         } else {
-            ventuMsg.innerText = `"Olha só, ${firstName}! ${xp} XP! Você tá virando um veterano. Os próximos níveis vão te testar de verdade."`;
+            ventuMsg.textContent = `"Olha só, ${firstName}! ${xp} XP! Você tá virando um veterano. Os próximos níveis vão te testar de verdade."`;
         }
 
-        // Atualiza a Navbar
         const authArea = document.getElementById('auth-area');
-        authArea.innerHTML = `
-            <span style="font-size:1.3rem;" title="${name}">${avatarEmoji}</span>
-            <span style="color: var(--gold); font-weight: bold; background: rgba(251, 191, 36, 0.1); padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(251, 191, 36, 0.2); font-size:0.85rem;">⭐ ${xp} XP</span>
-            <a href="perfil.html" class="btn btn-ghost">Meu Perfil</a>
-            <a href="/" class="btn btn-ghost">Home</a>
-            <button class="btn btn-ghost" id="btn-logout">Sair</button>
-        `;
+        authArea.textContent = '';
 
-        document.getElementById('btn-logout').addEventListener('click', async () => {
+        const avatarSpan = document.createElement('span');
+        avatarSpan.style.fontSize = '1.3rem';
+        avatarSpan.title = name;
+        avatarSpan.textContent = avatarEmoji;
+        authArea.appendChild(avatarSpan);
+
+        const xpSpan = document.createElement('span');
+        xpSpan.style.cssText = 'color: var(--gold); font-weight: bold; background: rgba(251, 191, 36, 0.1); padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(251, 191, 36, 0.2); font-size: 0.85rem;';
+        xpSpan.textContent = `⭐ ${xp} XP`;
+        authArea.appendChild(xpSpan);
+
+        const playLink = document.createElement('a');
+        playLink.href = 'jogar.html';
+        playLink.className = 'btn btn-ghost';
+        playLink.textContent = 'Hub de Jogos';
+        authArea.appendChild(playLink);
+
+        const logoutBtn = document.createElement('button');
+        logoutBtn.type = 'button';
+        logoutBtn.className = 'btn btn-ghost';
+        logoutBtn.textContent = 'Sair';
+        logoutBtn.addEventListener('click', async () => {
             await supabase.auth.signOut();
             window.location.href = 'index.html';
         });
+        authArea.appendChild(logoutBtn);
 
       } catch(e) { console.error("Erro no Header:", e); }
 
-      // --- 3. RENDERIZAR O GRID DE NÍVEIS ---
+      /* --- RENDERIZAR GRID DE NÍVEIS (Puxando do levels.js) --- */
       try {
-        const levelsData = [
-            { id: 'a1', cefr: 'A1', title: 'Vila Sobrevivente', icon: '🏘️', color: '#10b981', available: true, desc: 'Pedir comida, andar pela cidade e se virar no básico.' },
-            { id: 'a2', cefr: 'A2', title: 'Porto Hotel', icon: '🏨', color: '#3b82f6', available: true, desc: 'Resolver pepinos do dia a dia, check-in e farmácia.' },
-            { id: 'b1', cefr: 'B1', title: 'Caos Cotidiano', icon: '🚑', color: '#f97316', available: true, desc: 'Clínica de madrugada, apartamento alagado e burocracia.' },
-            { id: 'b2', cefr: 'B2', title: 'O Negociador', icon: '💼', color: '#8b5cf6', available: true, desc: 'Clientes furiosos, entrevistas de emprego e acordos.' },
-            { id: 'c1', cefr: 'C1', title: 'Above the Salt', icon: '🎭', color: '#ef4444', available: true, desc: 'Jantares de família, ironia, sarcasmo e política.' },
-            { id: 'c2', cefr: 'C2', title: 'O Estrategista', icon: '♟️', color: '#eab308', available: true, desc: 'Conselhos hostis, crises de imprensa e persuasão pura.' },
-            { id: 'social', cefr: 'B1+', title: 'Bairro do Flerte', icon: '💕', color: '#ec4899', available: false, badge: '18+', desc: 'Dates, flerte, humor e detecção de red flags.' },
-            { id: 'street', cefr: 'B2+', title: 'Beco da Rua', icon: '🔥', color: '#e11d48', available: false, badge: '18+', desc: 'Conflito, insultos, palavrões e como se impor.' },
-            { id: 'abroad', cefr: 'B1+/B2+', title: 'Vida no Exterior', icon: '✈️', color: '#06b6d4', available: false, badge: 'MORAR FORA', desc: 'Entrevistas, host family, aluguel e sobrevivência fora do país.' }
-        ];
-
         const grid = document.getElementById('levels-grid');
         const completedLevels = profile.levels_completed || {};
 
-        levelsData.forEach(level => {
-            const card = document.createElement('div');
+        if (typeof levelsData !== 'undefined') {
+          levelsData.forEach(level => {
+            const card = document.createElement('a');
             card.className = `level-card ${level.available ? '' : 'locked'}`;
             card.style.setProperty('--level-color', level.color);
+
+            if (level.available) {
+              card.href = `nivel?l=${level.id}`;
+            } else {
+              card.href = '#';
+              card.setAttribute('aria-disabled', 'true');
+              card.addEventListener('click', (e) => {
+                e.preventDefault();
+                alert(`O nível ${level.title} está em desenvolvimento. Continue praticando nos níveis liberados!`);
+              });
+            }
 
             let statusHtml = '';
             if (completedLevels[level.id] && completedLevels[level.id].length > 0) {
@@ -297,32 +368,10 @@
               </div>
             `;
 
-            if (level.available) {
-                card.addEventListener('click', () => {
-                    window.location.href = `nivel.html?l=${level.id}`;
-                });
-            } else {
-                card.addEventListener('click', () => {
-                    alert(`O nível ${level.title} está em desenvolvimento. Continue praticando nos níveis liberados!`);
-                });
-            }
-
             grid.appendChild(card);
-        });
-      } catch(e) { console.error("Erro no Grid:", e); }
-
-      // --- 4. TEMA ---
-      try {
-        const themeToggle = document.getElementById('theme-toggle');
-        if (themeToggle) {
-            themeToggle.addEventListener('click', () => {
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                document.documentElement.setAttribute('data-theme', newTheme);
-                localStorage.setItem('ventu-theme', newTheme);
-            });
+          });
         }
-      } catch(e) {}
+      } catch(e) { console.error("Erro no Grid:", e); }
     });
   </script>
 </body>

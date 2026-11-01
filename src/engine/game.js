@@ -21,8 +21,10 @@
     if (!overlay) { startGame({ ...data.characters[Object.keys(data.characters)[0]], level: data.id, title: data.title, shopItems: data.shopItems }); return; }
 
     overlay.hidden = false;
-    const firstPick = localStorage.getItem('ventu_' + data.id + '_firstPick');
-    const completed = JSON.parse(localStorage.getItem('ventu_' + data.id + '_completed') || '{}');
+    
+    // --- USANDO VENTU STORAGE ---
+    const firstPick = window.VentuStorage.get(data.id + '_firstPick');
+    const completed = window.VentuStorage.get(data.id + '_completed') || {};
     const firstDone = firstPick && completed[firstPick];
 
     if (firstPick && !firstDone) {
@@ -56,7 +58,7 @@
       `;
       card.addEventListener('click', () => {
         if (!playable) return;
-        if (!firstPick) localStorage.setItem('ventu_' + data.id + '_firstPick', charId);
+        if (!firstPick) window.VentuStorage.set(data.id + '_firstPick', charId);
         overlay.hidden = true;
         history.replaceState(null, '', `?l=${data.id}&c=${charId}`);
         startGame({ ...ch, level: data.id, title: data.title, shopItems: data.shopItems });
@@ -98,8 +100,9 @@
 
     if (gameData.title) { headerTitle.textContent = gameData.title; }
 
-    const saveKey = gameData.charId ? `ventu_save_${gameData.level}_${gameData.charId}` : `ventu_save_${gameData.level}`;
-    const flagsKey = `ventu_flags_${gameData.level}`;
+    // --- CHAVES DO VENTU STORAGE ---
+    const saveKey = gameData.charId ? `save_${gameData.level}_${gameData.charId}` : `save_${gameData.level}`;
+    const flagsKey = `flags_${gameData.level}`;
     const OFFENSIVE = /(fuck|shit|bitch|idiot|stupid|asshole|dumb|moron|hate you|shut up|go to hell|screw you)/i;
 
     const SUPABASE_URL = 'https://hbqjoadubrwuafbfykre.supabase.co';
@@ -113,7 +116,7 @@
         pt: { money: 'Dinheiro', energy: 'Energia', glossary: 'Glossário', shop: '🛒 Loja', input: 'Digite sua resposta...', send: 'Enviar', langBtn: '🌐 EN' },
         en: { money: 'Money', energy: 'Energy', glossary: 'Glossary', shop: '🛒 Shop', input: 'Type your answer...', send: 'Send', langBtn: '🌐 PT' }
     };
-    let currentLang = localStorage.getItem('ventu_lang') || 'pt';
+    let currentLang = window.VentuStorage.get('lang') || 'pt';
     
     function applyLanguage() {
         const t = translations[currentLang];
@@ -129,7 +132,7 @@
     if(document.getElementById('btn-lang')) {
         document.getElementById('btn-lang').addEventListener('click', () => {
             currentLang = currentLang === 'pt' ? 'en' : 'pt';
-            localStorage.setItem('ventu_lang', currentLang);
+            window.VentuStorage.set('lang', currentLang);
             applyLanguage();
         });
     }
@@ -142,9 +145,15 @@
     let isProcessing = false;
     let activeTypers = []; // Rastreia animações de digitação ativas
 
-    function getFlags() { try { return JSON.parse(localStorage.getItem(flagsKey) || '{}'); } catch { return {}; } }
+    // --- USANDO VENTU STORAGE ---
+    function getFlags() { return window.VentuStorage.get(flagsKey) || {}; }
     function hasFlag(n) { return !!getFlags()[n]; }
-    function setFlags(list) { if (!list) return; const f = getFlags(); list.forEach(n => f[n] = true); localStorage.setItem(flagsKey, JSON.stringify(f)); }
+    function setFlags(list) { 
+        if (!list) return; 
+        const f = getFlags(); 
+        list.forEach(n => f[n] = true); 
+        window.VentuStorage.set(flagsKey, f); 
+    }
     
     function resolveText(scene, field) {
       const variants = scene[`${field}Variants`];
@@ -156,28 +165,32 @@
       return { text: scene[field], isCallback: false };
     }
 
-    const saved = localStorage.getItem(saveKey);
+    // --- USANDO VENTU STORAGE ---
+    const saved = window.VentuStorage.get(saveKey);
     if (saved) {
-      try {
-        const p = JSON.parse(saved);
-        if (p.sceneId && gameData.scenes[p.sceneId]) {
-            currentState = p.state || currentState;
-            currentSceneId = p.sceneId;
+        if (saved.sceneId && gameData.scenes[saved.sceneId]) {
+            currentState = saved.state || currentState;
+            currentSceneId = saved.sceneId;
             currentScene = gameData.scenes[currentSceneId];
-        } else { localStorage.removeItem(saveKey); }
-      } catch (e) { localStorage.removeItem(saveKey); }
+        } else { 
+            window.VentuStorage.remove(saveKey); 
+        }
     }
 
-    function saveGame() { localStorage.setItem(saveKey, JSON.stringify({ state: currentState, sceneId: currentSceneId })); }
+    // --- USANDO VENTU STORAGE ---
+    function saveGame() { 
+        window.VentuStorage.set(saveKey, { state: currentState, sceneId: currentSceneId }); 
+    }
 
     async function markCompleted() {
       if (!gameData.charId) return;
       
-      const key = `ventu_${gameData.level}_completed`;
+      const key = gameData.level + '_completed';
       try {
-        const c = JSON.parse(localStorage.getItem(key) || '{}');
+        // --- USANDO VENTU STORAGE ---
+        const c = window.VentuStorage.get(key) || {};
         c[gameData.charId] = true;
-        localStorage.setItem(key, JSON.stringify(c));
+        window.VentuStorage.set(key, c);
       } catch (e) {}
 
       if (supabaseClient) {
@@ -244,7 +257,8 @@
             { id: 'coffee', name: '☕ Café Quentinho', price: 5, desc: 'Recupera 20 de Energia.' },
             { id: 'umbrella', name: '☂️ Guarda-chuva', price: 10, desc: 'Evita perda de energia na chuva.' }
         ];
-        let inventory = JSON.parse(localStorage.getItem('ventu_inventory') || '[]');
+        // --- USANDO VENTU STORAGE ---
+        let inventory = window.VentuStorage.get('inventory') || [];
 
         items.forEach(item => {
             const btn = document.createElement('button');
@@ -265,7 +279,10 @@
             if (item.id === 'coffee' || item.energy) {
                 currentState.energy = Math.min(100, currentState.energy + (item.energy || 20)); playSound('success'); 
             } else {
-                inventory.push(item.id); localStorage.setItem('ventu_inventory', JSON.stringify(inventory)); playSound('cash');
+                inventory.push(item.id); 
+                // --- USANDO VENTU STORAGE ---
+                window.VentuStorage.set('inventory', inventory); 
+                playSound('cash');
             }
             updateHUD(); saveGame(); document.getElementById('shop-modal').style.display = 'none';
             addMessage('Sistema', `🧾 <strong>Recibo:</strong> Você comprou <em>${item.name}</em> por $${item.price.toFixed(2)}.<br>Saldo atual: $${currentState.money.toFixed(2)}`, 'ventu', false);
@@ -419,7 +436,8 @@
       hint.className = 'chat-message ventu';
       const label = currentScene.endingType === 'ruim' ? 'Final ruim' : currentScene.endingType === 'ok' ? 'Final ok' : 'Final bom';
       
-      const retryBtn = gameData.charId ? `<button class="retry-btn" onclick="localStorage.removeItem('${saveKey}'); window.location.href='?l=${gameData.level}&c=${gameData.charId}';">Tentar de Novo (Reiniciar POV)</button>` : '';
+      // --- USANDO VENTU STORAGE ---
+      const retryBtn = gameData.charId ? `<button class="retry-btn" onclick="window.VentuStorage.remove('${saveKey}'); window.location.href='?l=${gameData.level}&c=${gameData.charId}';">Tentar de Novo (Reiniciar POV)</button>` : '';
       const backBtn = `<button class="retry-btn" style="background-color: var(--border); color: var(--text);" onclick="window.location.href='?l=${gameData.level}';">Voltar para as Perspectivas</button>`;
 
       const shareText = encodeURIComponent(`Eu sobrevivi ao caos do ${gameData.title} com ${currentState.energy} de energia sobrando! Jogue agora no Ventu: https://ventu-nine.vercel.app`);
@@ -443,17 +461,21 @@
       msgDiv.className = `chat-message ${type}`;
       let avatar;
       
-      if (type === 'npc') {
-        let emoji = gameData.emoji || '👤';
-        if (!gameData.emoji) {
-            if (sender.includes('Emma')) emoji = '👩';
-            else if (sender.includes('Silva')) emoji = '👨‍💼';
-            else if (sender.includes('Lucas')) emoji = '🧑';
-            else if (sender.includes('Davi')) emoji = '👨‍🍳';
-            else if (sender.includes('Chloe')) emoji = '🕵️‍♀️';
-            else if (sender === 'Narrador') emoji = '📖';
-            else if (sender === 'Sistema') emoji = '⚙️';
-        }
+            if (type === 'npc') {
+        let emoji = '👤';
+        
+        // 1. Primeiro, tentamos identificar quem está falando pelo nome
+        if (sender.includes('Emma')) emoji = '👩';
+        else if (sender.includes('Silva')) emoji = '👨‍💼';
+        else if (sender.includes('Lucas')) emoji = '🧑';
+        else if (sender.includes('Davi')) emoji = '👨‍🍳';
+        else if (sender.includes('Chloe')) emoji = '🕵️‍♀️';
+        else if (sender === 'Narrador') emoji = '📖';
+        else if (sender === 'Sistema') emoji = '⚙️';
+        
+        // 2. Se for um NPC novo (que ainda não está na lista), usa o emoji do POV atual como fallback
+        else if (gameData.emoji) emoji = gameData.emoji;
+
         avatar = `<div class="npc-avatar">${emoji}</div>`;
       }
       else if (type === 'ventu') avatar = `<div class="npc-avatar ventu-avatar" style="background: transparent; border: none; width: 40px; height: 40px;"><svg viewBox="0 0 100 100" width="40" height="40"><path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/></svg></div>`;
@@ -551,7 +573,8 @@
       } else {
         playSound('error');
         let energyLoss = 5; 
-        const inv = JSON.parse(localStorage.getItem('ventu_inventory') || '[]');
+        // --- USANDO VENTU STORAGE ---
+        const inv = window.VentuStorage.get('inventory') || [];
         
         if (gameData.charId === 'emma' && inv.includes('umbrella') && currentSceneId.includes('emma_a2')) {
             energyLoss = 0;
