@@ -1,0 +1,321 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu Dashboard — Ventu</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    try { document.documentElement.setAttribute('data-theme', localStorage.getItem('ventu-theme') || 'dark'); } catch(e) {}
+  </script>
+  <style>
+    :root {
+      --bg: #0b0f19; --panel: #151b2b; --text: #e2e8f0; --text-muted: #94a3b8;
+      --gold: #fbbf24; --gold-hover: #f59e0b; --border: #1e293b; --error: #ef4444;
+      --font-heading: 'Playfair Display', serif; --font-body: 'Inter', sans-serif;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc; --panel: #ffffff; --text: #0f172a; --text-muted: #64748b;
+      --gold: #d97706; --gold-hover: #b45309; --border: #e2e8f0; --error: #dc2626;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; display: flex; flex-direction: column; transition: 0.3s; overflow-x: hidden; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; width: 100%; }
+    a { text-decoration: none; color: inherit; }
+
+    .site-header { background: var(--bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    .header-inner { display: flex; justify-content: space-between; align-items: center; height: 80px; }
+    .logo { display: flex; align-items: center; gap: 12px; font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; color: var(--text); }
+    .header-nav { display: flex; align-items: center; gap: 20px; }
+    .nav-link { font-weight: 600; color: var(--text); transition: 0.2s; }
+    .nav-link:hover { color: var(--gold); }
+    .btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; border: none; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-primary { background: var(--gold); color: var(--bg); }
+    .btn-primary:hover { background: var(--gold-hover); transform: translateY(-2px); }
+    .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+    
+    .theme-toggle { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; padding: 8px; border-radius: 50%; }
+    .theme-toggle:hover { background: var(--border); }
+    [data-theme="dark"] .icon-sun { display: block; } [data-theme="dark"] .icon-moon { display: none; }
+    [data-theme="light"] .icon-sun { display: none; } [data-theme="light"] .icon-moon { display: block; }
+
+    .dash-header { background: var(--panel); border-bottom: 1px solid var(--border); padding: 40px 0; margin-bottom: 40px; text-align: center; border-radius: 0 0 20px 20px; }
+    .dash-greeting { font-family: var(--font-heading); font-size: 2.5rem; color: var(--text); margin-bottom: 10px; }
+    .dash-subtitle { color: var(--text-muted); font-size: 1.1rem; }
+
+    .stats-grid { display: flex; justify-content: center; gap: 20px; margin-top: 30px; flex-wrap: wrap; }
+    .stat-card { background: var(--bg); border: 1px solid var(--border); padding: 15px 30px; border-radius: 12px; text-align: center; min-width: 200px; }
+    .stat-value { font-size: 2rem; font-weight: 900; color: var(--gold); display: block; margin-bottom: 5px; }
+    .stat-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
+
+    .ventu-tip { background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 12px; padding: 20px; display: flex; gap: 20px; align-items: center; max-width: 800px; margin: 0 auto 40px; }
+    .ventu-avatar { font-size: 2.5rem; }
+    .ventu-text { font-size: 0.95rem; line-height: 1.5; color: var(--text); }
+
+    .levels-section { padding: 20px 0 80px; }
+    .levels-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
+    @media (max-width: 900px) { .levels-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .levels-grid { grid-template-columns: 1fr; } }
+
+    .level-card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 25px;
+      display: flex; flex-direction: column; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative; overflow: hidden; cursor: pointer; text-decoration: none;
+    }
+    .level-card:hover:not(.locked) {
+      border-color: var(--level-color, var(--gold));
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.4), 0 0 15px var(--level-color, rgba(251, 191, 36, 0.2));
+    }
+    .level-card.locked { opacity: 0.6; filter: grayscale(0.8); cursor: not-allowed; }
+
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .level-badge { background: var(--border); color: var(--text); font-weight: 700; font-size: 0.75rem; padding: 4px 10px; border-radius: 6px; letter-spacing: 1px; }
+    .card-tag { font-size: 0.65rem; padding: 4px 8px; border-radius: 12px; font-weight: 700; text-transform: uppercase; }
+    .card-title { font-size: 1.4rem; margin-bottom: 10px; color: var(--text); }
+    .card-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; flex: 1; margin-bottom: 15px; }
+    
+    .status-tag { font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 5px; }
+    .status-done { color: #10b981; }
+    .status-locked { color: var(--text-muted); }
+
+    .site-footer { background: var(--panel); border-top: 1px solid var(--border); padding: 30px 0; margin-top: auto; }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; color: var(--text-muted); font-size: 0.85rem; }
+    .creator-credit a { color: var(--gold); font-weight: 600; }
+
+    /* AQUI ESTÁ O CONSERTO DO MOBILE HEADER */
+    @media (max-width: 768px) {
+      .header-inner { 
+          height: auto; 
+          padding: 15px 0; 
+          flex-direction: column; 
+          gap: 15px; 
+      }
+      .header-nav { 
+          width: 100%; 
+          justify-content: center; 
+          flex-wrap: wrap; 
+          gap: 10px;
+      }
+      .btn { padding: 8px 12px; font-size: 0.85rem; }
+      .nav-link { font-size: 0.85rem; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+      .dash-header { padding: 30px 15px; }
+      .ventu-tip { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">
+        <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 22 46 L 25 22 L 36 38 Z" fill="#ea580c"/><path d="M 78 46 L 75 22 L 64 38 Z" fill="#ea580c"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><circle cx="36" cy="56" r="1.2" fill="#fff"/><circle cx="66" cy="56" r="1.2" fill="#fff"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/></svg>
+        <span class="logo-text">VENTU</span>
+      </a>
+      <nav class="header-nav">
+        <button id="theme-toggle" class="theme-toggle"><span class="icon-sun">☀️</span><span class="icon-moon">🌙</span></button>
+        
+        <div id="auth-area" style="display:flex; align-items:center; gap:10px;">
+            <!-- Preenchido via JS -->
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="dash-header">
+      <div class="container">
+        <h1 class="dash-greeting" id="greeting-name">Olá, Sobrevivente</h1>
+        <p class="dash-subtitle">Bem-vindo ao seu QG. Aqui está o seu progresso até agora.</p>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-value" id="stat-xp">0</span>
+            <span class="stat-label">XP Total</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="stat-levels">0</span>
+            <span class="stat-label">Missões Concluídas</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="levels-section">
+      <div class="container">
+        <div class="ventu-tip">
+          <div class="ventu-avatar">🦊</div>
+          <div class="ventu-text" id="ventu-message">
+            "Escolha o próximo desafio. Quanto mais você sobrevive, mais XP ganha. Bora pra cima!"
+          </div>
+        </div>
+
+        <div class="levels-grid" id="levels-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-bottom">
+      <p>&copy; 2026 Ventu. Todos os direitos reservados.</p>
+      <p class="creator-credit">Desenvolvido com <span class="heart">❤️</span> por <a href="https://instagram.com/porphirio.brayam" target="_blank" rel="noopener">Brayam Porphirio</a></p>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const SUPABASE_URL = 'https://hbqjoadubrwuafbfykre.supabase.co';
+      const SUPABASE_ANON_KEY = 'sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_';
+      
+      if (!window.supabase) return;
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      // --- 1. VERIFICAÇÃO DE LOGIN (SEGURANÇA) ---
+      let user = null;
+      let profile = null;
+
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error || !session) {
+          window.location.href = 'index.html';
+          return;
+        }
+
+        user = session.user;
+        
+        const { data: dbProfile } = await supabase
+            .from('profiles')
+            .select('xp, levels_completed')
+            .eq('id', user.id)
+            .single();
+            
+        profile = dbProfile || { xp: 0, levels_completed: {} };
+
+      } catch (err) {
+        console.error("Erro na autenticação:", err);
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // --- 2. PREENCHER A NAVBAR E STATS ---
+      try {
+        const email = user.email;
+        const name = user.user_metadata?.full_name || email.split('@')[0];
+        const firstName = name.split(' ')[0];
+        const xp = profile.xp || 0;
+        const completedLevels = profile.levels_completed || {};
+        
+        let totalCompleted = 0;
+        Object.keys(completedLevels).forEach(levelId => {
+            if (Array.isArray(completedLevels[levelId])) {
+                totalCompleted += completedLevels[levelId].length;
+            }
+        });
+
+        document.getElementById('greeting-name').innerText = `Olá, ${firstName}`;
+        document.getElementById('stat-xp').innerText = xp;
+        document.getElementById('stat-levels').innerText = totalCompleted;
+        
+        const ventuMsg = document.getElementById('ventu-message');
+        if (xp === 0) {
+            ventuMsg.innerText = `"Primeira vez aqui, ${firstName}? O caos te espera. Comece pelo Burger Palace ou pelo Hotel Luxo."`;
+        } else if (xp < 500) {
+            ventuMsg.innerText = `"Mandando bem, ${firstName}! Já são ${xp} XP. Ainda tem muita coisa quebrando por aí. Continue!"`;
+        } else {
+            ventuMsg.innerText = `"Olha só, ${firstName}! ${xp} XP! Você tá virando um veterano. Os próximos níveis vão te testar de verdade."`;
+        }
+
+        const authArea = document.getElementById('auth-area');
+        authArea.innerHTML = `
+            <span style="color: var(--gold); font-weight: bold; background: rgba(251, 191, 36, 0.1); padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(251, 191, 36, 0.2); font-size:0.85rem;">⭐ ${xp} XP</span>
+            <a href="index.html" class="btn btn-ghost">Home</a>
+            <button class="btn btn-ghost" id="btn-logout">Sair</button>
+        `;
+
+        document.getElementById('btn-logout').addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = 'index.html';
+        });
+
+      } catch(e) { console.error("Erro no Header:", e); }
+
+      // --- 3. RENDERIZAR O GRID ---
+      try {
+        const levelsData = [
+            { id: 'a1', cefr: 'A1', title: 'Vila Sobrevivente', icon: '🏘️', color: '#10b981', available: true, desc: 'Pedir comida, andar pela cidade e se virar no básico.' },
+            { id: 'a2', cefr: 'A2', title: 'Porto Hotel', icon: '🏨', color: '#3b82f6', available: true, desc: 'Resolver pepinos do dia a dia, check-in e farmácia.' },
+            { id: 'b1', cefr: 'B1', title: 'Caos Cotidiano', icon: '🚑', color: '#f97316', available: true, desc: 'Clínica de madrugada, apartamento alagado e burocracia.' },
+            { id: 'b2', cefr: 'B2', title: 'O Negociador', icon: '💼', color: '#8b5cf6', available: false, desc: 'Clientes furiosos, entrevistas de emprego e acordos.' },
+            { id: 'c1', cefr: 'C1', title: 'O Mediador', icon: '🎭', color: '#ef4444', available: false, desc: 'Jantares de família, ironia, sarcasmo e política.' },
+            { id: 'c2', cefr: 'C2', title: 'O Estrategista', icon: '♟️', color: '#eab308', available: false, desc: 'Conselhos hostis, crises de imprensa e persuasão pura.' },
+            { id: 'social', cefr: 'B1+', title: 'Bairro do Flerte', icon: '💕', color: '#ec4899', available: false, badge: '18+', desc: 'Dates, flerte, humor e detecção de red flags.' },
+            { id: 'street', cefr: 'B2+', title: 'Beco da Rua', icon: '🔥', color: '#e11d48', available: false, badge: '18+', desc: 'Conflito, insultos, palavrões e como se impor.' },
+            { id: 'abroad', cefr: 'B1+/B2+', title: 'Vida no Exterior', icon: '✈️', color: '#06b6d4', available: false, badge: 'MORAR FORA', desc: 'Entrevistas, host family, aluguel e sobrevivência fora do país.' }
+        ];
+
+        const grid = document.getElementById('levels-grid');
+        const completedLevels = profile.levels_completed || {};
+
+        levelsData.forEach(level => {
+            const card = document.createElement('div');
+            card.className = `level-card ${level.available ? '' : 'locked'}`;
+            card.style.setProperty('--level-color', level.color);
+
+            let statusHtml = '';
+            if (completedLevels[level.id] && completedLevels[level.id].length > 0) {
+                statusHtml = `<span class="status-tag status-done">✅ Concluído</span>`;
+            } else if (!level.available) {
+                statusHtml = `<span class="status-tag status-locked">🔒 Bloqueado</span>`;
+            } else {
+                statusHtml = `<span class="status-tag" style="color:var(--gold);">▶ Jogar</span>`;
+            }
+
+            card.innerHTML = `
+              <div class="card-header">
+                <span class="level-badge">${level.cefr}</span>
+                ${level.badge ? `<span class="card-tag" style="background:${level.color}; color:#fff;">${level.badge}</span>` : ''}
+              </div>
+              <h3 class="card-title">${level.title}</h3>
+              <p class="card-desc">${level.desc}</p>
+              <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center;">
+                  ${statusHtml}
+              </div>
+            `;
+
+            if (level.available) {
+                card.addEventListener('click', () => {
+                    window.location.href = `nivel.html?l=${level.id}`; // Mudou para nivel.html
+                });
+            } else {
+                card.addEventListener('click', () => {
+                    alert(`O nível ${level.title} está em desenvolvimento. Continue praticando nos níveis liberados!`);
+                });
+            }
+
+            grid.appendChild(card);
+        });
+      } catch(e) { console.error("Erro no Grid:", e); }
+
+      // --- 4. TEMA ---
+      try {
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('ventu-theme', newTheme);
+            });
+        }
+      } catch(e) {}
+    });
+  </script>
+</body>
+</html>
