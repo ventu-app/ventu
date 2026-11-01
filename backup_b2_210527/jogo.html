@@ -1,0 +1,196 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ventu App 1.0.1</title>
+    <style>
+        :root {
+            --bg: #0b0f19; --panel: #151b2b; --text: #e2e8f0; --text-muted: #94a3b8;
+            --gold: #fbbf24; --gold-hover: #f59e0b; --error: #ef4444;
+            --border: #1e293b; --npc-bubble: #1e293b; --player-bubble: #3b82f6;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        html, body {
+            background-color: var(--bg); color: var(--text);
+            height: 100%; height: 100dvh; width: 100vw;
+            overflow-x: hidden; overflow-y: hidden;
+            display: flex; flex-direction: column;
+        }
+        header {
+            background-color: var(--panel); padding: 10px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border); z-index: 10;
+            flex-wrap: wrap; gap: 10px;
+        }
+        #mission-title { font-size: 1.1rem; font-weight: 600; color: var(--gold); }
+        .stats { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .stat-group-buttons { display: flex; gap: 8px; }
+        .stat { display: flex; flex-direction: column; align-items: flex-end; }
+        .stat-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .stat-value { font-size: 1rem; font-weight: bold; color: var(--gold); }
+        main { display: flex; flex: 1; overflow: hidden; width: 100%; }
+        aside { width: 300px; background-color: var(--panel); border-right: 1px solid var(--border); padding: 20px; overflow-y: auto; display: none; }
+        @media (min-width: 768px) { aside { display: block; } }
+        aside h3 { font-size: 1rem; color: var(--gold); margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+        #glossary-list { list-style: none; }
+        #glossary-list li { margin-bottom: 10px; font-size: 0.9rem; color: var(--text-muted); line-height: 1.4; }
+        #glossary-list strong { color: var(--text); }
+        .chat-container { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; min-width: 0; }
+        #chat-history { flex: 1; padding: 15px; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
+        .chat-message { display: flex; gap: 10px; max-width: 95%; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .chat-message.player { align-self: flex-end; flex-direction: row-reverse; }
+        .npc-avatar { width: 35px; height: 35px; border-radius: 50%; background-color: var(--border); display: flex; justify-content: center; align-items: center; font-size: 1.2rem; flex-shrink: 0; }
+        .player-avatar { background-color: var(--player-bubble); font-size: 0.7rem; font-weight: bold; }
+        .msg-content { display: flex; flex-direction: column; gap: 5px; min-width: 0; width: 100%; }
+        .msg-sender { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+        .player .msg-sender { text-align: right; }
+        .msg-bubble {
+            background-color: var(--npc-bubble); padding: 10px 14px;
+            border-radius: 0 12px 12px 12px; font-size: 0.95rem; line-height: 1.4;
+            color: var(--text); white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;
+        }
+        .player .msg-bubble { background-color: var(--player-bubble); border-radius: 12px 0 12px 12px; }
+        .typing-bubble { display: flex; gap: 5px; align-items: center; padding: 15px 20px; }
+        .dot { width: 6px; height: 6px; background-color: var(--text-muted); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
+        .dot:nth-child(1) { animation-delay: -0.32s; } .dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        .input-area { padding: 10px 15px; background-color: var(--bg); border-top: 1px solid var(--border); width: 100%; }
+        #quick-replies { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
+        #quick-replies::-webkit-scrollbar { display: none; }
+        .quick-reply-btn { background-color: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 8px 12px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; white-space: nowrap; transition: all 0.2s ease; }
+        .quick-reply-btn:hover:not(:disabled) { background-color: var(--gold); color: var(--bg); }
+        .quick-reply-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        #chat-form { display: flex; gap: 8px; width: 100%; }
+        #chat-input { flex: 1; background-color: var(--panel); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 8px; font-size: 0.9rem; outline: none; transition: border-color 0.2s; min-width: 0; }
+        #chat-input:focus { border-color: var(--gold); }
+        #chat-form button { background-color: var(--gold); color: var(--bg); border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
+        #chat-form button:hover:not(:disabled) { background-color: var(--gold-hover); }
+        #chat-form button:disabled { opacity: 0.5; cursor: not-allowed; }
+        #char-select-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
+            background-color: rgba(11, 15, 25, 0.95); backdrop-filter: blur(10px);
+            z-index: 100; display: flex; flex-direction: column;
+            justify-content: flex-start; align-items: center;
+            padding: 40px 15px; overflow-y: auto; overflow-x: hidden;
+        }
+        #char-select-overlay[hidden] { display: none; }
+        .char-select-header { text-align: center; margin-bottom: 30px; width: 100%; }
+        #char-select-title { font-size: 1.8rem; color: var(--gold); margin-bottom: 10px; }
+        #char-select-hint { color: var(--text-muted); font-size: 0.95rem; padding: 0 10px; }
+        #char-cards { display: flex; gap: 15px; flex-direction: column; align-items: center; width: 100%; max-width: 1000px; }
+        @media (min-width: 768px) { #char-cards { flex-direction: row; flex-wrap: wrap; justify-content: center; } }
+        .char-card {
+            background-color: var(--panel); border: 2px solid var(--border); border-radius: 16px;
+            padding: 20px; width: 100%; max-width: 350px;
+            text-align: left; cursor: pointer; transition: all 0.3s ease;
+            display: flex; flex-direction: column; position: relative;
+            color: var(--text); animation: fadeInUp 0.5s ease backwards; box-sizing: border-box;
+        }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .char-card:hover:not(.char-card-locked) { border-color: var(--gold); transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); }
+        .char-card-locked { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+        .char-card-emoji { font-size: 2.5rem; margin-bottom: 10px; }
+        .char-card-role { font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; font-weight: bold; margin-bottom: 5px; display: block; }
+        .char-card-name { font-size: 1.3rem; margin-bottom: 8px; }
+        .char-card-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; flex: 1; }
+        .char-card-badge { position: absolute; top: 15px; right: 15px; font-size: 0.65rem; padding: 4px 8px; border-radius: 12px; font-weight: bold; text-transform: uppercase; }
+        .badge-start, .badge-new { background-color: var(--gold); color: var(--bg); }
+        .badge-active { background-color: var(--player-bubble); color: white; }
+        .badge-done { background-color: #10b981; color: white; }
+        .badge-locked { background-color: var(--border); color: var(--text-muted); }
+        .warning-box { margin-top: 30px; padding: 15px; background-color: rgba(239, 68, 68, 0.1); border: 1px solid var(--error); border-radius: 8px; font-size: 0.85rem; color: #fca5a5; line-height: 1.4; }
+        .warning-box strong { color: var(--error); display: block; margin-bottom: 5px; }
+        .callback-bubble { border-left: 3px solid var(--gold); background-color: rgba(251, 191, 36, 0.05) !important; }
+        .retry-btn { background-color: var(--gold); color: var(--bg); border: none; padding: 10px 15px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-top: 10px; transition: background-color 0.2s; }
+        .retry-btn:hover { background-color: var(--gold-hover); }
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; } ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+    </style>
+</head>
+<body>
+    <header>
+        <div id="mission-title">Burger Palace</div>
+        <div class="stats">
+            <div class="stat-group-buttons">
+                <button id="btn-lang" style="background: transparent; color: var(--text); border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem;">🌐 EN</button>
+                <button id="btn-shop" style="background: var(--gold); color: var(--bg); border: none; padding: 6px 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem;">🛒 Loja</button>
+            </div>
+            <div class="stat">
+                <span class="stat-label" id="lbl-money">Dinheiro</span>
+                <span class="stat-value" id="stat-money">$ 0.00</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label" id="lbl-energy">Energia</span>
+                <span class="stat-value" id="stat-energy">100/100</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <aside>
+            <h3 id="lbl-glossary">Glossário</h3>
+            <ul id="glossary-list"></ul>
+            <div class="warning-box">
+                <strong>⚠️ Atenção!</strong> Palavrões ou ofensas reais (fuck, idiot, bitch...) podem resultar em finais ruins instantâneos. Pense antes de digitar!
+            </div>
+        </aside>
+
+        <div class="chat-container">
+            <div id="chat-history"></div>
+            <div class="input-area">
+                <div id="quick-replies"></div>
+                <form id="chat-form">
+                    <input type="text" id="chat-input" placeholder="Digite sua resposta..." autocomplete="off" required>
+                    <button type="submit" id="btn-send">Enviar</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <div id="char-select-overlay" hidden>
+        <div class="char-select-header">
+            <h1 id="char-select-title">Escolha sua perspectiva</h1>
+            <p id="char-select-hint">A mesma noite. Três ângulos.</p>
+        </div>
+        <div id="char-cards"></div>
+    </div>
+
+    <div id="shop-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 200; justify-content: center; align-items: center; padding: 15px;">
+        <div style="background: var(--panel); padding: 20px; border-radius: 12px; width: 100%; max-width: 350px; border: 1px solid var(--border);">
+            <h2 style="color: var(--gold); margin-bottom: 15px; text-align: center; font-size: 1.3rem;">🛒 Loja do Ventu</h2>
+            <div id="shop-items-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+            <button id="btn-close-shop" style="margin-top: 15px; width: 100%; padding: 10px; background: var(--error); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Fechar Loja</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="src/data/a1_burger.js"></script>
+    <script src="src/data/a2_hotel.js"></script>
+    <script src="src/data/b1.js"></script>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        let urlLevel = params.get('l');
+
+        if (!urlLevel || urlLevel === 'undefined') {
+            urlLevel = 'a1';
+        }
+
+        const games = {
+            'a1': typeof gameDataA1 !== 'undefined' ? gameDataA1 : null,
+            'a2': typeof gameDataA2 !== 'undefined' ? gameDataA2 : null,
+            'b1': typeof gameDataB1 !== 'undefined' ? gameDataB1 : null
+        };
+
+        if (games[urlLevel]) {
+            window.currentGameData = games[urlLevel];
+        } else {
+            console.warn(`Nivel ${urlLevel} nao encontrado. Carregando A1 como fallback.`);
+            window.currentGameData = games['a1'];
+        }
+    </script>
+    <script src="src/engine/game.js"></script>
+</body>
+</html>
