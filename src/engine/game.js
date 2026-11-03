@@ -784,8 +784,8 @@
         };
     }
 
-    window.VentuEngine = {
-               init: function() {
+   window.VentuEngine = {
+        init: function() {
             injectCSS();
             const params = new URLSearchParams(window.location.search);
             
@@ -815,6 +815,23 @@
             setupInputs();
             updateStats();
             loadScene(char.startScene);
+
+            // ==========================================
+            // Lógica do Glossário Mobile
+            // ==========================================
+            const btnMobileGloss = document.getElementById('btn-mobile-glossary');
+            const modalGloss = document.getElementById('glossary-modal');
+            const btnCloseGloss = document.getElementById('btn-close-glossary');
+
+            if (btnMobileGloss && modalGloss) {
+                btnMobileGloss.onclick = () => {
+                    // Copia o conteúdo do glossário lateral para o modal
+                    const listContent = document.getElementById('glossary-list').innerHTML;
+                    document.getElementById('mobile-glossary-list').innerHTML = listContent || '<p style="color:var(--text-muted);">Nenhuma palavra nesta cena.</p>';
+                    modalGloss.classList.add('open');
+                };
+                btnCloseGloss.onclick = () => modalGloss.classList.remove('open');
+            }
         },
 
         speak: function(text, gender = 'female') {

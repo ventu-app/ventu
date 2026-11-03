@@ -13,7 +13,7 @@
   <meta property="og:url" content="https://ventu-nine.vercel.app/">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=2">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -35,9 +35,8 @@
     .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:10px;font-weight:600;font-size:.95rem;cursor:pointer;border:1px solid transparent;transition:.2s;font-family:var(--fb)}
     .btn-p{background:var(--gold);color:#0b0f19}.btn-p:hover{background:var(--gold-h);transform:translateY(-2px)}
     .btn-g{background:transparent;color:var(--text);border-color:var(--border)}.btn-g:hover{border-color:var(--gold);color:var(--gold);background:rgba(251,191,36,.05)}
-    .soon{display:inline-block;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(59,130,246,.15);color:var(--blue);vertical-align:middle;margin-left:6px;font-family:var(--fb)}
-
-    /* HEADER PREMIUM */
+    
+    /* HEADER */
     header{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
     .hd{display:flex;justify-content:space-between;align-items:center;height:72px;gap:12px}
     .logo{display:flex;align-items:center;gap:10px;font-family:var(--fh);font-weight:900;font-size:1.4rem;letter-spacing:2px}
@@ -48,8 +47,8 @@
     .theme-toggle:hover{background:var(--border)}
     [data-theme="dark"] .icon-sun { display: block; } [data-theme="dark"] .icon-moon { display: none; }
     [data-theme="light"] .icon-sun { display: none; } [data-theme="light"] .icon-moon { display: block; }
-    @media(max-width:860px){.nav a.l{display:none}}
 
+    /* HERO */
     .hero{padding:70px 0 90px}
     .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:50px;align-items:center}
     .hero h1{font-size:clamp(2.4rem,5.5vw,4.1rem);margin-bottom:20px}
@@ -57,16 +56,7 @@
     .trust{display:flex;gap:22px;flex-wrap:wrap;color:var(--muted);font-size:.85rem}
     .trust b{color:var(--text)}
     
-    /* --- PHONE MOCKUP RESPONSIVO --- */
-    @media(max-width:900px){
-      .hero-grid{grid-template-columns:1fr;gap:40px}
-      .phone-col{order:2; margin-top: 20px;}
-      .hero{padding:40px 0 60px; text-align: center;}
-      .hero .cta{justify-content: center;}
-      .trust{justify-content: center;}
-      .lead{margin: 0 auto;}
-    }
-
+    /* MOCKUP */
     .phone-col{display:flex;justify-content:center;position:relative}
     .phone-col::before{content:"";position:absolute;inset:8% 6%;background:radial-gradient(circle, rgba(251,191,36,.15) 0%, transparent 70%);border-radius:50%;z-index:-1}
     .phone{position:relative;width:min(100%,330px);background:#05080f;border:1px solid #26314a;border-radius:38px;padding:10px;box-shadow:0 30px 70px rgba(0,0,0,.55)}
@@ -74,10 +64,6 @@
     .scr-top{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
     .ava{width:34px;height:34px;border-radius:50%;background:#ea580c;display:grid;place-items:center;font-size:1.1rem}
     .scr-top b{font-size:.9rem;display:block;line-height:1.2}.scr-top small{color:var(--muted);font-size:.72rem}
-    .hud{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:10px 12px;border-bottom:1px solid var(--border);font-size:.68rem;color:var(--muted)}
-    .hud div{background:rgba(255,255,255,.04);border-radius:8px;padding:5px 6px}
-    .hud b{display:block;color:var(--text);font-size:.8rem;transition:color .3s}
-    .hud b.up{color:var(--ok)}.hud b.down{color:var(--bad)}
     .chat{flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:9px;scrollbar-width:none}
     .chat::-webkit-scrollbar{display:none}
     .msg{max-width:84%;padding:9px 13px;border-radius:16px;font-size:.88rem;line-height:1.4;animation:pop .25s ease}
@@ -91,16 +77,10 @@
     .opt:hover{border-color:var(--gold);background:rgba(251,191,36,.07)}
     .replay{align-self:center;background:none;border:none;color:var(--gold);font:600 .85rem var(--fb);cursor:pointer;text-decoration:underline}
     .hint{color:var(--muted);font-size:.72rem;text-align:center}
-    
-    /* --- MOCK INPUT AREA --- */
-    .mock-input-area { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--border); background: var(--panel2); }
-    .mock-input-area input { flex: 1; background: #05080f; border: 1px solid var(--border); border-radius: 20px; padding: 8px 12px; color: var(--muted); font-size: 0.8rem; outline: none; cursor: not-allowed; }
-    .mock-input-area button { background: var(--gold); color: var(--bg); border: none; border-radius: 50%; width: 32px; height: 32px; display: grid; place-items: center; cursor: not-allowed; opacity: 0.7; }
-    
     @keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
     @keyframes blink{50%{opacity:.25}}
 
-    /* TRÊS PASSOS CENTRALIZADOS */
+    /* SEÇÕES */
     .loop{background:var(--panel);border-block:1px solid var(--border);text-align:center}
     .loop .lead{margin:0 auto}
     .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:54px;counter-reset:s;text-align:center}
@@ -108,9 +88,7 @@
     .step h3{font-size:1.5rem;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:12px}
     .step h3::before{counter-increment:s;content:counter(s);display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--gold);color:#0b0f19;font:800 .95rem var(--fb)}
     .step p{color:var(--muted);font-size:.95rem;max-width:90%;margin:0 auto}
-    @media(max-width:800px){.steps{grid-template-columns:1fr;gap:36px}}
 
-    /* features */
     .feat{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-top:80px;text-align:left}
     .feat.rev .ft{order:2}
     .feat h3{font-size:1.9rem;margin-bottom:12px}
@@ -118,11 +96,11 @@
     .feat ul{list-style:none;color:var(--muted);font-size:.93rem}
     .feat li{padding:6px 0 6px 24px;position:relative}
     .feat li::before{content:"✓";position:absolute;left:0;color:var(--gold);font-weight:700}
-    @media(max-width:860px){.feat{grid-template-columns:1fr;gap:28px}.feat.rev .ft{order:0}}
     .mock{background:var(--panel);border:1px solid var(--border);border-radius:22px;padding:26px;min-height:270px;display:flex;flex-direction:column;justify-content:center;gap:12px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
     .mock .msg{max-width:92%}
     .u{border-bottom:2px dotted var(--gold);cursor:help}
     .tag{font-size:.72rem;color:var(--muted)}
+    
     .stack{position:relative;height:210px;display:grid;place-items:center}
     .card{position:absolute;width:78%;max-width:300px;height:170px;background:var(--panel2);border:1px solid var(--border);border-radius:18px;padding:20px;display:flex;flex-direction:column;justify-content:space-between}
     .card:nth-child(1){transform:rotate(-7deg) translateX(-26px);opacity:.55}
@@ -136,14 +114,11 @@
     @keyframes eq{0%,100%{height:12px}50%{height:58px}}
     .score{display:flex;gap:10px;justify-content:center}.score span{background:var(--panel2);border:1px solid var(--border);padding:6px 12px;border-radius:10px;font-size:.8rem;color:var(--muted)}.score b{color:var(--ok)}
 
-    /* TRILHA PREMIUM */
     .trail{background:var(--panel);border-block:1px solid var(--border);text-align:center;padding-bottom:100px}
     .trail .lead{margin:0 auto}
     .trail-section-title {text-align: left; font-size: 1.1rem; font-weight: 700; color: var(--text); margin: 50px 0 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; font-family: var(--fb); letter-spacing: 0.5px;}
     .trail-section-title span { color: var(--gold); font-size: 1.3rem; }
     .lv-grid {display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: left;}
-    @media(max-width: 900px) { .lv-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media(max-width: 600px) { .lv-grid { grid-template-columns: 1fr; } }
     .l {position: relative; display: flex; flex-direction: column; padding: 24px; background: linear-gradient(145deg, rgba(21,27,43,0.9), var(--bg)); border: 1px solid var(--border); border-radius: 16px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); overflow: hidden;}
     .l::before {content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--c); opacity: 0.8; transition: opacity 0.3s;}
     .l:hover {transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.4), 0 0 20px color-mix(in srgb, var(--c) 30%, transparent); border-color: color-mix(in srgb, var(--c) 50%, transparent);}
@@ -158,9 +133,7 @@
     .l-special .l-emoji { font-size: 2rem; position: absolute; top: 15px; right: 20px; opacity: 0.8; transition: transform 0.3s; }
     .l-special:hover .l-emoji { transform: scale(1.2) rotate(-10deg); opacity: 1; }
 
-    /* test */
     .test-box{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center;background:var(--panel);border:1px solid var(--border);border-radius:26px;padding:48px;text-align:left}
-    @media(max-width:860px){.test-box{grid-template-columns:1fr;padding:28px}}
     .tl{list-style:none;margin:18px 0 26px}
     .tl li{padding:9px 0;border-bottom:1px solid var(--border);color:var(--muted);font-size:.94rem}
     .tl li b{color:var(--text)}
@@ -168,9 +141,7 @@
     .bar{height:8px;border-radius:99px;background:var(--border);margin:8px 0 16px;overflow:hidden}
     .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ok),var(--gold));border-radius:99px}
 
-    /* why */
     .why{display:grid;grid-template-columns:repeat(2,1fr);gap:40px 60px;margin-top:40px;text-align:left}
-    @media(max-width:760px){.why{grid-template-columns:1fr}}
     .why h3{font-size:1.25rem;margin-bottom:6px}.why p{color:var(--muted);font-size:.94rem}
 
     .final{text-align:center}
@@ -179,6 +150,31 @@
     footer{border-top:1px solid var(--border);padding:30px 0;color:var(--muted);font-size:.85rem}
     .ft-in{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
     .ft-in a:hover{color:var(--gold)}
+
+    /* =========================================
+       MOBILE CLEAN (FOCO NO CTA E NO CONTEÚDO)
+       ========================================= */
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; gap: 40px; text-align: center; }
+      .phone-col { order: 2; margin-top: 20px; }
+      .hero { padding: 40px 0 60px; }
+      .hero .cta { justify-content: center; flex-direction: column; gap: 10px; }
+      .hero .cta .btn { width: 100%; justify-content: center; }
+      .trust { justify-content: center; }
+      .lead { margin: 0 auto; }
+      .hud { display: none; } /* Esconde HUD no mockup mobile */
+    }
+
+    @media(max-width:860px){
+      .nav a.l{display:none} /* Esconde links de âncora */
+      .steps{grid-template-columns:1fr;gap:36px}
+      .feat, .feat.rev{grid-template-columns:1fr;gap:28px}
+      .feat.rev .ft{order:0}
+      .lv-grid{grid-template-columns:1fr}
+      .test-box{grid-template-columns:1fr;padding:28px}
+      .why{grid-template-columns:1fr}
+      .ft-in{flex-direction: column; text-align: center; align-items: center;}
+    }
 
     @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
   </style>
@@ -222,18 +218,9 @@
     <div class="phone" role="region" aria-label="Demonstração jogável do Ventu">
       <div class="screen" id="screen">
         <div class="scr-top"><div class="ava">🍔</div><div><b>Jake, Burger Palace</b><small>nível A1 · cena ao vivo</small></div></div>
-        <div class="hud" aria-live="polite" aria-atomic="true">
-          <div>Trust <b id="h-trust" aria-label="Trust: 50">50</b></div>
-          <div>Rizz <b id="h-rizz" aria-label="Rizz: 20">20</b></div>
-          <div>Energia <b id="h-en" aria-label="Energia: 80">80</b></div>
-          <div>R$ <b id="h-mon" aria-label="Dinheiro: 35">35</b></div>
-        </div>
+        <!-- HUD removido para limpeza mobile -->
         <div class="chat" id="chat" aria-live="polite"></div>
         <div class="opts" id="opts"></div>
-        <div class="mock-input-area">
-          <input type="text" placeholder="Ouça e toque nos botões ao lado..." readonly onclick="alert('Para interagir, use os botões de resposta acima! 🦊')">
-          <button type="button" onclick="alert('Para interagir, use os botões de resposta acima! 🦊')">➤</button>
-        </div>
       </div>
     </div>
   </div>
@@ -270,9 +257,26 @@
     </div>
   </div>
 
+  <!-- NOVO CARD: SUBTEXTO -->
   <div class="feat rev">
     <div class="ft">
-      <h3>Revisão que acontece sozinha <span class="soon">em breve</span></h3>
+      <h3>Leia o que está nas entrelinhas</h3>
+      <p>Em inglês, muita frase certa ainda soa estranha. Antes de responder, o Ventu te desafia a decifrar o que o personagem realmente quis dizer.</p>
+      <ul><li>Identifique ironias e indiretas</li><li>Entenda o tom antes de falar</li><li>Aprenda a diferença entre "educado" e "falso"</li></ul>
+    </div>
+    <div class="mock" aria-hidden="true">
+      <div class="msg npc">"Oh great, another meeting that could've been an email."</div>
+      <div class="lens" style="background: rgba(139, 92, 246, 0.1); border-color: #8b5cf6;">
+        <b style="color: #8b5cf6;">🧠 O que ele realmente quis dizer?</b><br>
+        <span style="color: #10b981;">✓ Ele está irritado e ironizando a situação.</span><br>
+        <span style="color: #ef4444;">✗ Ele está animado com a reunião.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="feat">
+    <div class="ft">
+      <h3>Revisão que acontece sozinha</h3>
       <p>Toda palavra que você tocou ou errou vira carta. O Ventu traz de volta no momento em que você está prestes a esquecer.</p>
       <ul><li>Deck montado automaticamente a partir das suas cenas</li><li>Sessões de 3 a 5 minutos por dia</li><li>Caderno com seus erros mais repetidos</li></ul>
     </div>
@@ -281,11 +285,11 @@
     </div>
   </div>
 
-  <div class="feat">
+  <div class="feat rev">
     <div class="ft">
-      <h3>Fale em voz alta <span class="soon">em breve</span></h3>
-      <p>Ouça os personagens com sotaque americano, britânico ou australiano e responda com a sua voz. Repetir a fala deles treina ouvido e pronúncia juntos.</p>
-      <ul><li>Personagens falam com o sotaque da cena</li><li>Shadowing: repita e compare</li><li>Modo ouvido: a cena vira um podcast</li></ul>
+      <h3>Fale em voz alta e sobreviva à pronúncia</h3>
+      <p>Ouça os personagens com sotaques reais e responda com a sua voz. O Ventu não só transcreve, ele reage: se você falar "angry" em vez de "hungry", o NPC vai ficar confuso.</p>
+      <ul><li>Personagens falam com sotaque (EUA, Reino Unido, Austrália)</li><li>Armadilhas de pronúncia que mudam a história</li><li>Modo ouvido: a cena vira um podcast</li></ul>
     </div>
     <div class="mock" aria-hidden="true">
       <div class="wave"><i style="animation-delay:0s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.25s"></i><i style="animation-delay:.05s"></i><i style="animation-delay:.35s"></i><i style="animation-delay:.2s"></i><i style="animation-delay:.4s"></i><i style="animation-delay:.15s"></i><i style="animation-delay:.3s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.45s"></i></div>
@@ -432,16 +436,13 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
-  var chat=document.getElementById('chat'),opts=document.getElementById('opts'),
-      H={trust:document.getElementById('h-trust'),rizz:document.getElementById('h-rizz'),en:document.getElementById('h-en'),mon:document.getElementById('h-mon')},
-      st,timers=[];
+  var chat=document.getElementById('chat'),opts=document.getElementById('opts'),st,timers=[];
   function later(fn,ms){timers.push(setTimeout(fn,ms))}
   function scroll(){chat.scrollTop=chat.scrollHeight}
   function say(txt,who){var d=document.createElement('div');d.className='msg '+who;d.textContent=txt;chat.appendChild(d);scroll()}
   function typing(cb,ms){var d=document.createElement('div');d.className='msg npc dots';d.innerHTML='<i></i><i></i><i></i>';chat.appendChild(d);scroll();later(function(){d.remove();cb()},ms)}
   function lens(html){var d=document.createElement('div');d.className='lens';d.innerHTML=html;chat.appendChild(d);scroll()}
   
-  // FUNÇÃO DE ÁUDIO
   function speak(text, lang) {
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
@@ -461,37 +462,20 @@
     window.speechSynthesis.speak(u);
   }
 
-  function stat(k,delta){
-    st[k]+=delta;
-    H[k].textContent=st[k];
-    H[k].setAttribute('aria-label', H[k].parentElement.textContent.replace(st[k], '') + st[k]);
-    var c=delta>=0?'up':'down';
-    H[k].className=c;
-    setTimeout(function(){H[k].className=''},1400);
-  }
-
   var choices=[
-    {t:"Can I get a cheeseburger and a small fries, please?",reply:"Coming right up! Anything to drink?",d:{trust:10,rizz:5,en:-5},
+    {t:"Can I get a cheeseburger and a small fries, please?",reply:"Coming right up! Anything to drink?",
      lens:"<b>Lente de Inglês</b><br>“Can I get…” é o jeito natural de pedir. Educado sem ficar formal. Boa."},
-    {t:"I want a cheeseburger.",reply:"…Sure. Next!",d:{trust:-8,rizz:0,en:-10},
+    {t:"I want a cheeseburger.",reply:"…Sure. Next!",
      lens:"<b>Lente de Inglês</b><br>Está correto, mas soa seco para quem atende. Experimente <b>“Can I get…”</b> ou <b>“I’ll have…”</b>."}
   ];
 
   function start(){
     timers.forEach(clearTimeout);timers=[];
-    st={trust:50,rizz:20,en:80,mon:35};
-    for(var k in H){
-      H[k].textContent=st[k];
-      H[k].setAttribute('aria-label', H[k].parentElement.textContent.replace(H[k].textContent, '').trim() + ': ' + st[k]);
-      H[k].className='';
-    }
     chat.innerHTML='';opts.innerHTML='<p class="hint">Jake está digitando…</p>';
     
     typing(function(){
       var nMsg = "Welcome to Burger Palace! What can I get you?";
       say(nMsg,'npc');
-      // REMOVIDO O SPEAK AUTOMÁTICO AQUI
-      
       opts.innerHTML='';
       choices.forEach(function(c){
         var b=document.createElement('button');b.type='button';b.className='opt';b.textContent=c.t;
@@ -503,11 +487,9 @@
 
   function pick(c){
     opts.innerHTML='';say(c.t,'me');
-    for(var k in c.d) stat(k,c.d[k]);
     
     typing(function(){
       say(c.reply,'npc');
-      // O ÁUDIO SÓ TOCA QUANDO O USUÁRIO CLICA E O NPC RESPONDE
       speak(c.reply, 'en-US'); 
       
       later(function(){
@@ -519,7 +501,6 @@
   }
   start();
 
-  /* Tema */
   try{
     var themeToggle = document.getElementById('theme-toggle');
     if(themeToggle){
@@ -531,7 +512,6 @@
     }
   }catch(e){}
 
-  /* Supabase Auth */
   try{
     var sb=window.supabase.createClient('https://hbqjoadubrwuafbfykre.supabase.co','sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_');
     sb.auth.getSession().then(function(r){
