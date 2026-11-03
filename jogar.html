@@ -97,6 +97,19 @@
     .text-gold { color: var(--gold); font-style: italic; }
     .hero-subtitle { font-size: 1.1rem; color: var(--text-muted); line-height: 1.6; max-width: 600px; margin: 0 auto; }
 
+    /* Alerta de Reforma */
+    .reform-alert { text-align: center; margin: 0 auto 30px; max-width: 800px; padding: 0 20px; }
+    .reform-badge { 
+        display: inline-block; 
+        background: rgba(251, 191, 36, 0.1); 
+        color: var(--gold); 
+        padding: 10px 20px; 
+        border-radius: 20px; 
+        font-size: 0.85rem; 
+        border: 1px solid rgba(251, 191, 36, 0.3); 
+        /* Removemos o nowrap para não quebrar no mobile, mas mantemos a fonte menor para caber no desktop */
+    }
+
     /* Grid de níveis */
     .levels-section { padding: 20px 0 80px; }
     .levels-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
@@ -108,6 +121,7 @@
       display: flex; flex-direction: column; align-items: center; text-align: center;
       transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       position: relative; overflow: hidden; cursor: pointer;
+      height: 100%; /* Garante que o card preencha o grid */
     }
     .level-card:hover:not(.locked) {
       border-color: var(--level-color, var(--gold));
@@ -115,6 +129,21 @@
       box-shadow: 0 15px 30px rgba(0,0,0,0.4), 0 0 15px var(--level-color, rgba(251, 191, 36, 0.2));
     }
     .level-card.locked { opacity: 0.6; filter: grayscale(0.8); cursor: not-allowed; }
+    
+    /* Novo estilo de reforma */
+    .char-card-locked::before {
+        content: "🚧 EM REFORMA";
+        position: absolute;
+        top: 15px; right: 15px;
+        background: var(--error);
+        color: white;
+        font-size: 0.65rem;
+        font-weight: bold;
+        padding: 4px 8px;
+        border-radius: 4px;
+        z-index: 10;
+        letter-spacing: 1px;
+    }
 
     .card-top { width: 100%; display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; gap: 8px; }
     .level-badge { background: var(--border); color: var(--text); font-weight: 700; font-size: 0.75rem; padding: 4px 10px; border-radius: 6px; letter-spacing: 1px; }
@@ -131,8 +160,16 @@
     .level-card:hover:not(.locked) .card-icon-wrapper { transform: scale(1.1); background: rgba(255, 255, 255, 0.06); border-color: var(--level-color); }
 
     .card-title { font-size: 1.5rem; margin-bottom: 10px; color: var(--text); font-family: var(--font-heading); }
-    .card-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; flex: 1; margin-bottom: 20px; }
-    .play-btn { width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; text-align: center; transition: 0.2s; font-size: 1rem; display: block; }
+    
+    /* AQUI ESTÁ A CORREÇÃO DA DESCRIÇÃO: Sem nowrap, flex-grow empurra o botão */
+    .card-desc { 
+        color: var(--text-muted); 
+        font-size: 0.85rem; 
+        line-height: 1.5; 
+        margin-bottom: 20px; 
+        flex-grow: 1; /* Faz o botão colar no fundo */
+    }
+    .play-btn { width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; text-align: center; transition: 0.2s; font-size: 1rem; display: block; margin-top: auto; }
 
     /* Footer */
     .site-footer { background: var(--panel); border-top: 1px solid var(--border); padding: 30px 0; margin-top: auto; }
@@ -209,6 +246,13 @@
       </div>
     </section>
 
+    <!-- Banner de Aviso de Reforma -->
+    <div class="reform-alert">
+        <span class="reform-badge">
+            ⚠️ Estamos reformulando os níveis A2 ao C2 para o novo padrão do Ventu. Por enquanto, jogue o <strong>A1</strong>!
+        </span>
+    </div>
+
     <section id="niveis" class="levels-section" aria-label="Níveis disponíveis">
       <div class="container">
         <div class="levels-grid" id="levels-grid"></div>
@@ -273,17 +317,25 @@
         const grid = document.getElementById('levels-grid');
         if (grid && typeof levelsData !== 'undefined') {
           levelsData.forEach(level => {
+            const isUnderConstruction = level.id !== 'a1';
+            const isAvailable = level.available && !isUnderConstruction;
+
             const card = document.createElement('a');
-            card.className = `level-card ${level.available ? '' : 'locked'}`;
+            card.className = `level-card ${isAvailable ? '' : 'locked char-card-locked'}`;
             card.style.setProperty('--level-color', level.color);
 
-            if (level.available) {
+            if (isAvailable) {
               card.href = `nivel?l=${level.id}`;
             } else {
               card.href = '#';
               card.setAttribute('aria-disabled', 'true');
               card.setAttribute('tabindex', '0');
-              card.addEventListener('click', (e) => e.preventDefault());
+              card.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (isUnderConstruction) {
+                  alert(`Estamos aprimorando o nível ${level.cefr} para ficar tão incrível quanto o A1! Em breve estará liberado.`);
+                }
+              });
               card.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
@@ -295,14 +347,14 @@
             card.innerHTML = `
               <div class="card-top">
                 <span class="level-badge">${level.cefr}</span>
-                ${level.badge ? `<span class="card-tag" style="background:${level.color}; color:#fff;">${level.badge}</span>` : ''}
-                ${!level.available ? '<span class="lock-icon" aria-hidden="true">🔒</span>' : ''}
+                ${level.badge && !isUnderConstruction ? `<span class="card-tag" style="background:${level.color}; color:#fff;">${level.badge}</span>` : ''}
+                ${!isAvailable && !isUnderConstruction ? '<span class="lock-icon" aria-hidden="true">🔒</span>' : ''}
               </div>
               <div class="card-icon-wrapper" aria-hidden="true">${level.icon}</div>
               <h3 class="card-title">${level.title}</h3>
               <p class="card-desc">${level.desc}</p>
-              <span class="play-btn" style="background: ${level.available ? level.color : 'var(--border)'}; color: ${level.available ? '#fff' : 'var(--text-muted)'}; border: 1px solid ${level.available ? level.color : 'var(--border)'};">
-                ${level.available ? 'Ver Cenários' : 'Em breve'}
+              <span class="play-btn" style="background: ${isAvailable ? level.color : 'var(--border)'}; color: ${isAvailable ? '#fff' : 'var(--text-muted)'}; border: 1px solid ${isAvailable ? level.color : 'var(--border)'};">
+                ${isAvailable ? 'Ver Cenários' : (isUnderConstruction ? 'Em Reforma' : 'Em breve')}
               </span>
             `;
 
@@ -311,7 +363,7 @@
         }
       } catch(e) { console.error('Erro Grid:', e); }
 
-      /* -------- 3. Tema (com try/catch) -------- */
+      /* -------- 3. Tema -------- */
       try {
         const themeToggle = document.getElementById('theme-toggle');
         if (themeToggle) {
@@ -319,7 +371,7 @@
             const current = document.documentElement.getAttribute('data-theme');
             const next = current === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', next);
-            try { localStorage.setItem('ventu-theme', next); } catch(e) { /* fallback silencioso */ }
+            try { localStorage.setItem('ventu-theme', next); } catch(e) { }
           });
         }
       } catch(e) { console.error('Erro tema:', e); }
@@ -375,7 +427,7 @@
         });
       }
 
-      /* -------- 5. Supabase auth (safe DOM) -------- */
+      /* -------- 5. Supabase auth -------- */
       try {
         if (window.supabase) {
           const supabase = window.supabase.createClient(

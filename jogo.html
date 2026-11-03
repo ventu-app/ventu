@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ventu App 1.0.1</title>
+    <title>Ventu App - Jogo</title>
     <style>
         :root {
             --bg: #0b0f19; --panel: #151b2b; --text: #e2e8f0; --text-muted: #94a3b8;
@@ -129,7 +129,7 @@
 </head>
 <body>
     <header>
-        <div id="mission-title">Burger Palace</div>
+        <div id="mission-title">Carregando...</div>
         <div class="stats">
             <div class="stat-group-buttons">
                 <button id="btn-lang" style="background: transparent; color: var(--text); border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem;">🌐 EN</button>
@@ -146,7 +146,7 @@
             <!-- NOVOS STATUS -->
             <div class="stat" id="stat-trust-container" style="display: none;">
                 <span class="stat-label">Trust</span>
-                <span class="stat-value trust-val" id="stat-trust">100</span>
+                <span class="stat-value trust-val" id="stat-trust">50</span>
             </div>
             <div class="stat" id="stat-rizz-container" style="display: none;">
                 <span class="stat-label">Rizz</span>
@@ -169,7 +169,7 @@
             <div class="input-area">
                 <div id="quick-replies"></div>
                 <form id="chat-form">
-                    <input type="text" id="chat-input" placeholder="Digite sua resposta..." autocomplete="off" required>
+                    <input type="text" id="chat-input" placeholder="Digite sua resposta em inglês..." autocomplete="off" required>
                     <button type="submit" id="btn-send">Enviar</button>
                 </form>
             </div>
@@ -192,23 +192,23 @@
         </div>
     </div>
 
+    <!-- CDN do Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- 1. DATA FILES (JSONs) -->
     <script src="src/data/a1_burger.js"></script>
     <script src="src/data/a2_hotel.js"></script>
     <script src="src/data/b1.js"></script>
     <script src="src/data/b2.js"></script>
     <script src="src/data/c1.js"></script>
     <script src="src/data/c2.js"></script>
+    <script src="src/data/levels.js"></script>
 
+    <!-- 2. SCRIPT DE SUPORTE (Lê os JSONs e prepara o jogo) -->
     <script>
         const params = new URLSearchParams(window.location.search);
-        let urlLevel = params.get('l');
-
-        if (!urlLevel || urlLevel === 'undefined') {
-            urlLevel = 'a1';
-        }
-
+        let urlLevel = params.get('l') || 'a1';
+        
         const games = {
             'a1': typeof gameDataA1 !== 'undefined' ? gameDataA1 : null,
             'a2': typeof gameDataA2 !== 'undefined' ? gameDataA2 : null,
@@ -217,20 +217,24 @@
             'c1': typeof gameDataC1 !== 'undefined' ? gameDataC1 : null,
             'c2': typeof gameDataC2 !== 'undefined' ? gameDataC2 : null
         };
-
-        if (games[urlLevel]) {
-            window.currentGameData = games[urlLevel];
-        } else {
-            console.warn(`Nivel ${urlLevel} nao encontrado. Carregando A1 como fallback.`);
-            window.currentGameData = games['a1'];
-        }
+        
+        window.currentGameData = games[urlLevel] || games['a1'];
     </script>
-<!-- COLOQUE ESSAS DUAS LINHAS AQUI -->
-<script src="src/data/levels.js"></script>
-<!-- Se houver c1.js e c2.js, eles ficam aqui -->
-<script src="src/engine/storage.js"></script>
-<script src="src/engine/progress.js"></script>
-<script src="src/engine/ventu-learning.js"></script> <!-- NOVO -->
-<script src="src/engine/game.js"></script>
+
+    <!-- 3. ENGINE FILES (ORDEM SAGRADA) -->
+    <script src="src/engine/storage.js"></script>
+    <script src="src/engine/progress.js"></script>
+    <script src="src/engine/ventu-learning.js"></script>
+    <script src="src/engine/game.js"></script>
+
+    <!-- 4. Lógica da Loja -->
+    <script>
+        document.getElementById('btn-close-shop').onclick = () => {
+            document.getElementById('shop-modal').style.display = 'none';
+        };
+        document.getElementById('btn-shop').onclick = () => {
+            document.getElementById('shop-modal').style.display = 'flex';
+        };
+    </script>
 </body>
 </html>

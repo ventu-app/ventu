@@ -9,201 +9,280 @@ const gameDataA1 = {
       emoji: '👩',
       subtitle: 'A Entrega',
       description: 'Chuva, GPS morrendo, cliente furioso. Sobreviva ao caos.',
-      initialState: { money: 20.00, energy: 100 },
+      initialState: { energy: 100 },
       startScene: 'emma_01',
       scenes: {
         emma_01: {
-          npcName: 'Mr. Silva (Manager)',
+          npcName: 'Mr. Silva',
           npcText: "Hey, Emma! Ten orders are waiting. Take this bag to 41 Main Street. Now! Lucas paid for a cheeseburger and fries. Don't be late.",
           energyCost: 5,
-          glossary: [{ word: 'Street', meaning: 'Rua' }, { word: 'Late', meaning: 'Atrasada' }],
-          intents: [
+          glossary: [
+            { word: 'Street', meaning: 'Rua', phonetic: '/striːt/' }, 
+            { word: 'Late', meaning: 'Atrasada', phonetic: '/leɪt/' }
+          ],
+          phoneme_trap: {
+            target: "on my way", 
+            confusions: ["in the way", "on the way"], 
+            npc_on_confusion: "In the way?! You are blocking the door! Just say 'I am on my way' and go!"
+          },
+          choices: [
             { 
-              match: /(yes|ok|sure|understood|going|right away|on it|coming|yeah|yep)/i, 
+              registry: 'formal',
+              text: "Yes, sir. I am on my way right now.",
+              keywords: ['yes', 'sir', 'on my way', 'understood', 'immediately'],
               response: "Cool. It's raining. Take the bag and go.", 
               nextScene: 'emma_02',
-              fx: { trust: 5, rizz: 0 },
-              lens: { explanation: "Resposta simples e direta. 'Understood' ou 'On it' mostram que você ouviu e vai agir.", native: "Right away, boss." }
+              trust: 10,
+              lens: { good: "Professional and direct. 'Sir' shows respect.", odd: "Maybe a bit too formal for a burger place, but safe.", native: "Right away, boss." }
             },
             { 
-              match: /(who|what|where|address|help|understand|sorry|dude)/i, 
-              response: "No time for questions! Read the address on the bag. Go!", 
+              registry: 'neutral',
+              text: "Okay, I'll go right away.",
+              keywords: ['okay', 'right away', 'going', 'sure'],
+              response: "Great. It's raining hard. Be careful.", 
               nextScene: 'emma_02',
-              fx: { trust: 0, rizz: -5 },
-              lens: { explanation: "Fazer perguntas quando o chefe está no pico de estresse pode soar como desatenção. O ideal é anotar e perguntar depois se precisar.", native: "Got it, I'm on my way." }
+              trust: 5,
+              lens: { good: "Simple and clear. Shows you are listening.", odd: "Missing a bit of urgency, but it works.", native: "Okay, I'm on it." }
+            },
+            { 
+              registry: 'casual',
+              text: "Yeah, I'm on it.",
+              keywords: ['yeah', 'on it', 'yep'],
+              response: "No time to chat! Go, go!", 
+              nextScene: 'emma_02',
+              rizz: 5,
+              lens: { good: "'On it' is a great casual phrase for work.", odd: "Too relaxed when the boss is stressed.", native: "Got it, boss." }
             }
-          ],
-          fallback: "Why are you still here? Go!",
-          quickReplies: [
-            { label: 'Sim, senhor!', text: 'Yeah, sir!' },
-            { label: 'Estou indo agora.', text: 'I am going now.' },
-            { label: 'Desculpa, Mr. Silva.', text: 'Sorry, Mr. Silva.' }
           ]
         },
         emma_02: {
-          npcName: 'Emma (Você)',
-          npcText: "Okay, the address says 41 Main Street. It's raining hard and my phone has 12%. I need to find this place fast.",
-          energyCost: 5,
-          glossary: [{ word: 'Rain', meaning: 'Chuva' }, { word: 'Fast', meaning: 'Rápido' }],
-          intents: [
+          npcName: 'Narração',
+          npcText: "You grab the bag and step outside. The rain is freezing. The address is 41 Main Street, but your phone battery is at 12%. You are lost in the dark street.",
+          glossary: [
+            { word: 'Rain', meaning: 'Chuva', phonetic: '/reɪn/' }, 
+            { word: 'Lost', meaning: 'Perdida', phonetic: '/lɒst/' }
+          ],
+          choices: [
             { 
-              match: /(excuse me|where is|how do i|directions|get to|ask|hey)/i, 
-              response: "You ask a lady with an umbrella. She says: 'Go straight for two blocks, then turn left. It's next to the park.'", 
+              registry: 'formal',
+              text: "Excuse me, madam. Could you tell me how to get to Main Street?",
+              keywords: ['excuse me', 'where is', 'how do i', 'directions', 'get to'],
+              response: "You ask a lady with an umbrella. She smiles: 'Go straight for two blocks, then turn left. It's next to the park.'", 
               nextScene: 'emma_03',
-              fx: { trust: 10, rizz: 5 },
-              lens: { explanation: "Começar com 'Excuse me' é a forma mais educada e universal de chamar a atenção de um estranho na rua para pedir informação.", native: "Excuse me, could you tell me how to get to Main Street?" }
+              trust: 10, rizz: 5,
+              lens: { good: "Perfect. 'Excuse me' and 'Could you' are polite and natural.", odd: "Nothing wrong here. This is exactly how natives ask for directions.", native: "Excuse me, how do I get to Main Street?" }
             },
             { 
-              match: /(map|gps|phone|look|app|check)/i, 
-              response: "You open your GPS. 10 minutes walking. Your battery is 12%. Let's go.", 
+              registry: 'neutral',
+              text: "I'll just check my GPS app.",
+              keywords: ['gps', 'phone', 'map', 'app', 'check'],
+              response: "You open your GPS. It says 10 minutes walking, but your screen goes black. Your battery died. You have to ask someone.", 
               nextScene: 'emma_03',
-              fx: { trust: 5, rizz: 0 },
-              lens: { explanation: "Uma solução prática, mas arriscada (12% de bateria). Funciona, mas não envolve interação humana.", native: "I'll use my GPS app." }
+              lens: { good: "Practical solution. Technology saves time.", odd: "Risky with 12% battery. And it didn't work.", native: "I'll check the map." }
+            },
+            { 
+              registry: 'casual',
+              text: "Hey, where is Main Street?",
+              keywords: ['hey', 'where', 'quick question'],
+              response: "You ask a man running with a dog. He points quickly: 'Two blocks that way!' and runs away.", 
+              nextScene: 'emma_03',
+              trust: 5,
+              lens: { good: "Direct, and you got the information.", odd: "Starting with 'Hey' to a stranger is a bit rude.", native: "Sorry to bother you, where is Main Street?" }
             }
-          ],
-          fallback: "I can't just stand in the rain. Let me ask or check my phone.",
-          quickReplies: [
-            { label: 'Com licença, onde fica Main Street?', text: 'Excuse me, where is Main Street?' },
-            { label: 'Vou usar o GPS.', text: 'I will use my GPS.' },
-            { label: 'Como chego lá?', text: 'How do I get there?' }
           ]
         },
         emma_03: {
-          npcName: 'Lucas (Customer)',
-          npcText: "Finally! I am starving, dude. Is that my cheeseburger?",
-          addFlags: ['a1_emma_met_lucas'],
-          energyCost: 5,
-          glossary: [{ word: 'Starving', meaning: 'Morrendo de fome' }, { word: 'Cheeseburger', meaning: 'X-Burger' }],
-          intents: [
+          npcName: 'Narração',
+          npcText: "You follow the directions and finally arrive at the house. You are soaking wet. You knock on the door. Lucas opens it.",
+          choices: [
             { 
-              match: /(yes|here|cheeseburger|fries|order|delivery|food|your|yeah)/i, 
-              response: "Great. But wait... I asked for no onions. Did you bring it with onions?", 
+              registry: 'formal',
+              text: "Hello, sir. Here is your cheeseburger and fries.",
+              keywords: ['hello', 'sir', 'cheeseburger', 'fries'],
+              response: "He takes the bag. 'Great. But wait...' He looks inside. 'I asked for no onions. Did you bring it with onions?'", 
               nextScene: 'emma_04',
-              fx: { trust: 5, rizz: 0 },
-              lens: { explanation: "Entrega simples e direta. O cliente reconhece que você está entregando o que ele pediu.", native: "Yes, here's your cheeseburger." }
+              trust: 10,
+              lens: { good: "Clear and polite.", odd: "A bit robotic, but safe.", native: "Here's your order, sir." }
             },
-            {
-              match: /(dude|bro|man|chill)/i,
-              response: "Lucas looks at you surprised: 'Whoa, chill. I just wanted my food.'",
+            { 
+              registry: 'neutral',
+              text: "Yeah, here is your food.",
+              keywords: ['yeah', 'food', 'here'],
+              response: "He takes the bag. 'Great. But wait...' He looks inside. 'I asked for no onions. Did you bring it with onions?'", 
               nextScene: 'emma_04',
-              fx: { trust: -2, rizz: 10 },
-              lens: { explanation: "Usar 'dude' ou 'bro' pode criar intimidade, mas com um cliente que já está irritado e com fome, pode soar desrespeitoso.", native: "Here's your order, sir." }
+              trust: 5,
+              lens: { good: "Simple and direct.", odd: "Calling it just 'food' feels a bit impersonal.", native: "Here's your cheeseburger." }
+            },
+            { 
+              registry: 'casual',
+              text: "Finally! Here it is, dude.",
+              keywords: ['dude', 'bro', 'man', 'here it is', 'finally'],
+              response: "Lucas looks at you surprised: 'Whoa, chill. I just wanted my food.' He opens the bag and frowns. 'I said no onions!'", 
+              nextScene: 'emma_04',
+              trust: -5, rizz: 10,
+              lens: { good: "'Dude' creates a casual vibe.", odd: "Using 'dude' with a hungry, angry customer is a bad idea.", native: "Here you go." }
             }
-          ],
-          fallback: "Hello? Are you going to give me my food?",
-          quickReplies: [
-            { label: 'Sim, aqui está.', text: 'Yeah, here is your cheeseburger.' },
-            { label: 'Aqui está o pedido.', text: 'Here is your order, dude.' },
-            { label: 'Tenho sua comida.', text: 'I have your food.' }
           ]
         },
         emma_04: {
           npcName: 'Lucas',
           npcText: "I hate onions! I can't eat this. What are you going to do about it?",
           energyCost: 5,
-          glossary: [{ word: 'Hate', meaning: 'Odeio' }, { word: 'What are you going to do', meaning: 'O que você vai fazer' }],
-          intents: [
-            { 
-              match: /(sorry|apologize|my fault|mistake|excuse me|my bad)/i, 
-              response: "Okay. But I'm still hungry. Can you get me a new one?", 
-              nextScene: 'emma_05', 
-              addsFlags: ['a1_emma_apologized'],
-              fx: { trust: 5, rizz: 5 },
-              lens: { explanation: "Pedir desculpas é o primeiro passo para acalmar um cliente. 'My fault' (minha culpa) assume a responsabilidade.", native: "I'm so sorry, that's my mistake." }
-            },
-            { 
-              match: /(fix|new|replace|another|change|remake)/i, 
-              response: "Yes! Please. A new one. No onions this time.", 
-              nextScene: 'emma_05', 
-              addsFlags: ['a1_emma_apologized'],
-              fx: { trust: 10, rizz: 0 },
-              lens: { explanation: "Oferecer uma solução imediata ('remake', 'new one') sem se justificar mostra proatividade e resolve o problema mais rápido.", native: "Can I get you a fresh one right away?" }
-            },
-            { 
-              match: /(refund|money|cancel|free)/i, 
-              response: "A refund? I want FOOD, not money! Call your manager!", 
-              nextScene: 'emma_05',
-              fx: { trust: -10, rizz: -5 },
-              lens: { explanation: "Oferecer reembolso imediato quando o cliente quer resolver a fome pode irritá-lo ainda mais. O problema não é o dinheiro, é a comida.", native: "Let me make this right and get you a new one." }
-            }
+          glossary: [
+            { word: 'Hate', meaning: 'Odeio', phonetic: '/heɪt/' }, 
+            { word: 'Onions', meaning: 'Cebolas', phonetic: '/ˈʌnjənz/' }
           ],
-          fallback: "I am waiting. What are you going to do?",
-          offensiveScene: 'emma_bad_fired',
-          quickReplies: [
-            { label: 'Mil desculpas, senhor.', text: 'I am so sorry, sir.' },
-            { label: 'Posso trazer outro.', text: 'Can I bring you another one?' },
-            { label: 'Foi um erro, desculpa.', text: 'My bad, I apologize.' }
+          subtext: {
+            question: "What does Lucas really mean?",
+            options: [
+              { text: "He is just hungry.", correct: false },
+              { text: "He is angry and blaming you for the mistake.", correct: true, tell: ["I hate onions", "What are you going to do"] }
+            ]
+          },
+          choices: [
+            { 
+              registry: 'formal',
+              text: "I sincerely apologize, sir. Let me get you a new one immediately.",
+              keywords: ['apologize', 'sir', 'new one', 'immediately', 'sorry'],
+              response: "He sighs. 'Yes! Please. A new one. No onions this time.'", 
+              nextScene: 'emma_05', 
+              addsFlags: ['a1_emma_apologized'],
+              trust: 10, rizz: 5,
+              lens: { good: "Takes responsibility and offers a solution instantly.", odd: "Very formal, but it calms the customer down.", native: "I'm so sorry, let me fix that for you." }
+            },
+            { 
+              registry: 'neutral',
+              text: "I'm sorry. I will fix it and bring another one.",
+              keywords: ['sorry', 'fix', 'another', 'mistake'],
+              response: "'Okay. But I'm still hungry. Hurry up.'", 
+              nextScene: 'emma_05', 
+              addsFlags: ['a1_emma_apologized'],
+              trust: 5,
+              lens: { good: "Honest and clear.", odd: "Doesn't sound very urgent.", native: "Sorry about that, I'll get a fresh one." }
+            },
+            { 
+              registry: 'casual',
+              text: "My bad, man. I'll grab you a fresh one.",
+              keywords: ['my bad', 'dude', 'man', 'fresh one'],
+              response: "'Fine. Just go get it.'", 
+              nextScene: 'emma_05', 
+              addsFlags: ['a1_emma_apologized'],
+              rizz: 5,
+              lens: { good: "'My bad' is very natural English.", odd: "Too casual for a paying, angry customer.", native: "My mistake, I'll get you a new one right away." }
+            }
           ]
         },
         emma_05: {
           npcName: 'Lucas',
           npcText: "Fine. I'll wait 10 minutes. But if it's cold, I'm giving a bad review on the app.",
           energyCost: 5,
-          glossary: [{ word: 'Wait', meaning: 'Esperar' }, { word: 'Review', meaning: 'Avaliação' }],
-          intents: [
-            { 
-              match: /(promise|will be|hot|fast|soon|back|hurry|run)/i, 
-              response: "I'll be here. Hurry up.", 
-              nextScene: 'emma_06',
-              fx: { trust: 5, rizz: 2 },
-              lens: { explanation: "Garantir ao cliente que você vai correr ('I'll run', 'promise') mostra empenho e comprometimento com a entrega.", native: "I promise I'll be quick." }
-            }
+          glossary: [
+            { word: 'Wait', meaning: 'Esperar', phonetic: '/weɪt/' }, 
+            { word: 'Review', meaning: 'Avaliação', phonetic: '/rɪˈvjuː/' }
           ],
-          fallback: "Just go get the food!",
-          quickReplies: [
-            { label: 'Volto em 5 minutos!', text: 'I will be back in 5 minutes!' },
-            { label: 'Prometo que virá quente.', text: 'I promise it will be hot.' },
-            { label: 'Vou correr!', text: 'I will run!' }
+          choices: [
+            { 
+              registry: 'formal',
+              text: "I promise I will be quick, sir. It will be hot.",
+              keywords: ['promise', 'quick', 'hot', 'soon', 'sir'],
+              response: "You turn around and run back into the rain.", 
+              nextScene: 'emma_06',
+              trust: 10, rizz: 2,
+              lens: { good: "Reassures the customer and shows commitment.", odd: "A bit formal, but good for a serious situation.", native: "I promise I'll be right back with a hot one." }
+            },
+            { 
+              registry: 'neutral',
+              text: "I'll be back in 5 minutes.",
+              keywords: ['back', 'minutes', 'fast', 'soon'],
+              response: "You turn around and run back into the rain.", 
+              nextScene: 'emma_06',
+              trust: 5,
+              lens: { good: "Sets a clear expectation.", odd: "Simple, but it works.", native: "Five minutes, I'll be right back." }
+            },
+            { 
+              registry: 'casual',
+              text: "Don't worry, I'll run!",
+              keywords: ['run', 'worry', 'dont worry'],
+              response: "You turn around and run back into the rain.", 
+              nextScene: 'emma_06',
+              rizz: 5,
+              lens: { good: "'I'll run' shows energy and action.", odd: "Slightly informal.", native: "Don't worry, I'll run!" }
+            }
           ]
         },
         emma_06: {
-          npcName: 'Emma (Você)',
-          npcText: "I run back to the Burger Palace. The rain is worse. My phone dies. I see Davi, the cook, leaving the store. He looks angry. I go inside.",
+          npcName: 'Narração',
+          npcText: "You arrive at the Burger Palace, soaking wet. The rain is worse. You see Davi, the cook, leaving the store looking angry. You go inside.",
           addFlags: ['a1_emma_saw_davi_leave'],
-          energyCost: 5,
-          glossary: [{ word: 'Cook', meaning: 'Cozinheiro' }, { word: 'Leaving', meaning: 'Saindo' }],
-          intents: [
+          glossary: [
+            { word: 'Cook', meaning: 'Cozinheiro', phonetic: '/kʊk/' }, 
+            { word: 'Leaving', meaning: 'Saindo', phonetic: '/ˈliːvɪŋ/' }
+          ],
+          choices: [
             { 
-              match: /(davi|why|what happened|angry|leaving|who|hey)/i, 
-              response: "Mr. Silva says: 'Don't ask. Davi quit. I have no cook. I will make the burger myself. Wait here.'", 
+              registry: 'formal',
+              text: "Mr. Silva, is everything okay? I saw Davi leaving.",
+              keywords: ['davi', 'okay', 'why', 'happened', 'leaving'],
+              response: "Mr. Silva looks stressed: 'Don't ask. Davi quit. I have no cook. I will make the burger myself. Wait here.'", 
               nextScene: 'emma_07',
-              fx: { trust: 0, rizz: 0 },
-              lens: { explanation: "Fazer perguntas em um momento de crise pode atrapalhar. Às vezes, o silêncio e a obediência ('I'll wait') são mais eficientes.", native: "I'll wait right here." }
+              trust: 5,
+              lens: { good: "Shows concern for the team.", odd: "Asking questions when the boss is in crisis mode.", native: "Is everything alright, boss?" }
             },
             { 
-              match: /(ok|wait|sure|fine|yes|yeah)/i, 
-              response: "Mr. Silva goes to the kitchen. You wait, wet and cold. He comes back with a burger. 'Here. Go. Fast.'", 
+              registry: 'neutral',
+              text: "Okay, I'll wait.",
+              keywords: ['okay', 'wait', 'fine', 'sure'],
+              response: "You wait, wet and cold. Mr. Silva goes to the kitchen and comes back with a burger. 'Here. Go. Fast.'", 
               nextScene: 'emma_07',
-              fx: { trust: 5, rizz: 0 },
-              lens: { explanation: "Aceitar a situação e esperar sem reclamar, mesmo estando molhada e cansada, mostra resiliência e profissionalismo.", native: "I'll wait." }
+              trust: 10,
+              lens: { good: "Smart. You read the room and didn't add stress.", odd: "Nothing wrong. Sometimes silence is best.", native: "I'll wait right here." }
+            },
+            { 
+              registry: 'casual',
+              text: "What's up with Davi? He looked mad.",
+              keywords: ['whats up', 'mad', 'davi', 'looked'],
+              response: "Mr. Silva snaps: 'Not now, Emma! Just wait!' You wait in silence.", 
+              nextScene: 'emma_07',
+              trust: -5,
+              lens: { good: "'What's up' is a great casual phrase.", odd: "Bad timing. The manager is losing his mind.", native: "Is Davi okay?" }
             }
-          ],
-          fallback: "I need to get this burger back to Lucas.",
-          quickReplies: [
-            { label: 'Por que o Davi saiu?', text: 'Why is Davi leaving?' },
-            { label: 'O que aconteceu?', text: 'What happened?' },
-            { label: 'Vou esperar.', text: 'I will wait.' }
           ]
         },
         emma_07: {
-          npcName: 'Emma (Você)',
-          npcText: "I run back to Lucas. I am soaked. The burger is warm but not hot. I knock on the door.",
-          energyCost: 5,
-          glossary: [{ word: 'Soaked', meaning: 'Encharcada' }, { word: 'Warm', meaning: 'Morno' }],
-          intents: [
+          npcName: 'Narração',
+          npcText: "You grab the new burger and run back to Lucas's house. You are soaked. The burger is warm, but not hot. You knock on the door.",
+          glossary: [
+            { word: 'Soaked', meaning: 'Encharcada', phonetic: '/soʊkt/' }, 
+            { word: 'Warm', meaning: 'Morno', phonetic: '/wɔːrm/' }
+          ],
+          choices: [
             { 
-              match: /(here|sorry|your|burger|food|delivery|order)/i, 
+              registry: 'formal',
+              text: "Here is your new burger, sir. I apologize for the wait.",
+              keywords: ['here', 'apologize', 'sir', 'wait', 'sorry'],
               response: "Lucas opens the door. He looks at you, then at the bag. 'You came back. I didn't think you would.'", 
               nextScene: 'emma_08',
-              fx: { trust: 5, rizz: 5 },
-              lens: { explanation: "'Sorry for the wait' é uma frase de serviço clássica e educada. Reconhece o problema sem se colocar demais para baixo.", native: "Sorry to keep you waiting." }
+              trust: 10, rizz: 5,
+              lens: { good: "Perfect customer service.", odd: "Maybe too formal for a delivery, but very polite.", native: "Sorry to keep you waiting. Here's your burger." }
+            },
+            { 
+              registry: 'neutral',
+              text: "Here is your order.",
+              keywords: ['here', 'order', 'food'],
+              response: "Lucas opens the door. He looks at you, then at the bag. 'You came back. I didn't think you would.'", 
+              nextScene: 'emma_08',
+              trust: 5,
+              lens: { good: "Direct and simple.", odd: "No apology, but you delivered the food.", native: "Here you go." }
+            },
+            { 
+              registry: 'casual',
+              text: "Here you go, man. Sorry for the wait.",
+              keywords: ['here you go', 'man', 'sorry'],
+              response: "Lucas opens the door. He looks at you, then at the bag. 'You came back. I didn't think you would.'", 
+              nextScene: 'emma_08',
+              trust: 5, rizz: 5,
+              lens: { good: "'Here you go' is the most natural phrase in English.", odd: "Calling him 'man' after he got mad might be risky.", native: "Here you go, sorry about that." }
             }
-          ],
-          fallback: "I have to give him this burger.",
-          quickReplies: [
-            { label: 'Aqui está, senhor.', text: 'Here is your burger, sir.' },
-            { label: 'Desculpa a demora.', text: 'Sorry for the wait.' },
-            { label: 'Seu pedido, senhor.', text: 'Your order, sir.' }
           ]
         },
         emma_08: {
@@ -213,54 +292,60 @@ const gameDataA1 = {
             { ifFlag: 'a1_lucas_knows_davi_quit', text: "Let me see. No onions this time. Good. (He pauses.) I heard Davi quit. This is not your fault. Thank you for coming back." }
           ],
           energyCost: 5,
-          glossary: [{ word: 'Cold', meaning: 'Frio' }, { word: 'Quit', meaning: 'Pediu demissão' }],
-          intents: [
+          glossary: [
+            { word: 'Cold', meaning: 'Frio', phonetic: '/koʊld/' }, 
+            { word: 'Quit', meaning: 'Pediu demissão', phonetic: '/kwɪt/' }
+          ],
+          choices: [
             { 
-              match: /(sorry|apologize|rain|wait|slow|back|again)/i, 
+              registry: 'formal',
+              text: "I'm sorry, sir. The rain was terrible and the kitchen had a problem.",
+              keywords: ['sorry', 'rain', 'problem', 'kitchen', 'sir'],
               response: "It's okay. You came back in the rain. That counts. Here — keep the change.", 
               nextScene: 'emma_end_good', 
               addsFlags: ['a1_emma_delivered', 'a1_emma_got_tip'],
-              fx: { trust: 10, rizz: 5 },
-              lens: { explanation: "Assumir o erro e contextualizar (a chuva) mostra honestidade. O cliente reconhece o esforço.", native: "I'm sorry, it's a bit cold. The rain was terrible." }
+              trust: 10, rizz: 5,
+              lens: { good: "Honest and explains the situation without making excuses.", odd: "A bit too detailed, but it works.", native: "I'm sorry, it's a bit cold. The rain was terrible." }
             },
             { 
-              match: /(yes|enjoy|eat|good|ok|sure|yeah)/i, 
-              response: "Thanks. Have a good night, Emma.", 
+              registry: 'neutral',
+              text: "I know. I'm sorry, I ran as fast as I could.",
+              keywords: ['know', 'sorry', 'ran', 'fast'],
+              response: "It's okay. You came back in the rain. That counts. Here — keep the change.", 
+              nextScene: 'emma_end_good', 
+              addsFlags: ['a1_emma_delivered', 'a1_emma_got_tip'],
+              trust: 5,
+              lens: { good: "Shows effort.", odd: "Simple.", native: "I know, sorry. I ran as fast as I could." }
+            },
+            { 
+              registry: 'casual',
+              text: "Yeah, my bad. The rain is crazy.",
+              keywords: ['my bad', 'crazy', 'rain'],
+              response: "Lucas laughs a little. 'Yeah, it is. Thanks for coming back.'", 
               nextScene: 'emma_end_ok', 
               addsFlags: ['a1_emma_delivered'],
-              fx: { trust: 5, rizz: 0 },
-              lens: { explanation: "Ser breve e educada ao entregar a solução funciona, mas não cria aquela conexão extra que gera gorjetas.", native: "Enjoy your meal." }
+              rizz: 5,
+              lens: { good: "'The rain is crazy' is a very natural small talk phrase.", odd: "You didn't really apologize for the cold food.", native: "Yeah, I know. The weather is insane tonight." }
             }
-          ],
-          fallback: "Say something.",
-          quickReplies: [
-            { label: 'Desculpa, está frio.', text: 'Sorry, it is cold.' },
-            { label: 'Voltei, é o que importa.', text: 'I came back. That is what matters.' },
-            { label: 'Bom apetite!', text: 'Enjoy your food!' }
           ]
         },
         emma_end_good: {
-          npcName: 'Narrador',
+          npcName: 'Narração',
           npcText: "Lucas gives you a $5 tip. You walk back in the rain, but you feel lighter. Mr. Silva sees the tip and nods. 'Good job, Emma.'",
           addFlags: ['a1_emma_delivered', 'a1_emma_got_tip', 'a1_emma_completed'],
-          glossary: [{ word: 'Tip', meaning: 'Gorjeta' }, { word: 'Job', meaning: 'Trabalho' }],
+          glossary: [
+            { word: 'Tip', meaning: 'Gorjeta', phonetic: '/tɪp/' }, 
+            { word: 'Job', meaning: 'Trabalho', phonetic: '/dʒɑːb/' }
+          ],
           isEnd: true,
           endingType: 'bom'
         },
         emma_end_ok: {
-          npcName: 'Narrador',
+          npcName: 'Narração',
           npcText: "Lucas closes the door. No tip, no smile — but no bad review either. You go back to the Burger Palace. Mr. Silva says nothing. The night ends.",
           addFlags: ['a1_emma_delivered', 'a1_emma_completed'],
           isEnd: true,
           endingType: 'ok'
-        },
-        emma_bad_fired: {
-          npcName: 'Mr. Silva',
-          npcText: "Lucas called me. He recorded what you said. I can't defend that. Emma — you're fired. I'm sorry. You should not speak to customers like that.",
-          addFlags: ['a1_emma_fired', 'a1_emma_completed'],
-          glossary: [{ word: 'Fired', meaning: 'Demitida' }],
-          isEnd: true,
-          endingType: 'ruim'
         }
       }
     },
@@ -271,334 +356,502 @@ const gameDataA1 = {
       emoji: '👨‍💼',
       subtitle: 'O Turno',
       description: 'Caixa quebrado, cozinheiro surtado, cliente furioso. Gerencie o caos.',
-      initialState: { money: 500.00, energy: 100 },
+      initialState: { energy: 100 },
       startScene: 'silva_01',
       scenes: {
         silva_01: {
-          npcName: 'Sistema',
+          npcName: 'Narração',
           npcText: "6 PM, Burger Palace. The POS system freezes. A line of 6 customers. Davi, the cook, is 15 minutes late.",
           energyCost: 5,
-          glossary: [{ word: 'Freeze', meaning: 'Travar' }, { word: 'Late', meaning: 'Atrasado' }],
-          intents: [
+          glossary: [
+            { word: 'Freeze', meaning: 'Travar', phonetic: '/friːz/' }, 
+            { word: 'Late', meaning: 'Atrasado', phonetic: '/leɪt/' }
+          ],
+          choices: [
             { 
-              match: /(fix|reboot|restart|system|computer|pos|check)/i, 
-              response: "You reboot the POS. It works. The line moves. Then the phone rings.", 
+              registry: 'formal',
+              text: "I will call Davi immediately and then reboot the system.",
+              keywords: ['call', 'davi', 'reboot', 'system', 'immediately'],
+              response: "You call Davi. He answers: 'I'm coming, boss.' You reboot the POS. It works.", 
               nextScene: 'silva_02',
-              fx: { trust: 5, rizz: 0 },
-              lens: { explanation: "Usar o termo técnico 'reboot' (reiniciar) mostra que você sabe o que está fazendo, mas é uma ação solitária.", native: "I'll reboot the system." }
+              trust: 10,
+              lens: { good: "Great management. Delegating and solving the tech issue.", odd: "A bit robotic.", native: "I'll call Davi and reboot the system." }
             },
             { 
-              match: /(davi|cook|call|where|late|phone)/i, 
-              response: "You call Davi. He answers: 'I'm coming, boss. Five minutes.' The phone rings again — a customer.", 
+              registry: 'neutral',
+              text: "I'll reboot the POS first.",
+              keywords: ['reboot', 'pos', 'system', 'fix'],
+              response: "You reboot the POS. It works. The line moves.", 
               nextScene: 'silva_02',
-              fx: { trust: 5, rizz: 5 },
-              lens: { explanation: "Delegar e cobrar o funcionário atrasado é uma boa tática de liderança. 'I will call him' mostra que você está no controle.", native: "I'll call him right now." }
+              trust: 5,
+              lens: { good: "Solving the biggest problem first.", odd: "You forgot about the cook.", native: "Let me restart the system." }
+            },
+            { 
+              registry: 'casual',
+              text: "Where the hell is Davi?",
+              keywords: ['where', 'davi', 'hell', 'late'],
+              response: "You call Davi. He is late and doesn't answer. The line gets bigger.", 
+              nextScene: 'silva_02',
+              trust: -5,
+              lens: { good: "'Where the hell' is a real expression of frustration.", odd: "Complaining doesn't solve the problem.", native: "Where is Davi?" }
             }
-          ],
-          fallback: "You need to deal with this. What do you do?",
-          quickReplies: [
-            { label: 'Vou reiniciar o sistema.', text: 'I will reboot the system.' },
-            { label: 'Vou ligar pro Davi.', text: 'I will call Davi.' },
-            { label: 'Onde está o Davi?', text: 'Where is Davi?' }
           ]
         },
         silva_02: {
-          npcName: 'Lucas (on phone)',
-          npcText: "Hey, I ordered a cheeseburger and fries. No onions, please. I'm at 41 Main Street. Can you deliver it fast? I'm starving, dude.",
-          addFlags: ['a1_silva_knows_lucas'],
-          energyCost: 5,
-          glossary: [{ word: 'No onions', meaning: 'Sem cebola' }, { word: 'Fast', meaning: 'Rápido' }],
-          intents: [
+          npcName: 'Narração',
+          npcText: "The line finally moves. Then the phone rings. You pick it up.",
+          choices: [
             { 
-              match: /(ok|yes|sure|got it|understood|fine|order|written|noted|correct|right|yeah)/i, 
-              response: "Great. Thanks. 41 Main Street.", 
-              nextScene: 'silva_03', 
-              addsFlags: ['a1_silva_forgot_no_onions'],
-              fx: { trust: 0, rizz: 0 },
-              lens: { explanation: "Confirmar o endereço é bom, mas você ignorou o detalhe crucial do pedido ('no onions'). Isso pode gerar um problema.", native: "Got it, 41 Main Street." }
-            },
-            { 
-              match: /(no onions|without|note|write|remember)/i, 
-              response: "Yes, no onions. Please. 41 Main Street.", 
-              nextScene: 'silva_03',
-              fx: { trust: 10, rizz: 5 },
-              lens: { explanation: "Confirmar o detalhe específico ('no onions') mostra atenção aos detalhes do cliente, o que é essencial no atendimento.", native: "No onions, got it. 41 Main Street." }
+              registry: 'neutral',
+              text: "[Answer the phone]",
+              keywords: ['answer', 'phone', 'hello'],
+              response: "Lucas: 'Hey, I ordered a cheeseburger and fries. No onions, please. I'm at 41 Main Street. Can you deliver it fast?'", 
+              nextScene: 'silva_03'
             }
-          ],
-          fallback: "Hello? Are you there?",
-          quickReplies: [
-            { label: 'Anotado. 41 Main Street.', text: 'Got it. 41 Main Street.' },
-            { label: 'Sem cebola, entendi.', text: 'No onions, understood.' },
-            { label: 'Está anotado, senhor.', text: 'It is written down, sir.' }
           ]
         },
         silva_03: {
-          npcName: 'Davi (Cook)',
-          npcText: "Boss, I'm here. The burger is ready. Here's the bag for 41 Main Street.",
-          addFlags: ['a1_silva_skipped_onion_check'],
+          npcName: 'Lucas',
+          npcText: "Hey, I ordered a cheeseburger and fries. No onions, please. I'm at 41 Main Street. Can you deliver it fast? I'm starving, dude.",
+          addFlags: ['a1_silva_knows_lucas'],
           energyCost: 5,
-          glossary: [{ word: 'Cook', meaning: 'Cozinheiro' }, { word: 'Bag', meaning: 'Sacola' }],
-          npcTextVariants: [
-            { ifFlag: 'a1_emma_met_lucas', text: "Boss, I'm here. The burger is ready. Here's the bag. (You glance at it. Something feels off, but you don't check. You will regret this.)" }
+          glossary: [
+            { word: 'No onions', meaning: 'Sem cebola', phonetic: '/noʊ ˈʌnjənz/' }, 
+            { word: 'Fast', meaning: 'Rápido', phonetic: '/fæst/' }
           ],
-          intents: [
+          choices: [
             { 
-              match: /(ok|thanks|good|go|emma|deliver)/i, 
-              response: "You call Emma. 'Emma! Take this bag to 41 Main Street. Now.'", 
-              nextScene: 'silva_04',
-              fx: { trust: 0, rizz: 0 },
-              lens: { explanation: "Confiar cegamente sem verificar é um risco. Em gestão, a verificação (check) salva carreiras.", native: "Okay, thanks Davi." }
+              registry: 'formal',
+              text: "Yes, sir. No onions. 41 Main Street. I will send it immediately.",
+              keywords: ['yes', 'no onions', 'main street', 'sir', 'immediately'],
+              response: "Great. Thanks. 41 Main Street.", 
+              nextScene: 'silva_04', 
+              trust: 10, rizz: 5,
+              lens: { good: "Repeating the order back is excellent customer service.", odd: "Very professional.", native: "Got it, no onions. 41 Main Street." }
             },
             { 
-              match: /(onion|check|verify|open|look)/i, 
-              response: "You open the bag. Onions. Davi forgot. 'Davi! Remake this. No onions!' He groans but does it. You lose 5 minutes.", 
+              registry: 'neutral',
+              text: "Got it. 41 Main Street.",
+              keywords: ['got it', 'main street', 'okay'],
+              response: "Great. Thanks.", 
               nextScene: 'silva_04', 
-              addsFlags: ['a1_silva_caught_onion'],
-              fx: { trust: 10, rizz: 5 },
-              lens: { explanation: "'Let me check' é uma das frases mais úteis no inglês profissional. Significa assumir o controle da situação.", native: "Let me check the bag real quick." }
+              addsFlags: ['a1_silva_forgot_no_onions'],
+              lens: { good: "You confirmed the address.", odd: "You ignored the most important detail: 'no onions'.", native: "Okay, 41 Main Street." }
+            },
+            { 
+              registry: 'casual',
+              text: "Yeah, we'll be there. Chill.",
+              keywords: ['yeah', 'chill', 'we will'],
+              response: "Lucas: 'Okay... just hurry up.'", 
+              nextScene: 'silva_04', 
+              addsFlags: ['a1_silva_forgot_no_onions'],
+              trust: -5, rizz: -5,
+              lens: { good: "'Chill' is a good casual word.", odd: "Telling a hungry customer to 'chill' is terrible service.", native: "Yes, we'll get it to you as soon as possible." }
             }
-          ],
-          fallback: "Davi is waiting. What do you do?",
-          quickReplies: [
-            { label: 'Obrigado, Davi.', text: 'Thanks, Davi.' },
-            { label: 'Deixa eu conferir.', text: 'Let me check the bag.' },
-            { label: 'Emma, entregue isso.', text: 'Emma, take this bag.' }
           ]
         },
         silva_04: {
-          npcName: 'Emma',
-          npcText: "Yes, sir! I'm going now. (She leaves in the rain.)",
-          energyCost: 5,
-          glossary: [{ word: 'Going now', meaning: 'Indo agora' }],
-          intents: [
+          npcName: 'Narração',
+          npcText: "Davi finally arrives. He brings the bag.",
+          choices: [
             { 
-              match: /(ok|good|back|go|work|line)/i, 
-              response: "The line at the counter is still long. A customer is angry. The POS freezes again. It's dead. Cash only.", 
-              nextScene: 'silva_05',
-              fx: { trust: 0, rizz: 0 },
-              lens: { explanation: "Apenas uma resposta de confirmação. Às vezes, o trabalho de gerente exige que você já esteja pensando no próximo problema.", native: "Back to the counter." }
+              registry: 'neutral',
+              text: "[Talk to Davi]",
+              keywords: ['talk', 'davi'],
+              response: "Davi: 'Boss, I'm here. The burger is ready. Here's the bag for 41 Main Street.'", 
+              nextScene: 'silva_05'
             }
-          ],
-          fallback: "You need to manage the counter.",
-          quickReplies: [
-            { label: 'Volto ao caixa.', text: 'I will go back to the counter.' },
-            { label: 'Vou atender a fila.', text: 'I will serve the line.' }
           ]
         },
         silva_05: {
-          npcName: 'Cliente furioso',
-          npcText: "Hey! I've been waiting 20 minutes! Is this place a joke?",
+          npcName: 'Davi',
+          npcText: "Boss, I'm here. The burger is ready. Here's the bag for 41 Main Street.",
+          addFlags: ['a1_silva_skipped_onion_check'],
           energyCost: 5,
-          glossary: [{ word: 'Waiting', meaning: 'Esperando' }, { word: 'Joke', meaning: 'Piada' }],
-          intents: [
+          glossary: [
+            { word: 'Bag', meaning: 'Sacola', phonetic: '/bæɡ/' }
+          ],
+          npcTextVariants: [
+            { ifFlag: 'a1_emma_met_lucas', text: "Boss, I'm here. The burger is ready. Here's the bag. (You glance at it. Something feels off, but you don't check. You will regret this.)" }
+          ],
+          subtext: {
+            question: "What is Davi doing?",
+            options: [
+              { text: "He is just doing his job.", correct: false },
+              { text: "He is trying to hide a mistake.", correct: true, tell: ["Something feels off", "You will regret this"] }
+            ]
+          },
+          choices: [
             { 
-              match: /(sorry|apologize|wait|free|discount|on me|system|broken)/i, 
-              response: "Fine. But hurry up. (You give him a free drink. He calms down.)", 
-              nextScene: 'silva_06',
-              fx: { trust: 10, rizz: 5 },
-              lens: { explanation: "'On the house' significa 'por conta da casa'. É uma ferramenta clássica de gerente para acalmar clientes irritados sem perder a razão.", native: "The drink is on the house, sir." }
+              registry: 'formal',
+              text: "Let me check the bag before you go, Davi.",
+              keywords: ['check', 'bag', 'onion', 'open', 'verify'],
+              response: "You open the bag. Onions. Davi forgot. 'Davi! Remake this. No onions!' He groans but does it.", 
+              nextScene: 'silva_06', 
+              addsFlags: ['a1_silva_caught_onion'],
+              trust: 15, rizz: 5,
+              lens: { good: "'Let me check' saved the night. Great management.", odd: "You lose 5 minutes, but you save the order.", native: "Let me check the bag real quick." }
             },
             { 
-              match: /(calm|wait|moment|minute|please|dude)/i, 
-              response: "Okay, okay. But fast!", 
+              registry: 'neutral',
+              text: "Okay, thanks Davi. Tell Emma to take it.",
+              keywords: ['okay', 'thanks', 'emma', 'deliver'],
+              response: "You call Emma. 'Emma! Take this bag to 41 Main Street. Now.'", 
               nextScene: 'silva_06',
-              fx: { trust: 5, rizz: 0 },
-              lens: { explanation: "Pedir calma pode funcionar, mas não resolve o problema do cliente. O ideal é combiná-lo com uma solução.", native: "One moment please, I'm fixing it." }
+              lens: { good: "You delegated the delivery.", odd: "You trusted the bag without checking.", native: "Okay, thanks Davi." }
+            },
+            { 
+              registry: 'casual',
+              text: "Just give it to Emma, let's go.",
+              keywords: ['emma', 'go', 'give'],
+              response: "You call Emma. 'Take this bag. Go fast.'", 
+              nextScene: 'silva_06',
+              trust: -5,
+              lens: { good: "Fast decision.", odd: "Too rushed. You are skipping quality control.", native: "Give it to Emma, let's go." }
             }
-          ],
-          fallback: "Hello? Are you going to help me or not?",
-          offensiveScene: 'silva_bad_review',
-          quickReplies: [
-            { label: 'Mil desculpas, senhor.', text: 'I am so sorry, sir.' },
-            { label: 'A bebida é por conta da casa.', text: 'The drink is on the house.' },
-            { label: 'Um momento, por favor.', text: 'One moment, please.' }
           ]
         },
         silva_06: {
-          npcName: 'Lucas (on phone)',
-          npcText: "Hey! I'm calling about my order. There are onions in my burger! I said NO onions!",
-          energyCost: 5,
-          glossary: [{ word: 'Onions', meaning: 'Cebolas' }, { word: 'Order', meaning: 'Pedido' }],
-          intents: [
+          npcName: 'Narração',
+          npcText: "Emma takes the bag and leaves in the rain. You go back to the counter. A customer is furious.",
+          choices: [
             { 
-              match: /(sorry|apologize|mistake|fix|remake|new|send)/i, 
-              response: "Okay. Send a new one. Fast. I'm still hungry.", 
-              nextScene: 'silva_07',
-              fx: { trust: 5, rizz: 0 },
-              lens: { explanation: "Assumir o erro e agir rápido. 'I will fix it' ou 'I will send another one' são as respostas corretas para um cliente insatisfeito.", native: "I'm so sorry, I'll send a new one right away." }
-            },
-            { 
-              match: /(check|look|let me|confirm|verify)/i, 
-              response: "Yes, please check! And send a new one!", 
-              nextScene: 'silva_07',
-              fx: { trust: 10, rizz: 5 },
-              lens: { explanation: "'Let me check' mostra que você quer confirmar o erro antes de agir. Isso pode irritar o cliente, mas mostra controle.", native: "Let me check on that for you." }
+              registry: 'neutral',
+              text: "[Go to the counter]",
+              keywords: ['counter', 'go'],
+              response: "Customer: 'Hey! I've been waiting 20 minutes! Is this place a joke?'", 
+              nextScene: 'silva_07'
             }
-          ],
-          fallback: "Are you going to fix this or not?",
-          offensiveScene: 'silva_bad_review',
-          quickReplies: [
-            { label: 'Desculpa, vou corrigir.', text: 'Sorry, I will fix it.' },
-            { label: 'Vou mandar outro.', text: 'I will send another one.' },
-            { label: 'Deixa eu verificar.', text: 'Let me check.' }
           ]
         },
         silva_07: {
-          npcName: 'Davi (Cook)',
-          npcText: "Boss — I'm done. This place is chaos. I quit. Here's my apron. Good luck.",
-          addFlags: ['a1_silva_heard_davi_quit'],
+          npcName: 'Cliente furioso',
+          npcText: "Hey! I've been waiting 20 minutes! Is this place a joke?",
           energyCost: 5,
-          glossary: [{ word: 'Quit', meaning: 'Pedir demissão' }, { word: 'Apron', meaning: 'Avental' }],
-          npcTextVariants: [
-            { ifFlag: 'a1_lucas_knows_davi_quit', text: "Boss — I'm done. This place is chaos. I quit. (Davi is Lucas's roommate. If you knew, you would understand why Lucas is so angry.)" }
+          glossary: [
+            { word: 'Waiting', meaning: 'Esperando', phonetic: '/ˈweɪtɪŋ/' }, 
+            { word: 'Joke', meaning: 'Piada', phonetic: '/dʒoʊk/' }
           ],
-          intents: [
+          choices: [
             { 
-              match: /(wait|stop|stay|please|talk|more money|raise)/i, 
-              response: "No. I'm sorry, boss. I can't. Good luck.", 
+              registry: 'formal',
+              text: "I sincerely apologize, sir. The drink is on the house.",
+              keywords: ['apologize', 'sorry', 'on the house', 'free', 'sir'],
+              response: "Fine. But hurry up. (You give him a free drink. He calms down.)", 
               nextScene: 'silva_08',
-              fx: { trust: 5, rizz: 0 },
-              lens: { explanation: "'Wait' ou 'Let's talk' mostram que você valoriza o funcionário, mas nem sempre é suficiente para segurá-lo.", native: "Wait, Davi. Let's talk about this." }
+              trust: 15, rizz: 5,
+              lens: { good: "'On the house' is the perfect phrase to calm a customer.", odd: "You lose a little money, but keep the customer.", native: "The drink is on the house, sir." }
             },
             { 
-              match: /(ok|fine|go|understand|leave|yeah)/i, 
-              response: "Davi leaves. You are alone. The phone rings again. It's Emma's number.", 
+              registry: 'neutral',
+              text: "Sorry for the wait. One moment, please.",
+              keywords: ['sorry', 'wait', 'moment', 'please'],
+              response: "Okay, okay. But fast!", 
               nextScene: 'silva_08',
-              fx: { trust: 0, rizz: 0 },
-              lens: { explanation: "Aceitar a demissão sem tentar uma contraproposta mostra falta de negociação.", native: "I understand. Good luck." }
+              trust: 5,
+              lens: { good: "Polite and buys you time.", odd: "Doesn't offer a real solution.", native: "One moment please, I'm fixing it." }
+            },
+            { 
+              registry: 'casual',
+              text: "Calm down, man. We are doing our best.",
+              keywords: ['calm', 'man', 'best'],
+              response: "The customer gets even angrier: 'Don't tell me to calm down!'", 
+              nextScene: 'silva_08',
+              trust: -10, rizz: -5,
+              lens: { good: "You are trying to defuse the tension.", odd: "Telling an angry person to 'calm down' never works.", native: "I understand you're frustrated, let me help." }
             }
-          ],
-          fallback: "Davi is at the door.",
-          quickReplies: [
-            { label: 'Espera, Davi!', text: 'Wait, Davi!' },
-            { label: 'Entendo. Boa sorte.', text: 'I understand. Good luck.' },
-            { label: 'Posso te pagar mais.', text: 'I can pay you more.' }
           ]
         },
         silva_08: {
-          npcName: 'Emma (on phone)',
+          npcName: 'Narração',
+          npcText: "The phone rings again. It's Lucas.",
+          choices: [
+            { 
+              registry: 'neutral',
+              text: "[Answer the phone]",
+              keywords: ['answer', 'phone'],
+              response: "Lucas: 'Hey! I'm calling about my order. There are onions in my burger! I said NO onions!'", 
+              nextScene: 'silva_09'
+            }
+          ]
+        },
+        silva_09: {
+          npcName: 'Lucas',
+          npcText: "Hey! I'm calling about my order. There are onions in my burger! I said NO onions!",
+          energyCost: 5,
+          glossary: [
+            { word: 'Order', meaning: 'Pedido', phonetic: '/ˈɔːrdər/' }
+          ],
+          choices: [
+            { 
+              registry: 'formal',
+              text: "I apologize for the mistake, sir. I will send a new one immediately.",
+              keywords: ['apologize', 'mistake', 'new one', 'send', 'sir'],
+              response: "Okay. Send a new one. Fast. I'm still hungry.", 
+              nextScene: 'silva_10',
+              trust: 10,
+              lens: { good: "Takes responsibility and acts.", odd: "Very professional.", native: "I'm so sorry, I'll send a new one right away." }
+            },
+            { 
+              registry: 'neutral',
+              text: "Sorry about that. Let me check what happened.",
+              keywords: ['sorry', 'check', 'happened'],
+              response: "Yes, please check! And send a new one!", 
+              nextScene: 'silva_10',
+              trust: 5, rizz: 5,
+              lens: { good: "'Let me check' shows you want to control the damage.", odd: "You are losing time.", native: "Let me check on that for you." }
+            },
+            { 
+              registry: 'casual',
+              text: "Are you sure? Davi never makes mistakes.",
+              keywords: ['sure', 'davi', 'mistake'],
+              response: "Lucas yells: 'Are you calling me a liar?!'", 
+              nextScene: 'silva_10',
+              trust: -15, rizz: -10,
+              lens: { good: "You trust your employee.", odd: "Never argue with a customer about their food.", native: "I'm sorry about that, I'll fix it." }
+            }
+          ]
+        },
+        silva_10: {
+          npcName: 'Narração',
+          npcText: "Davi walks out of the kitchen. He takes off his apron and walks towards the door. He looks exhausted.",
+          choices: [
+            { 
+              registry: 'neutral',
+              text: "[Stop Davi]",
+              keywords: ['stop', 'davi', 'wait'],
+              response: "Davi: 'Boss — I'm done. This place is chaos. I quit. Here's my apron. Good luck.'", 
+              nextScene: 'silva_11'
+            }
+          ]
+        },
+        silva_11: {
+          npcName: 'Davi',
+          npcText: "Boss — I'm done. This place is chaos. I quit. Here's my apron. Good luck.",
+          addFlags: ['a1_silva_heard_davi_quit'],
+          energyCost: 5,
+          glossary: [
+            { word: 'Apron', meaning: 'Avental', phonetic: '/ˈeɪprən/' }
+          ],
+          npcTextVariants: [
+            { ifFlag: 'a1_lucas_knows_davi_quit', text: "Boss — I'm done. This place is chaos. I quit. (Davi is Lucas's roommate. If you knew, you would understand why Lucas is so angry.)" }
+          ],
+          choices: [
+            { 
+              registry: 'formal',
+              text: "Wait, Davi. Let's talk about this. I can offer you a raise.",
+              keywords: ['wait', 'talk', 'raise', 'offer', 'money'],
+              response: "No. I'm sorry, boss. I can't. Good luck.", 
+              nextScene: 'silva_12',
+              trust: 10,
+              lens: { good: "You showed you value him.", odd: "Sometimes money isn't enough.", native: "Wait, let's talk about this." }
+            },
+            { 
+              registry: 'neutral',
+              text: "I understand. Good luck, Davi.",
+              keywords: ['understand', 'good luck', 'okay', 'fine'],
+              response: "Davi leaves. You are alone.", 
+              nextScene: 'silva_12',
+              lens: { good: "Respectful.", odd: "You didn't even try to keep your cook.", native: "I understand. Good luck." }
+            },
+            { 
+              registry: 'casual',
+              text: "Fine, go. I don't need you.",
+              keywords: ['go', 'dont need', 'fine'],
+              response: "Davi storms out. You have no cook.", 
+              nextScene: 'silva_12',
+              trust: -15, rizz: -5,
+              lens: { good: "You stood your ground.", odd: "Terrible management. Now you have zero cooks.", native: "I understand. Good luck." }
+            }
+          ]
+        },
+        silva_12: {
+          npcName: 'Narração',
+          npcText: "The phone rings again. It's Emma.",
+          choices: [
+            { 
+              registry: 'neutral',
+              text: "[Answer Emma]",
+              keywords: ['answer', 'emma'],
+              response: "Emma: 'Mr. Silva! The customer is very angry. He wants a new burger. But my phone is dying —'", 
+              nextScene: 'silva_13'
+            }
+          ]
+        },
+        silva_13: {
+          npcName: 'Emma',
           npcText: "Mr. Silva! The customer is very angry. He wants a new burger. But my phone is dying —",
           npcTextVariants: [
             { ifFlag: 'a1_emma_met_lucas', text: "Mr. Silva! The customer is very angry. He wants a new burger. I can hear him yelling. My phone is dying —" }
           ],
           energyCost: 5,
-          glossary: [{ word: 'Dying', meaning: 'Morrendo (bateria)' }, { word: 'Angry', meaning: 'Com raiva' }],
-          intents: [
-            { 
-              match: /(come back|return|new|remake|wait|ok|i will)/i, 
-              response: "The line goes dead. Emma's phone died. You have no cook, no cash system, and a customer waiting for a new burger.", 
-              nextScene: 'silva_09',
-              fx: { trust: 0, rizz: 0 },
-              lens: { explanation: "Tomar uma decisão (mandar voltar, fazer outro) é o que se espera de um gerente em uma crise.", native: "Come back here, I'll fix it." }
-            }
+          glossary: [
+            { word: 'Dying', meaning: 'Morrendo (bateria)', phonetic: '/ˈdaɪɪŋ/' }, 
+            { word: 'Angry', meaning: 'Com raiva', phonetic: '/ˈæŋɡri/' }
           ],
-          fallback: "The phone is dead. You need to act.",
-          quickReplies: [
-            { label: 'Volta pra cá, Emma.', text: 'Come back here, Emma.' },
-            { label: 'Vou fazer outro burger.', text: 'I will make another burger.' },
-            { label: 'Espera, eu resolvo.', text: 'Wait, I will fix it.' }
-          ]
-        },
-        silva_09: {
-          npcName: 'Mr. Silva (Você)',
-          npcText: "No cook. No cash system. One angry customer. Emma is coming back for a new burger. I have to decide.",
-          energyCost: 5,
-          glossary: [{ word: 'Decide', meaning: 'Decidir' }, { word: 'System', meaning: 'Sistema' }],
-          intents: [
+          choices: [
             { 
-              match: /(make|myself|cook|kitchen|burger|try)/i, 
-              response: "You go to the kitchen. You've watched Davi do this a thousand times. You make a burger. It's not pretty, but it's food.", 
-              nextScene: 'silva_10', 
-              addsFlags: ['a1_silva_refez_burger'],
-              fx: { trust: 10, rizz: 5 },
-              lens: { explanation: "'I'll make it myself' (vou fazer eu mesmo) usa o pronome reflexivo 'myself' para mostrar que você assume a responsabilidade final.", native: "I'll make it myself." }
+              registry: 'formal',
+              text: "Emma, come back immediately. I will fix this myself.",
+              keywords: ['come back', 'return', 'fix', 'myself'],
+              response: "The line goes dead. Emma's phone died.", 
+              nextScene: 'silva_14',
+              trust: 10,
+              lens: { good: "Taking charge of the situation.", odd: "The phone died before she could answer.", native: "Come back here, I'll fix it." }
             },
             { 
-              match: /(refund|money back|cancel|close|give up)/i, 
-              response: "You call Lucas. 'Sir, I'm sorry. We can't remake the burger tonight. I can refund you.' Lucas is silent. Then: 'Fine. I'll order somewhere else.'", 
-              nextScene: 'silva_end_ok', 
-              addsFlags: ['a1_silva_refunded'],
-              fx: { trust: -5, rizz: -5 },
-              lens: { explanation: "Desistir e dar o dinheiro de volta é uma solução, mas é a menos heroica. O cliente sai insatisfeito.", native: "I can issue a refund." }
+              registry: 'neutral',
+              text: "Tell him I am making a new one right now.",
+              keywords: ['tell him', 'making', 'new one', 'right now'],
+              response: "The line goes dead. You have no cook.", 
+              nextScene: 'silva_14',
+              trust: 5,
+              lens: { good: "Good communication.", odd: "How will you make it without a cook?", native: "I'm making a new one right now." }
+            },
+            { 
+              registry: 'casual',
+              text: "Just wait, I'll figure it out.",
+              keywords: ['wait', 'figure out'],
+              response: "The line goes dead. You need a plan.", 
+              nextScene: 'silva_14',
+              lens: { good: "Casual and calm.", odd: "You have no idea what to do.", native: "Hold on, I'll figure it out." }
             }
-          ],
-          fallback: "You have to decide now.",
-          quickReplies: [
-            { label: 'Vou fazer eu mesmo.', text: 'I will make it myself.' },
-            { label: 'Vou dar reembolso.', text: 'I will give a refund.' }
           ]
         },
-        silva_10: {
+        silva_14: {
+          npcName: 'Narração',
+          npcText: "No cook. No cash system. One angry customer. Emma is coming back for a new burger. You have to decide.",
+          choices: [
+            { 
+              registry: 'neutral',
+              text: "[Make the burger]",
+              keywords: ['make', 'burger'],
+              response: "You go to the kitchen. You've watched Davi do this a thousand times.", 
+              nextScene: 'silva_15'
+            },
+            { 
+              registry: 'formal',
+              text: "[Give up and refund]",
+              keywords: ['refund', 'give up'],
+              response: "You call Lucas to apologize and offer a refund. He is silent. Then: 'Fine. I'll order somewhere else.'", 
+              nextScene: 'silva_end_ok',
+              trust: -10, rizz: -5
+            }
+          ]
+        },
+        silva_15: {
+          npcName: 'Narração',
+          npcText: "You make a burger. It's not pretty, but it's food. You wrap it up.",
+          energyCost: 5,
+          choices: [
+            { 
+              registry: 'formal',
+              text: "I did it. I made the burger myself.",
+              keywords: ['make', 'myself', 'cook', 'kitchen', 'try'],
+              response: "Emma comes back, soaked. You hand her the bag.", 
+              nextScene: 'silva_16', 
+              addsFlags: ['a1_silva_refez_burger'],
+              trust: 15, rizz: 5,
+              lens: { good: "'Myself' shows you take full responsibility.", odd: "A manager cooking? Desperate times.", native: "I'll make it myself." }
+            },
+            { 
+              registry: 'neutral',
+              text: "I tried to cook it. How hard can it be?",
+              keywords: ['try', 'cook', 'hard'],
+              response: "Emma comes back. You hand her the bag.", 
+              nextScene: 'silva_16', 
+              addsFlags: ['a1_silva_refez_burger'],
+              trust: 5,
+              lens: { good: "Willing to try.", odd: "Cooking is hard.", native: "I'll try to make it." }
+            }
+          ]
+        },
+        silva_16: {
+          npcName: 'Narração',
+          npcText: "Emma is back. She is waiting for the new burger.",
+          choices: [
+            { 
+              registry: 'neutral',
+              text: "[Give her the bag]",
+              keywords: ['give', 'bag'],
+              response: "Emma: 'Mr. Silva! I'm back. Give me the new burger. The customer is waiting.'", 
+              nextScene: 'silva_17'
+            }
+          ]
+        },
+        silva_17: {
           npcName: 'Emma',
           npcText: "Mr. Silva! I'm back. Give me the new burger. The customer is waiting.",
           energyCost: 5,
-          glossary: [{ word: 'Back', meaning: 'De volta' }, { word: 'Waiting', meaning: 'Esperando' }],
-          intents: [
-            { 
-              match: /(here|take|go|fast|hurry|burger|no onions)/i, 
-              response: "You hand her the bag. 'No onions this time. I checked. Go.' Emma runs back into the rain.", 
-              nextScene: 'silva_11', 
-              addsFlags: ['a1_silva_checked'],
-              fx: { trust: 10, rizz: 0 },
-              lens: { explanation: "Confirmar o detalhe ('I checked') e ser direto ('Go fast') mostra que você resolveu o problema e está focado na urgência.", native: "Here, no onions. I checked. Go!" }
-            }
+          glossary: [
+            { word: 'Back', meaning: 'De volta', phonetic: '/bæk/' }
           ],
-          fallback: "Emma is waiting.",
-          quickReplies: [
-            { label: 'Aqui está. Sem cebola.', text: 'Here. No onions.' },
-            { label: 'Vai rápido!', text: 'Go fast!' },
-            { label: 'Eu conferi.', text: 'I checked.' }
-          ]
-        },
-        silva_11: {
-          npcName: 'Mr. Silva (Você)',
-          npcText: "It's 10 PM. The line is gone. The POS is dead. You count the cash. Today you lost money. Then your phone rings. It's a notification: a new Google review.",
-          energyCost: 5,
-          glossary: [{ word: 'Lost money', meaning: 'Perdeu dinheiro' }, { word: 'Review', meaning: 'Avaliação' }],
-          intents: [
+          choices: [
             { 
-              match: /(read|open|check|review|look|see)/i, 
-              response: "You open the review. Lucas wrote it: 'Great service from the delivery girl. Emma. 5 stars. The manager needs a better cook.'", 
-              nextScene: 'silva_end_good', 
-              addsFlags: ['a1_silva_completed'],
-              fx: { trust: 5, rizz: 0 },
-              lens: { explanation: "Ler a avaliação é a forma como você descobre o que os clientes realmente acharam.", native: "Let me read the review." }
+              registry: 'formal',
+              text: "Here it is. No onions this time. I checked it myself. Go!",
+              keywords: ['here', 'no onions', 'checked', 'go', 'myself'],
+              response: "You hand her the bag. Emma runs back into the rain.", 
+              nextScene: 'silva_18', 
+              addsFlags: ['a1_silva_checked'],
+              trust: 15,
+              lens: { good: "Reassuring and direct.", odd: "Very professional.", native: "Here, no onions. I checked. Go!" }
             },
             { 
-              match: /(close|home|go|wife|sleep|tired)/i, 
-              response: "You close the store. You go home. Your wife asks about your day. You don't have the energy to explain.", 
-              nextScene: 'silva_end_ok', 
-              addsFlags: ['a1_silva_completed'],
-              fx: { trust: 0, rizz: 0 },
-              lens: { explanation: "Ir para casa e não ler a avaliação mostra que você está exausto. Às vezes, é o que você precisa.", native: "I just want to go home." }
+              registry: 'neutral',
+              text: "Here. Go fast.",
+              keywords: ['here', 'go', 'fast', 'hurry'],
+              response: "You hand her the bag. Emma runs.", 
+              nextScene: 'silva_18', 
+              addsFlags: ['a1_silva_checked'],
+              trust: 5,
+              lens: { good: "Direct.", odd: "No reassurance.", native: "Here, go fast!" }
+            },
+            { 
+              registry: 'casual',
+              text: "Take it. Run!",
+              keywords: ['take', 'run'],
+              response: "Emma runs back into the rain.", 
+              nextScene: 'silva_18', 
+              rizz: 5,
+              lens: { good: "Shows urgency.", odd: "A bit aggressive.", native: "Take it and run!" }
             }
-          ],
-          fallback: "You open the review.",
-          quickReplies: [
-            { label: 'Vou ler a avaliação.', text: 'I will read the review.' },
-            { label: 'Vou fechar a loja.', text: 'I will close the store.' },
-            { label: 'Quero ir pra casa.', text: 'I want to go home.' }
+          ]
+        },
+        silva_18: {
+          npcName: 'Narração',
+          npcText: "It's 10 PM. The line is gone. The POS is dead. You count the cash. Today you lost money. Then your phone rings. It's a notification: a new Google review.",
+          choices: [
+            { 
+              registry: 'neutral',
+              text: "[Read the review]",
+              keywords: ['read', 'review'],
+              response: "You open the review. Lucas wrote it: 'Great service from the delivery girl. Emma. 5 stars. The manager needs a better cook.'", 
+              nextScene: 'silva_end_good'
+            },
+            { 
+              registry: 'casual',
+              text: "[Go home, you are tired]",
+              keywords: ['home', 'go', 'tired'],
+              response: "You close the store. You go home. Your wife asks about your day. You don't have the energy to explain.", 
+              nextScene: 'silva_end_ok'
+            }
           ]
         },
         silva_end_good: {
-          npcName: 'Narrador',
+          npcName: 'Narração',
           npcText: "You read the review twice. 5 stars. Emma saved the night. You make a note: give her a raise. You close the Burger Palace. Not a great day, but not a disaster.",
-          glossary: [{ word: 'Raise', meaning: 'Aumento' }],
+          glossary: [
+            { word: 'Raise', meaning: 'Aumento', phonetic: '/reɪz/' }
+          ],
           isEnd: true,
           endingType: 'bom'
         },
         silva_end_ok: {
-          npcName: 'Narrador',
+          npcName: 'Narração',
           npcText: "You close the store with less money than you started. No review. No drama. Just a long night. Tomorrow, you need to find a new cook.",
           isEnd: true,
           endingType: 'ok'
-        },
-        silva_bad_review: {
-          npcName: 'Narrador',
-          npcText: "The customer records what you said. The video goes viral. Your Google rating drops to 1 star. Customers start canceling orders. Mr. Silva — you're in trouble.",
-          glossary: [{ word: 'Viral', meaning: 'Viralizou' }],
-          isEnd: true,
-          endingType: 'ruim'
         }
       }
     },
@@ -606,339 +859,454 @@ const gameDataA1 = {
       charId: 'lucas',
       name: 'Lucas',
       role: 'Cliente',
-      emoji: '🧑',
+      emoji: '👨🏾',
       subtitle: 'A Espera',
       description: 'Fome, atraso, vizinho errado, e uma reviravolta que muda tudo.',
-      initialState: { money: 30.00, energy: 70 },
+      initialState: { energy: 70 },
       startScene: 'lucas_01',
       scenes: {
         lucas_01: {
-          npcName: 'Davi (seu colega de quarto)',
+          npcName: 'Davi',
           npcText: "I can't do this anymore. That Burger Palace is chaos. I'm quitting tonight. Don't wait up.",
           addFlags: ['a1_lucas_met_davi'],
           energyCost: 5,
-          glossary: [{ word: 'Quitting', meaning: 'Pedindo demissão' }, { word: 'Chaos', meaning: 'Caos' }],
-          intents: [
+          glossary: [
+            { word: 'Quitting', meaning: 'Pedindo demissão', phonetic: '/ˈkwɪtɪŋ/' }, 
+            { word: 'Chaos', meaning: 'Caos', phonetic: '/ˈkeɪɑːs/' }
+          ],
+          choices: [
             { 
-              match: /(why|what|happened|boss|silva|pay|problem)/i, 
+              registry: 'formal',
+              text: "Why? What happened at work today?",
+              keywords: ['why', 'what', 'happened', 'work'],
               response: "The manager is nice but the place is falling apart. I'm done. See you later.", 
               nextScene: 'lucas_02',
-              fx: { trust: 5, rizz: 0 },
-              lens: { explanation: "Perguntar o motivo mostra interesse na vida do amigo. É uma resposta empática.", native: "Why? What happened?" }
+              trust: 10,
+              lens: { good: "Shows empathy and interest.", odd: "A bit formal for a roommate.", native: "Why? What happened?" }
             },
             { 
-              match: /(ok|good luck|fine|understand|sorry|dude|yeah)/i, 
+              registry: 'neutral',
+              text: "Good luck, man. See you later.",
+              keywords: ['good luck', 'man', 'later', 'see you'],
               response: "Thanks, man. Good luck with your exam tomorrow.", 
               nextScene: 'lucas_02',
-              fx: { trust: 5, rizz: 5 },
-              lens: { explanation: "'Good luck, dude' é uma despedida amigável e informal, que mantém o vínculo mesmo quando você não vai insistir.", native: "Good luck, man. See you later." }
+              trust: 5, rizz: 5,
+              lens: { good: "Friendly and supportive.", odd: "Simple.", native: "Good luck, dude." }
+            },
+            { 
+              registry: 'casual',
+              text: "That sucks, bro.",
+              keywords: ['sucks', 'bro', 'dude'],
+              response: "Yeah, it does. See you later.", 
+              nextScene: 'lucas_02',
+              trust: 5, rizz: 5,
+              lens: { good: "'That sucks' is the most common way to say 'que droga'.", odd: "Very casual.", native: "That sucks, man." }
             }
-          ],
-          fallback: "Davi is at the door.",
-          quickReplies: [
-            { label: 'Por quê? O que aconteceu?', text: 'Why? What happened?' },
-            { label: 'Boa sorte, cara.', text: 'Good luck, dude.' },
-            { label: 'Entendo, até mais.', text: 'I understand, see you later.' }
           ]
         },
         lucas_02: {
-          npcName: 'Lucas (Você)',
-          npcText: "Great. My roommate leaves, I have an exam tomorrow, and I'm starving. Let me order food.",
-          energyCost: 5,
-          glossary: [{ word: 'Starving', meaning: 'Morrendo de fome' }, { word: 'Exam', meaning: 'Prova' }],
-          intents: [
+          npcName: 'Narração',
+          npcText: "Great. Your roommate leaves, you have an exam tomorrow, and you are starving. You need to order food.",
+          choices: [
             { 
-              match: /(order|burger|food|pizza|delivery|app|eat)/i, 
+              registry: 'neutral',
+              text: "[Order food]",
+              keywords: ['order', 'food'],
               response: "You open the app. Burger Palace. Cheeseburger and fries. No onions. 'Order placed. 30 minutes.'", 
-              nextScene: 'lucas_03',
-              fx: { trust: 5, rizz: 0 },
-              lens: { explanation: "Tomar uma atitude para resolver o problema. Simples e direto.", native: "I'll order a burger." }
+              nextScene: 'lucas_03'
             }
-          ],
-          fallback: "You need food.",
-          quickReplies: [
-            { label: 'Vou pedir um burger.', text: 'I will order a burger.' },
-            { label: 'Vou usar o app.', text: 'I will use the app.' },
-            { label: 'Quero comer algo.', text: 'I want to eat something.' }
           ]
         },
         lucas_03: {
-          npcName: 'Sistema',
+          npcName: 'Narração',
           npcText: "45 minutes later. Your food is still not here. The app says 'on the way' but nothing. You're getting angry.",
           energyCost: 5,
-          glossary: [{ word: 'On the way', meaning: 'A caminho' }, { word: 'Angry', meaning: 'Com raiva' }],
-          intents: [
+          glossary: [
+            { word: 'On the way', meaning: 'A caminho', phonetic: '/ɑːn ðə weɪ/' }, 
+            { word: 'Angry', meaning: 'Com raiva', phonetic: '/ˈæŋɡri/' }
+          ],
+          choices: [
             { 
-              match: /(call|phone|complain|where|late|silva|burger|check)/i, 
-              response: "You call Burger Palace. A man answers: 'Burger Palace, Mr. Silva speaking.'", 
+              registry: 'formal',
+              text: "I will call Burger Palace to check on my order.",
+              keywords: ['call', 'phone', 'check', 'order'],
+              response: "You call Burger Palace.", 
               nextScene: 'lucas_04',
-              fx: { trust: 5, rizz: 0 },
-              lens: { explanation: "Ligar para resolver é melhor do que esperar eternamente ou usar o app. Ação direta.", native: "I'm going to call them." }
+              trust: 10,
+              lens: { good: "Taking action.", odd: "Formal self-talk.", native: "I'm going to call them." }
             },
             { 
-              match: /(wait|patience|soon|another|minute)/i, 
-              response: "You wait 10 more minutes. Nothing. You call.", 
+              registry: 'neutral',
+              text: "Where is my food? I'll call them.",
+              keywords: ['where', 'food', 'call'],
+              response: "You call Burger Palace.", 
               nextScene: 'lucas_04',
-              fx: { trust: -2, rizz: 0 },
-              lens: { explanation: "Esperar mais pode ser passivo demais quando o serviço já está atrasado.", native: "I'll wait a bit more." }
+              trust: 5,
+              lens: { good: "Direct.", odd: "Simple.", native: "Where is my food? I'll call." }
+            },
+            { 
+              registry: 'casual',
+              text: "This is taking forever. I'm calling them.",
+              keywords: ['forever', 'calling', 'taking'],
+              response: "You call.", 
+              nextScene: 'lucas_04',
+              trust: 5,
+              lens: { good: "'Taking forever' is a great expression.", odd: "Casual.", native: "This is taking forever." }
             }
-          ],
-          fallback: "You need to call.",
-          quickReplies: [
-            { label: 'Vou ligar pro Burger Palace.', text: 'I will call the Burger Palace.' },
-            { label: 'Cadê minha comida?', text: 'Where is my food?' },
-            { label: 'Vou esperar mais.', text: 'I will wait more.' }
           ]
         },
         lucas_04: {
-          npcName: 'Mr. Silva',
-          npcText: "Burger Palace, Mr. Silva speaking. How can I help you?",
-          energyCost: 5,
-          glossary: [{ word: 'How can I help', meaning: 'Como posso ajudar' }],
-          intents: [
+          npcName: 'Narração',
+          npcText: "A man answers the phone.",
+          choices: [
             { 
-              match: /(where|food|late|burger|order|waiting|angry)/i, 
-              response: "I'm sorry, sir. The delivery girl is on her way. The rain is very bad tonight. Please wait a little more.", 
-              nextScene: 'lucas_05',
-              fx: { trust: 5, rizz: 0 },
-              lens: { explanation: "Perguntar diretamente 'Onde está minha comida?' é assertivo, mas sem agressividade.", native: "Where is my food?" }
-            },
-            { 
-              match: /(onion|no onions|remember|told you)/i, 
-              response: "No onions. Yes, sir. I have it here. The delivery girl is almost there.", 
-              nextScene: 'lucas_05',
-              fx: { trust: 10, rizz: 5 },
-              lens: { explanation: "Lembrar o gerente sobre o detalhe do pedido ('no onions') é crucial para não receber o pedido errado de novo.", native: "Remember, I asked for no onions." }
+              registry: 'neutral',
+              text: "[Speak to the manager]",
+              keywords: ['speak', 'manager'],
+              response: "Mr. Silva: 'Burger Palace, Mr. Silva speaking. How can I help you?'", 
+              nextScene: 'lucas_05'
             }
-          ],
-          fallback: "Hello? Are you there?",
-          offensiveScene: 'lucas_bad_competitor',
-          quickReplies: [
-            { label: 'Cadê minha comida?', text: 'Where is my food?' },
-            { label: 'Estou esperando há 45 minutos.', text: 'I have been waiting 45 minutes.' },
-            { label: 'Lembra: sem cebola!', text: 'Remember: no onions!' }
           ]
         },
         lucas_05: {
-          npcName: 'Sistema',
-          npcText: "10 minutes later. The doorbell rings. You open the door. It's your neighbor, not the food.",
+          npcName: 'Mr. Silva',
+          npcText: "Burger Palace, Mr. Silva speaking. How can I help you?",
           energyCost: 5,
-          glossary: [{ word: 'Doorbell', meaning: 'Campainha' }, { word: 'Neighbor', meaning: 'Vizinho' }],
-          intents: [
+          glossary: [
+            { word: 'How can I help', meaning: 'Como posso ajudar', phonetic: '/haʊ kæn aɪ help/' }
+          ],
+          choices: [
             { 
-              match: /(hi|hello|neighbor|not now|busy|waiting|hey)/i, 
-              response: "Your neighbor asks for sugar. You give it. He leaves. You go back to waiting.", 
+              registry: 'formal',
+              text: "Hello, I have been waiting for 45 minutes. Where is my order?",
+              keywords: ['hello', 'waiting', 'minutes', 'where', 'order'],
+              response: "I'm sorry, sir. The delivery girl is on her way. The rain is very bad tonight. Please wait a little more.", 
               nextScene: 'lucas_06',
-              fx: { trust: 5, rizz: 0 },
-              lens: { explanation: "Manter a educação com o vizinho, mesmo estando com fome e irritado, é um bom exercício de paciência.", native: "Hey, what's up?" }
+              trust: 10,
+              lens: { good: "Polite but firm.", odd: "Very professional.", native: "I've been waiting 45 minutes. Where is my food?" }
             },
             { 
-              match: /(food|burger|not you|sorry|busy)/i, 
-              response: "Your neighbor laughs: 'Waiting for food? Good luck.' He leaves.", 
+              registry: 'neutral',
+              text: "Hey, I ordered 45 minutes ago. Where is my food?",
+              keywords: ['hey', 'ordered', 'where', 'food'],
+              response: "I'm sorry, sir. The delivery girl is on her way.", 
               nextScene: 'lucas_06',
-              fx: { trust: 5, rizz: 5 },
-              lens: { explanation: "Ser honesto e dizer que está esperando comida é uma boa forma de quebrar o gelo e encerrar a conversa.", native: "Sorry, I'm just waiting for my food." }
+              trust: 5,
+              lens: { good: "Direct.", odd: "Simple.", native: "Where is my food?" }
+            },
+            { 
+              registry: 'casual',
+              text: "Dude, I'm starving. Where is my burger?",
+              keywords: ['dude', 'starving', 'burger', 'where'],
+              response: "Silva: 'I'm sorry, sir. Please wait a little more.'", 
+              nextScene: 'lucas_06',
+              lens: { good: "'Dude' is casual.", odd: "Calling the manager 'dude' is risky.", native: "I'm starving, where is my food?" }
             }
-          ],
-          fallback: "Your neighbor is waiting.",
-          quickReplies: [
-            { label: 'Oi, vizinho.', text: 'Hey, neighbor.' },
-            { label: 'Desculpa, estou esperando comida.', text: 'Sorry, I am waiting for food.' },
-            { label: 'O que você quer?', text: 'What do you want?' }
           ]
         },
         lucas_06: {
-          npcName: 'Sistema',
-          npcText: "Finally! The doorbell rings again. This time it's a girl, wet from the rain, holding a bag. 'Burger Palace,' she says. 'I am so sorry for the wait.'",
-          addFlags: ['a1_lucas_met_emma'],
-          energyCost: 5,
-          glossary: [{ word: 'Wet', meaning: 'Molhada' }, { word: 'Wait', meaning: 'Espera' }],
-          intents: [
+          npcName: 'Narração',
+          npcText: "10 minutes later. The doorbell rings. You open the door. It's your neighbor, not the food.",
+          choices: [
             { 
-              match: /(finally|thanks|food|here|give|ok|hungry|yeah)/i, 
-              response: "You take the bag. 'It's about time.' You open it. The burger has... onions.", 
-              nextScene: 'lucas_07',
-              fx: { trust: 5, rizz: 0 },
-              lens: { explanation: "Apenas receber a comida. Correto, mas não cria conexão.", native: "Finally, thanks." }
+              registry: 'neutral',
+              text: "[Open the door]",
+              keywords: ['open', 'door'],
+              response: "Your neighbor asks for sugar. You give it. He leaves. You go back to waiting.", 
+              nextScene: 'lucas_07'
             }
-          ],
-          fallback: "Take the bag.",
-          quickReplies: [
-            { label: 'Finalmente!', text: 'Finally!' },
-            { label: 'Obrigado.', text: 'Thanks.' },
-            { label: 'Estou morrendo de fome.', text: 'I am starving.' }
           ]
         },
         lucas_07: {
-          npcName: 'Lucas (Você)',
-          npcText: "Onions. I said NO onions. I hate onions. I'm tired, hungry, and my exam is tomorrow. What do I do?",
-          energyCost: 5,
-          glossary: [{ word: 'Hate', meaning: 'Odeio' }, { word: 'Tired', meaning: 'Cansado' }],
-          npcTextVariants: [
-            { ifFlag: 'a1_emma_met_lucas', text: "Onions. I said NO onions. (You look at the girl. She looks scared, not malicious. This is not her fault. Maybe.)" }
-          ],
-          intents: [
+          npcName: 'Narração',
+          npcText: "You close the door. Finally, the doorbell rings again. This time it's a girl, wet from the rain, holding a bag.",
+          choices: [
             { 
-              match: /(calm|ok|fine|sorry|not your fault|girl|rain|wait)/i, 
-              response: "You take a breath. 'Okay. I'm sorry. I'm not angry at you. But I can't eat this. Can you get me another one?'", 
-              nextScene: 'lucas_08', 
-              addsFlags: ['a1_lucas_kind'],
-              fx: { trust: 10, rizz: 5 },
-              lens: { explanation: "Empatia. Reconhecer que o erro não é da entregadora ('not your fault') evita que você desconte sua raiva na pessoa errada.", native: "Calm down, it's not your fault." }
-            },
-            { 
-              match: /(angry|hate|stupid|bad|terrible|complain|manager)/i, 
-              response: "You explode. 'This is a joke! I said no onions! Call your manager!' The girl looks like she might cry.", 
-              nextScene: 'lucas_08',
-              fx: { trust: -10, rizz: -5 },
-              lens: { explanation: "Explodir de raiva pode ser compreensível, mas não resolve o problema da comida e pode piorar a situação.", native: "This is unacceptable! Let me speak to a manager." }
+              registry: 'neutral',
+              text: "[Open the door for the delivery]",
+              keywords: ['open', 'door', 'delivery'],
+              response: "Emma: 'Burger Palace. I am so sorry for the wait.'", 
+              nextScene: 'lucas_08'
             }
-          ],
-          fallback: "Say something. She's waiting.",
-          offensiveScene: 'lucas_bad_competitor',
-          quickReplies: [
-            { label: 'Calma, não é sua culpa.', text: 'Calm down. It is not your fault.' },
-            { label: 'Estou com raiva, mas tudo bem.', text: 'I am angry, but it is okay.' },
-            { label: 'Chama seu gerente!', text: 'Call your manager!' }
           ]
         },
         lucas_08: {
           npcName: 'Emma',
-          npcText: "I'm so sorry. I will go back and get you a new one. I promise. Please wait a little more.",
+          npcText: "Burger Palace. I am so sorry for the wait.",
+          addFlags: ['a1_lucas_met_emma'],
           energyCost: 5,
-          glossary: [{ word: 'Promise', meaning: 'Prometer' }, { word: 'Wait', meaning: 'Esperar' }],
-          intents: [
+          glossary: [
+            { word: 'Wet', meaning: 'Molhada', phonetic: '/wet/' }, 
+            { word: 'Wait', meaning: 'Espera', phonetic: '/weɪt/' }
+          ],
+          choices: [
             { 
-              match: /(ok|go|wait|fine|hurry|please|fast)/i, 
-              response: "She runs back into the rain. You close the door. You wait. Again.", 
+              registry: 'formal',
+              text: "Thank you for bringing it. I appreciate it.",
+              keywords: ['thank you', 'bringing', 'appreciate'],
+              response: "You take the bag. You open it. The burger has... onions.", 
               nextScene: 'lucas_09',
-              fx: { trust: 0, rizz: 0 },
-              lens: { explanation: "Aceitar a solução e esperar. Frases diretas como 'Go, I will wait' são suficientes aqui.", native: "Go, I'll wait." }
+              trust: 10,
+              lens: { good: "Grateful.", odd: "Formal.", native: "Thanks, I appreciate it." }
             },
             { 
-              match: /(sorry|forgive|no problem|rain|careful)/i, 
-              response: "She smiles a little. 'Thank you. I will be fast.' She runs back into the rain.", 
+              registry: 'neutral',
+              text: "Finally! Thanks.",
+              keywords: ['finally', 'thanks'],
+              response: "You take the bag. You open it. The burger has... onions.", 
               nextScene: 'lucas_09',
-              fx: { trust: 10, rizz: 5 },
-              lens: { explanation: "'Be careful in the rain' demonstra preocupação genuína com a outra pessoa, mesmo ela estando indo consertar o erro dela.", native: "Be careful out there." }
+              trust: 5,
+              lens: { good: "Relieved.", odd: "Simple.", native: "Finally, thanks." }
+            },
+            { 
+              registry: 'casual',
+              text: "It's about time! I'm starving.",
+              keywords: ['about time', 'starving'],
+              response: "You take the bag. You open it. The burger has... onions.", 
+              nextScene: 'lucas_09',
+              lens: { good: "'It's about time' is a great expression.", odd: "A bit rude to say to the delivery girl.", native: "It's about time, I'm starving!" }
             }
-          ],
-          fallback: "She's waiting for your answer.",
-          quickReplies: [
-            { label: 'Vai, eu espero.', text: 'Go, I will wait.' },
-            { label: 'Rápido, por favor.', text: 'Fast, please.' },
-            { label: 'Cuidado com a chuva.', text: 'Be careful in the rain.' }
           ]
         },
         lucas_09: {
-          npcName: 'Sistema',
-          npcText: "20 minutes pass. The doorbell rings. You open it. It's Davi, your roommate. He looks tired. 'Hey. I quit my job tonight.'",
-          addFlags: ['a1_lucas_knows_davi_quit'],
+          npcName: 'Narração',
+          npcText: "Onions. I said NO onions. I hate onions. I'm tired, hungry, and my exam is tomorrow.",
           energyCost: 5,
-          glossary: [{ word: 'Roommate', meaning: 'Colega de quarto' }, { word: 'Quit', meaning: 'Pediu demissão' }],
-          npcTextVariants: [
-            { ifFlag: 'a1_silva_heard_davi_quit', text: "20 minutes pass. Davi comes home. He looks tired. 'Hey. I quit tonight. The manager is a mess. But he tried to fix everything alone.'" }
+          glossary: [
+            { word: 'Hate', meaning: 'Odeio', phonetic: '/heɪt/' }, 
+            { word: 'Tired', meaning: 'Cansado', phonetic: '/ˈtaɪərd/' }
           ],
-          intents: [
+          npcTextVariants: [
+            { ifFlag: 'a1_emma_met_lucas', text: "Onions. I said NO onions. (You look at the girl. She looks scared, not malicious. This is not her fault. Maybe.)" }
+          ],
+          choices: [
             { 
-              match: /(why|what|burger|onion|chaos|boss|silva|sorry)/i, 
-              response: "Davi explains: 'The manager forgot to check the burger. Then he made another one alone. He's a disaster, but he tried.' You think about the girl in the rain.", 
-              nextScene: 'lucas_10',
-              fx: { trust: 5, rizz: 0 },
-              lens: { explanation: "Perguntar o que aconteceu ajuda a montar o quebra-cabeça da noite e a entender o lado do seu amigo.", native: "What happened, man?" }
+              registry: 'formal',
+              text: "Excuse me, I asked for no onions. Can you please get me another one?",
+              keywords: ['excuse me', 'asked', 'no onions', 'another one', 'please'],
+              response: "You take a breath. 'Okay. I'm sorry. I'm not angry at you. But I can't eat this.'", 
+              nextScene: 'lucas_10', 
+              addsFlags: ['a1_lucas_kind'],
+              trust: 15, rizz: 5,
+              lens: { good: "Polite but firm. Perfect.", odd: "Very controlled.", native: "I'm sorry, I asked for no onions. Can you get me a new one?" }
             },
             { 
-              match: /(ok|tired|sleep|sorry|good night)/i, 
-              response: "Davi goes to his room. You sit on the couch. You think about the girl in the rain. You feel a little bad.", 
+              registry: 'neutral',
+              text: "I can't eat this. I said no onions.",
+              keywords: ['cant eat', 'said', 'no onions'],
+              response: "You take a breath. 'Okay. I'm not angry at you. But I can't eat this.'", 
+              nextScene: 'lucas_10', 
+              addsFlags: ['a1_lucas_kind'],
+              trust: 5,
+              lens: { good: "Clear and direct.", odd: "A bit blunt.", native: "I can't eat this, I asked for no onions." }
+            },
+            { 
+              registry: 'casual',
+              text: "Are you kidding me? I hate onions!",
+              keywords: ['kidding', 'hate', 'onions', 'angry'],
+              response: "You explode. 'This is a joke! I said no onions!' The girl looks like she might cry.", 
               nextScene: 'lucas_10',
-              fx: { trust: 5, rizz: 5 },
-              lens: { explanation: "Respeitar o cansaço do amigo e desejar boa noite mostra que você entende o momento dele.", native: "Get some rest, man. Good night." }
+              trust: -10, rizz: -5,
+              lens: { good: "'Are you kidding me?' is a great expression.", odd: "Exploding at the delivery girl won't fix the burger.", native: "I can't believe this, I said no onions!" }
             }
-          ],
-          fallback: "Davi is waiting.",
-          quickReplies: [
-            { label: 'Por que você saiu?', text: 'Why did you quit?' },
-            { label: 'O que aconteceu?', text: 'What happened?' },
-            { label: 'Boa noite, Davi.', text: 'Good night, Davi.' }
           ]
         },
         lucas_10: {
-          npcName: 'Sistema',
-          npcText: "The doorbell rings one more time. You open it. The girl is back. She's soaked, holding a new bag. 'Here. No onions this time. I checked.'",
+          npcName: 'Emma',
+          npcText: "I'm so sorry. I will go back and get you a new one. I promise. Please wait a little more.",
           energyCost: 5,
-          glossary: [{ word: 'Soaked', meaning: 'Encharcada' }, { word: 'Checked', meaning: 'Conferi' }],
-          intents: [
+          glossary: [
+            { word: 'Promise', meaning: 'Prometer', phonetic: '/ˈprɑːmɪs/' }
+          ],
+          choices: [
             { 
-              match: /(thanks|sorry|come in|towel|rain|wow|really)/i, 
-              response: "You look at her. She came back in the rain. Twice. You remember Davi's words. 'Thank you. Really. You didn't have to come back.'", 
+              registry: 'formal',
+              text: "Thank you. I will wait here. Please be careful in the rain.",
+              keywords: ['thank you', 'wait', 'careful', 'rain'],
+              response: "She smiles a little. 'Thank you. I will be fast.' She runs back into the rain.", 
               nextScene: 'lucas_11',
-              fx: { trust: 10, rizz: 5 },
-              lens: { explanation: "Reconhecer o esforço do outro ('You didn't have to come back') e agradecer de verdade cria uma conexão humana forte.", native: "Thank you, really. I appreciate it." }
+              trust: 15, rizz: 5,
+              lens: { good: "'Be careful' shows genuine concern.", odd: "Very polite.", native: "Be careful out there." }
             },
             { 
-              match: /(ok|fine|give|food|hungry|finally)/i, 
-              response: "You take the bag. 'Thanks. Finally.' She nods and starts to leave.", 
+              registry: 'neutral',
+              text: "Okay. Go, I'll wait.",
+              keywords: ['okay', 'go', 'wait'],
+              response: "She runs back into the rain. You close the door. You wait. Again.", 
               nextScene: 'lucas_11',
-              fx: { trust: 0, rizz: 0 },
-              lens: { explanation: "Apenas receber a comida e encerrar a interação. É o mínimo, mas não demonstra gratidão pelo esforço.", native: "Thanks. Finally." }
+              trust: 5,
+              lens: { good: "Direct.", odd: "Simple.", native: "Go, I'll wait." }
+            },
+            { 
+              registry: 'casual',
+              text: "Hurry up, please.",
+              keywords: ['hurry', 'please', 'fast'],
+              response: "She runs back into the rain.", 
+              nextScene: 'lucas_11',
+              lens: { good: "Shows urgency.", odd: "A bit demanding.", native: "Please hurry." }
             }
-          ],
-          fallback: "Say something.",
-          quickReplies: [
-            { label: 'Obrigado, de verdade.', text: 'Thank you, really.' },
-            { label: 'Desculpa por antes.', text: 'Sorry about earlier.' },
-            { label: 'Você está encharcada!', text: 'You are soaked!' }
           ]
         },
         lucas_11: {
-          npcName: 'Lucas (Você)',
-          npcText: "The burger is hot. No onions. The girl is still at the door, waiting. Davi is in his room. My exam is tomorrow. What do I do?",
-          energyCost: 5,
-          glossary: [{ word: 'Hot', meaning: 'Quente' }, { word: 'Waiting', meaning: 'Esperando' }],
-          intents: [
+          npcName: 'Narração',
+          npcText: "20 minutes pass. The doorbell rings. You open it. It's Davi, your roommate. He looks tired.",
+          choices: [
             { 
-              match: /(tip|money|thank|sorry|app|review|good|5 stars)/i, 
-              response: "You give her a $5 tip and open the app. 5 stars for Burger Palace. 'The delivery girl, Emma, saved my night.' You eat. The burger is good.", 
-              nextScene: 'lucas_end_good', 
-              addsFlags: ['a1_lucas_completed', 'a1_lucas_gave_tip'],
-              fx: { trust: 10, rizz: 10 },
-              lens: { explanation: "Deixar uma avaliação positiva e uma gorjeta reconhece publicamente o esforço da entregadora, ajudando-a no trabalho.", native: "Here's a tip. I'll give you 5 stars." }
+              registry: 'neutral',
+              text: "[Talk to Davi]",
+              keywords: ['talk', 'davi'],
+              response: "Davi: 'Hey. I quit my job tonight.'", 
+              nextScene: 'lucas_12'
+            }
+          ]
+        },
+        lucas_12: {
+          npcName: 'Davi',
+          npcText: "Hey. I quit my job tonight.",
+          addFlags: ['a1_lucas_knows_davi_quit'],
+          energyCost: 5,
+          glossary: [
+            { word: 'Roommate', meaning: 'Colega de quarto', phonetic: '/ˈruːmmeɪt/' }, 
+            { word: 'Quit', meaning: 'Pediu demissão', phonetic: '/kwɪt/' }
+          ],
+          npcTextVariants: [
+            { ifFlag: 'a1_silva_heard_davi_quit', text: "Hey. I quit tonight. The manager is a mess. But he tried to fix everything alone." }
+          ],
+          choices: [
+            { 
+              registry: 'formal',
+              text: "Are you okay? What happened at the restaurant?",
+              keywords: ['okay', 'what', 'happened', 'restaurant'],
+              response: "Davi explains: 'The manager forgot to check the burger. Then he made another one alone. He's a disaster, but he tried.'", 
+              nextScene: 'lucas_13',
+              trust: 10,
+              lens: { good: "Shows empathy.", odd: "Formal.", native: "What happened, man?" }
             },
             { 
-              match: /(ok|bye|good night|close door|eat|fine)/i, 
-              response: "You close the door. You eat. The burger is good. But you feel a little bad about the girl in the rain.", 
+              registry: 'neutral',
+              text: "Man, you look tired. Good night.",
+              keywords: ['tired', 'good night', 'look'],
+              response: "Davi goes to his room. You sit on the couch.", 
+              nextScene: 'lucas_13',
+              trust: 5, rizz: 5,
+              lens: { good: "Respectful.", odd: "Simple.", native: "You look tired, get some rest." }
+            },
+            { 
+              registry: 'casual',
+              text: "What happened, dude? You look terrible.",
+              keywords: ['what happened', 'dude', 'terrible'],
+              response: "Davi: 'I just quit. It was too much.'", 
+              nextScene: 'lucas_13',
+              trust: 5,
+              lens: { good: "Casual and direct.", odd: "'You look terrible' can be offensive.", native: "What happened, man?" }
+            }
+          ]
+        },
+        lucas_13: {
+          npcName: 'Narração',
+          npcText: "The doorbell rings one more time. You open it. The girl is back. She's soaked, holding a new bag.",
+          choices: [
+            { 
+              registry: 'neutral',
+              text: "[Open the door for Emma]",
+              keywords: ['open', 'door', 'emma'],
+              response: "Emma: 'Here. No onions this time. I checked.'", 
+              nextScene: 'lucas_14'
+            }
+          ]
+        },
+        lucas_14: {
+          npcName: 'Emma',
+          npcText: "Here. No onions this time. I checked.",
+          energyCost: 5,
+          glossary: [
+            { word: 'Soaked', meaning: 'Encharcada', phonetic: '/soʊkt/' }, 
+            { word: 'Checked', meaning: 'Conferi', phonetic: '/tʃekt/' }
+          ],
+          choices: [
+            { 
+              registry: 'formal',
+              text: "Thank you so much. You didn't have to come back in this rain.",
+              keywords: ['thank you', 'didnt have to', 'rain', 'back'],
+              response: "You look at her. She came back in the rain. Twice.", 
+              nextScene: 'lucas_15',
+              trust: 15, rizz: 5,
+              lens: { good: "Recognizing her effort.", odd: "Very polite.", native: "Thank you, really. I appreciate it." }
+            },
+            { 
+              registry: 'neutral',
+              text: "Thanks. Sorry about earlier.",
+              keywords: ['thanks', 'sorry', 'earlier'],
+              response: "She nods. 'It's okay. Enjoy your food.'", 
+              nextScene: 'lucas_15',
+              trust: 5,
+              lens: { good: "Acknowledges the situation.", odd: "Simple.", native: "Thanks, sorry about that." }
+            },
+            { 
+              registry: 'casual',
+              text: "You are soaked! Come in for a towel.",
+              keywords: ['soaked', 'come in', 'towel'],
+              response: "She laughs. 'No, I have to go. But thank you.'", 
+              nextScene: 'lucas_15',
+              trust: 10, rizz: 10,
+              lens: { good: "'Soaked' is the perfect word here.", odd: "Inviting the delivery girl in is unusual.", native: "You're soaked! Do you want a towel?" }
+            }
+          ]
+        },
+        lucas_15: {
+          npcName: 'Narração',
+          npcText: "The burger is hot. No onions. The girl is still at the door, waiting. Davi is in his room. My exam is tomorrow.",
+          energyCost: 5,
+          glossary: [
+            { word: 'Hot', meaning: 'Quente', phonetic: '/hɑːt/' }, 
+            { word: 'Waiting', meaning: 'Esperando', phonetic: '/ˈweɪtɪŋ/' }
+          ],
+          choices: [
+            { 
+              registry: 'formal',
+              text: "Here is a tip for you. I will give you 5 stars on the app.",
+              keywords: ['tip', '5 stars', 'app', 'review'],
+              response: "You give her a $5 tip and open the app. 5 stars. 'The delivery girl, Emma, saved my night.'", 
+              nextScene: 'lucas_end_good', 
+              addsFlags: ['a1_lucas_completed', 'a1_lucas_gave_tip'],
+              trust: 15, rizz: 10,
+              lens: { good: "Generous and appreciative.", odd: "Formal.", native: "Here's a tip. I'll give you 5 stars." }
+            },
+            { 
+              registry: 'neutral',
+              text: "Here is a tip. Thanks for coming back.",
+              keywords: ['tip', 'thanks', 'back'],
+              response: "You close the door. You eat. The burger is good.", 
               nextScene: 'lucas_end_ok', 
               addsFlags: ['a1_lucas_completed'],
-              fx: { trust: 0, rizz: 0 },
-              lens: { explanation: "Fechar a porta sem uma palavra extra é válido, mas deixa um gosto agridoce na história.", native: "Good night." }
+              trust: 5,
+              lens: { good: "Nice gesture.", odd: "Simple.", native: "Here's a tip, thanks." }
+            },
+            { 
+              registry: 'casual',
+              text: "Good night! Thanks!",
+              keywords: ['good night', 'thanks'],
+              response: "You close the door without a tip. You eat.", 
+              nextScene: 'lucas_end_ok', 
+              addsFlags: ['a1_lucas_completed'],
+              lens: { good: "Polite.", odd: "No tip after she came back in the rain.", native: "Good night, thanks." }
             }
-          ],
-          fallback: "You need to decide.",
-          quickReplies: [
-            { label: 'Aqui, uma gorjeta.', text: 'Here, a tip for you.' },
-            { label: 'Vou dar 5 estrelas no app.', text: 'I will give 5 stars on the app.' },
-            { label: 'Boa noite.', text: 'Good night.' }
           ]
         },
         lucas_end_good: {
-          npcName: 'Narrador',
+          npcName: 'Narração',
           npcText: "You eat the burger. It's perfect. You write a 5-star review. The next morning, your exam goes well. Davi tells you the manager gave Emma a raise. You smile. The system is broken, but people are not.",
-          glossary: [{ word: 'Raise', meaning: 'Aumento' }],
+          glossary: [
+            { word: 'Raise', meaning: 'Aumento', phonetic: '/reɪz/' }
+          ],
           isEnd: true,
           endingType: 'bom'
         },
         lucas_end_ok: {
-          npcName: 'Narrador',
+          npcName: 'Narração',
           npcText: "You eat the burger. It's fine. Not great, not bad. You don't leave a review. The next morning, your exam is okay. Life goes on.",
           isEnd: true,
           endingType: 'ok'
-        },
-        lucas_bad_competitor: {
-          npcName: 'Narrador',
-          npcText: "You say something terrible. Emma leaves in tears. You don't eat that night. Davi hears about it and doesn't speak to you for a week. You order from a competitor. The burger is cold. Your exam is a disaster.",
-          glossary: [{ word: 'Tears', meaning: 'Lágrimas' }, { word: 'Competitor', meaning: 'Concorrente' }],
-          isEnd: true,
-          endingType: 'ruim'
         }
       }
     }

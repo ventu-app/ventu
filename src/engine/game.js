@@ -1,835 +1,865 @@
-﻿/*! game.js v2 — motor do Ventu (requer ventu-learning.js carregado antes) */
-document.addEventListener('DOMContentLoaded', () => {
-  /* ---------- camada pedagógica (com shim mínimo se o módulo não carregar) ---------- */
-  function makeShim() {
-    const noop = () => {};
-    const cfg = { sound: true, typewriter: true, soft: false };
-    console.error('[Ventu] ventu-learning.js não foi carregado: rodando em modo básico.');
-    return {
-      config: {}, HINT_COSTS: [10], settings: { get: k => cfg[k], set: noop },
-      reducedMotion: () => false, normalize: s => String(s).toLowerCase().trim(),
-      matchIntent: (s, t) => {
-        const i = (s.intents || []).findIndex(it => it.match && ((it.match.lastIndex = 0), it.match.test(t)));
-        return { intent: i >= 0 ? s.intents[i] : null, index: i, kind: i >= 0 ? 'regex' : null };
-      },
-      bestAnswer: () => ({ intentIndex: -1, phrase: null }),
-      hintFor: () => 'Releia a fala do NPC e procure a palavra-chave.',
-      qualityOf: () => 'ok', validate: () => [], addCard: noop, logError: noop, recordResult: noop,
-      skillReport: () => null, speak: noop, decorate: noop, mountToolbar: noop, openReview: noop,
-      confirmMature: () => Promise.resolve('full'), cardStats: () => ({ due: 0, total: 0 })
-    };
-  }
-  const VL = window.VentuLearn || makeShim();
+﻿/**
+ * Ventu Game Engine v5.4 (Pronunciation Traps + Complete Clean)
+ */
 
-  /* ---------- helpers ---------- */
-  const sleep = ms => new Promise(r => setTimeout(r, ms));
-  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const stripTags = s => String(s == null ? '' : s).replace(/<[^>]*>/g, '');
-  const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
-  const nz = (v, d) => (v === undefined || v === null ? d : v);   // corrige o bug de `trust || 100` quando trust = 0
-  const looksPortuguese = s => /[ãõçáéíóúâêô]|\b(você|não|para|com)\b/i.test(s);
-
-  // Botões de balanceamento: mexa aqui, não no meio do código.
-  const TUNING = {
-    failEnergyLoss: 5,        // energia perdida por resposta que não casa
-    failsBeforeNudge: 2,      // 2ª falha seguida: Ventu reexibe os botões
-    failsBeforeLock: 3,       // 3ª falha seguida: trava o texto livre (cenas com botões)
-    rewindCost: 15,
-    firstTryTrustBonus: 2,    // acertou de primeira, resposta ideal, sem dica
-    typoTrustPenalty: 1,
-    assistedNoRizz: true,     // com a dica 3 (resposta pronta) não ganha Rizz
-    xp: { endGood: 150, endOther: 50, replay: 10, accuracyBonusMax: 50, firstTryHit: 3 },
-    readMsPerChar: 22         // tempo de leitura do feedback antes da próxima cena
-  };
-
-  const multiChar = window.currentGameData && window.currentGameData.characters;
-  const rawData = window.currentGameData;
-
-  function charGame(data, ch) {
-    return { ...ch, level: data.id, title: data.title, shopItems: data.shopItems, nextLevel: data.nextLevel, mature: nz(ch.mature, data.mature) };
-  }
-
-  if (multiChar) {
-    const urlChar = new URLSearchParams(window.location.search).get('c');
-    if (urlChar && multiChar[urlChar]) startGame(charGame(rawData, multiChar[urlChar]));
-    else showCharSelect(rawData);
-  } else {
-    startGame(rawData);
-  }
-
-  /* ====================== seleção de perspectiva ====================== */
-  function showCharSelect(data) {
-    const overlay = document.getElementById('char-select-overlay');
-    const cards = document.getElementById('char-cards');
-    const hint = document.getElementById('char-select-hint');
-    const title = document.getElementById('char-select-title');
-    if (!overlay) { startGame(charGame(data, data.characters[Object.keys(data.characters)[0]])); return; }
-
-    overlay.hidden = false;
-    const firstPick = window.VentuStorage.get(data.id + '_firstPick');
-    const completed = window.VentuStorage.get(data.id + '_completed') || {};
-    const firstDone = firstPick && completed[firstPick];
-
-    if (firstPick && !firstDone) {
-      title.textContent = 'Continue sua perspectiva';
-      hint.textContent = `Termine ${data.characters[firstPick].name} para desbloquear as outras perspectivas.`;
-    } else if (firstDone) {
-      title.textContent = 'Perspectivas desbloqueadas';
-      hint.textContent = 'Você já viu uma perspectiva. As outras têm callbacks novos.';
-    } else {
-      title.textContent = 'Escolha sua perspectiva';
-      hint.textContent = data.hint || 'A mesma noite. Três ângulos. Escolha por onde começar.';
-    }
-
-    cards.innerHTML = '';
-    Object.keys(data.characters).forEach((charId, i) => {
-      const ch = data.characters[charId];
-      const playable = isCharPlayable(charId, firstPick, firstDone);
-      const badge = getBadge(charId, firstPick, firstDone, completed);
-      const card = document.createElement('button');
-      card.className = `char-card ${playable ? '' : 'char-card-locked'}`;
-      card.disabled = !playable;
-      card.style.animationDelay = `${i * 80}ms`;
-      card.innerHTML = `
-        <div class="char-card-emoji">${ch.emoji || '👤'}</div>
-        <div class="char-card-body">
-          <span class="char-card-role">${ch.role || ''}</span>
-          <h3 class="char-card-name">${ch.name}</h3>
-          <p class="char-card-desc">${ch.description || ''}</p>
-        </div>
-        <span class="char-card-badge ${badge.cls}">${badge.text}</span>`;
-      card.addEventListener('click', () => {
-        if (!playable) return;
-        if (!firstPick) window.VentuStorage.set(data.id + '_firstPick', charId);
-        overlay.hidden = true;
-        history.replaceState(null, '', `?l=${data.id}&c=${charId}`);
-        startGame(charGame(data, ch));
-      });
-      cards.appendChild(card);
-    });
-  }
-
-  function isCharPlayable(charId, firstPick, firstDone) {
-    if (!firstPick) return true;
-    if (firstDone) return true;
-    return charId === firstPick;
-  }
-  function getBadge(charId, firstPick, firstDone, completed) {
-    if (completed[charId]) return { text: 'Concluído', cls: 'badge-done' };
-    if (firstDone) return { text: 'Desbloqueado', cls: 'badge-new' };
-    if (!firstPick) return { text: 'Perspectiva Inicial', cls: 'badge-start' };
-    if (charId === firstPick) return { text: 'Continuar', cls: 'badge-active' };
-    return { text: '🔒 Bloqueado', cls: 'badge-locked' };
-  }
-
-  /* ====================== jogo ====================== */
-  function startGame(gameData) {
-    const chatHistory = document.getElementById('chat-history');
-    const chatForm = document.getElementById('chat-form');
-    const chatInput = document.getElementById('chat-input');
-    const quickRepliesContainer = document.getElementById('quick-replies');
-    const statMoney = document.getElementById('stat-money');
-    const statEnergy = document.getElementById('stat-energy');
-    const glossaryList = document.getElementById('glossary-list');
-    const headerTitle = document.getElementById('mission-title');
-    const statTrust = document.getElementById('stat-trust');
-    const statRizz = document.getElementById('stat-rizz');
-    const containerTrust = document.getElementById('stat-trust-container');
-    const containerRizz = document.getElementById('stat-rizz-container');
-    const mainChatContainer = document.getElementById('main-chat');
-
-    if (gameData.title) headerTitle.textContent = gameData.title;
-    chatHistory.setAttribute('role', 'log');
-    chatHistory.setAttribute('aria-live', 'polite');
-
-    const saveKey = gameData.charId ? `save_${gameData.level}_${gameData.charId}` : `save_${gameData.level}`;
-    const flagsKey = `flags_${gameData.level}`;
-    const OFFENSIVE = /(fuck|shit|bitch|idiot|stupid|asshole|dumb|moron|hate you|shut up|go to hell|screw you)/i;
-    const DEBUG = new URLSearchParams(window.location.search).get('debug') === '1';
-    const finePointer = !!(window.matchMedia && window.matchMedia('(pointer:fine)').matches);
-
-    /* ---- Supabase (a chave publishable é pública por design; proteja com RLS) ---- */
-    const SUPABASE_URL = 'https://hbqjoadubrwuafbfykre.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_Wg3q6v4-ZbVK_9WQXnuFpQ_CZXH68L_';
-    let supabaseClient = null;
-    if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    /* ---- idioma da interface ---- */
-    const translations = {
-      pt: { money: 'Dinheiro', energy: 'Energia', glossary: 'Glossário', shop: '🛒 Loja', input: 'Digite sua resposta...', locked: 'Escolha uma das opções ↓', send: 'Enviar', langBtn: '🌐 EN' },
-      en: { money: 'Money', energy: 'Energy', glossary: 'Glossary', shop: '🛒 Shop', input: 'Type your answer...', locked: 'Pick one of the options ↓', send: 'Send', langBtn: '🌐 PT' }
-    };
-    let currentLang = window.VentuStorage.get('lang') || 'pt';
-    const $ = id => document.getElementById(id);
-    function applyLanguage() {
-      const t = translations[currentLang];
-      if ($('lbl-money')) $('lbl-money').textContent = t.money;
-      if ($('lbl-energy')) $('lbl-energy').textContent = t.energy;
-      if ($('lbl-glossary')) $('lbl-glossary').textContent = t.glossary;
-      if ($('btn-shop')) $('btn-shop').textContent = t.shop;
-      if (chatInput) chatInput.placeholder = textLocked ? t.locked : t.input;
-      if ($('btn-send')) $('btn-send').textContent = t.send;
-      if ($('btn-lang')) $('btn-lang').textContent = t.langBtn;
-    }
-    if ($('btn-lang')) $('btn-lang').addEventListener('click', () => {
-      currentLang = currentLang === 'pt' ? 'en' : 'pt';
-      window.VentuStorage.set('lang', currentLang);
-      applyLanguage();
-    });
-
-    /* ---- estado ---- */
-    let currentState = { ...gameData.initialState };
-    let currentSceneId = gameData.startScene;
-    let currentScene = gameData.scenes[currentSceneId];
+(function() {
+    let gameData = null;
+    let currentLevel = 'a1';
+    let currentCharId = null;
+    let currentSceneId = null;
+    let state = { energy: 100, trust: 50, rizz: 50, flags: [], history: [] };
     let isProcessing = false;
-    let activeTypers = [];
-    let skipCurrentTyper = null;
-    let textLocked = false;
-    let hintLevel = 0, sceneAttempts = 0, failStreak = 0;
-    let lastUserText = '', lastNpcLine = '';
-    let completionHandled = false;
-    const rewindStack = [];
-    const session = { scenes: 0, firstTry: 0, matched: 0, ideal: 0, assisted: 0, hints: 0, rewinds: 0, errors: 0, fuzzy: 0, scored: new Set() };
 
-    applyLanguage();
+    const injectCSS = () => {
+        const style = document.createElement('style');
+        style.innerHTML = `
+            .stat:has(#stat-money) { display: none !important; }
+            
+            /* Chat Moderno */
+            .chat-message { display: flex; flex-direction: column; width: 100%; margin-bottom: 15px; animation: fadeIn 0.3s ease; }
+            .chat-message.npc { align-items: flex-start; }
+            .chat-message.player { align-items: flex-end; }
+            
+            .msg-header { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; padding: 0 4px; }
+            .msg-header .icon { font-size: 1.1rem; }
+            .msg-header .name { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+            
+            .msg-bubble { 
+                background-color: var(--npc-bubble); padding: 12px 16px; border-radius: 4px 16px 16px 16px; 
+                font-size: 0.95rem; line-height: 1.5; color: var(--text); 
+                max-width: 85%; word-wrap: break-word; position: relative;
+            }
+            .player .msg-bubble { background-color: var(--player-bubble); border-radius: 16px 4px 16px 16px; color: white; }
 
-    function getFlags() { return window.VentuStorage.get(flagsKey) || {}; }
-    function hasFlag(n) { return !!getFlags()[n]; }
-    function setFlags(list) {
-      if (!list) return;
-      const f = getFlags();
-      list.forEach(n => (f[n] = true));
-      window.VentuStorage.set(flagsKey, f);
-    }
+            /* Narração */
+            .chat-message.narration { align-items: center; margin: 20px 0; }
+            .chat-message.narration .msg-header { display: none; }
+            .chat-message.narration .msg-bubble { 
+                background-color: transparent; border-left: 3px solid var(--gold); 
+                border-radius: 0; font-style: italic; color: #cbd5e1; 
+                padding: 4px 15px; max-width: 95%; font-size: 0.95rem;
+            }
 
-    const soft = () => !!VL.settings.get('soft');
-    const pick = (obj, field) => (soft() && obj[field + 'Soft'] ? obj[field + 'Soft'] : obj[field]);
+            /* Palavras Interativas (Tooltips) */
+            .keyword { 
+                text-decoration: underline; text-decoration-style: dotted; text-decoration-color: var(--gold); 
+                cursor: pointer; position: relative; font-weight: 500;
+            }
+            .keyword:hover { color: var(--gold); }
+            .tooltip-popover {
+                position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 8px;
+                background: #1e293b; border: 1px solid var(--gold); border-radius: 8px; padding: 10px;
+                min-width: 150px; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+                display: flex; flex-direction: column; gap: 5px; font-size: 0.85rem; color: var(--text);
+                animation: fadeIn 0.2s ease; pointer-events: auto;
+            }
+            .tooltip-popover::after {
+                content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+                border-width: 6px; border-style: solid; border-color: var(--gold) transparent transparent transparent;
+            }
+            .tooltip-phonetic { color: var(--text-muted); font-style: italic; font-size: 0.8rem; }
+            .tooltip-meaning { font-weight: bold; color: #10b981; }
 
-    function resolveText(scene, field) {
-      if (soft() && scene[field + 'Soft']) return { text: scene[field + 'Soft'], isCallback: false };
-      const variants = scene[`${field}Variants`];
-      if (variants) {
-        for (const v of variants) {
-          if (!v.ifFlag || hasFlag(v.ifFlag)) return { text: v[field] || v.text, isCallback: true };
-        }
-      }
-      return { text: scene[field], isCallback: false };
-    }
+            /* Lentes */
+            .lens-bubble { background-color: #0d1117; border: 1px solid #30363d; border-left: 3px solid #4a90d9; padding: 12px; border-radius: 8px; font-size: 0.85rem; width: 100%; margin-top: 5px; animation: fadeIn 0.4s ease; align-self: flex-start; max-width: 85%;}
+            .lens-line { display: flex; gap: 8px; margin-bottom: 8px; line-height: 1.4; }
+            .lens-line:last-child { margin-bottom: 0; }
+            .lens-line.good { color: #3fb950; }
+            .lens-line.odd { color: #f0883e; }
+            .lens-line.native { color: #8ab4f8; font-style: italic; display: flex; justify-content: space-between; align-items: center; }
+            .lens-line .ico { flex-shrink: 0; font-weight: bold; }
+            
+            /* Botões */
+            .action-btn { background: transparent; border: none; cursor: pointer; font-size: 1.1rem; margin-left: 8px; opacity: 0.7; transition: 0.2s; color: inherit; }
+            .action-btn:hover { opacity: 1; transform: scale(1.1); }
+            
+            /* Glossário Lateral */
+            .gloss-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: 0.2s; }
+            .gloss-item:hover { background: rgba(255,255,255,0.1); }
+            .gloss-item strong { color: var(--gold); }
 
-    const saved = window.VentuStorage.get(saveKey);
-    if (saved) {
-      if (saved.sceneId && gameData.scenes[saved.sceneId]) {
-        currentState = saved.state || currentState;
-        currentSceneId = saved.sceneId;
-        currentScene = gameData.scenes[currentSceneId];
-      } else window.VentuStorage.remove(saveKey);
-    }
-    function saveGame() { window.VentuStorage.set(saveKey, { state: currentState, sceneId: currentSceneId }); }
+            /* Subtexto */
+            .subtext-container { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-bottom: 10px; background: rgba(139, 92, 246, 0.1); padding: 15px; border-radius: 12px; border: 1px solid #8b5cf6; }
+            .subtext-title { font-size: 0.85rem; color: #8b5cf6; font-weight: bold; display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
+            .subtext-btn { background: #1e293b; border: 1px solid #8b5cf6; color: #e2e8f0; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; text-align: left; transition: 0.2s; }
+            .subtext-btn:hover { background: #8b5cf6; color: white; }
+            .subtext-feedback { padding: 10px; border-radius: 8px; font-size: 0.85rem; line-height: 1.4; }
+            .subtext-feedback.correct { background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #10b981; }
+            .subtext-feedback.wrong { background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #ef4444; }
 
-    function sessionReport() {
-      const n = session.scenes;
-      if (!n) return null;
-      return {
-        accuracy: Math.round((100 * session.firstTry) / n),
-        naturalness: Math.round((100 * session.ideal) / Math.max(1, session.matched)),
-        autonomy: 100 - Math.round((100 * session.assisted) / n)
-      };
-    }
+            /* Microfone */
+            .mic-btn { background: transparent; color: var(--gold); border: 1px solid var(--border); padding: 0 15px; border-radius: 8px; cursor: pointer; font-size: 1.2rem; transition: all 0.2s; }
+            .mic-btn.active { background: #ef4444; color: white; border-color: #ef4444; animation: pulse 1.5s infinite; }
+            @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
 
-    /* ---- conclusão / XP (agora sem farm de XP por recarregar o final) ---- */
-    async function markCompleted() {
-      if (!gameData.charId || completionHandled) return;
-      completionHandled = true;
+            /* FAB Deck */
+            .fab-deck { position: fixed; bottom: 80px; right: 20px; width: 50px; height: 50px; background: var(--gold); color: var(--bg); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; box-shadow: 0 4px 10px rgba(0,0,0,0.5); cursor: pointer; z-index: 50; transition: 0.2s; }
+            .fab-deck:hover { transform: scale(1.1); background: var(--gold-hover); }
 
-      const key = gameData.level + '_completed';
-      let wasDone = false;
-      try {
-        const c = window.VentuStorage.get(key) || {};
-        wasDone = !!c[gameData.charId];
-        c[gameData.charId] = true;
-        window.VentuStorage.set(key, c);
-      } catch (e) { /* storage indisponível */ }
+            /* Dopamina Visual */
+            .floating-stat { position: fixed; font-weight: bold; font-size: 1.2rem; pointer-events: none; z-index: 2000; animation: floatUp 1.5s ease-out forwards; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+            @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-50px) scale(1.2); } }
+            
+            /* Modais Base */
+            .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
+            .modal-content { background: var(--panel); border: 1px solid var(--gold); border-radius: 12px; padding: 20px; max-width: 500px; width: 100%; max-height: 85vh; overflow-y: auto; }
+            .cut-line { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
+            .cut-line:last-child { border-bottom: none; }
+            .cut-line .native { color: #8ab4f8; font-style: italic; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; }
 
-      const rep = sessionReport();
-      const base = currentScene.endingType === 'bom' ? TUNING.xp.endGood : TUNING.xp.endOther;
-      const bonus = rep ? Math.round((rep.accuracy / 100) * TUNING.xp.accuracyBonusMax) : 0;
-      const xp = wasDone ? TUNING.xp.replay : base + bonus;
+            /* FLASHCARD PREMIUM */
+            .flashcard-scene { perspective: 1000px; width: 100%; max-width: 320px; height: 420px; margin: 0 auto; cursor: pointer; }
+            .flashcard { width: 100%; height: 100%; position: relative; transition: transform 0.6s; transform-style: preserve-3d; }
+            .flashcard.is-flipped { transform: rotateY(180deg); }
+            .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+            .card-front { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid rgba(251, 191, 36, 0.3); color: white; }
+            .card-back { background: linear-gradient(145deg, #111827, #0b0f19); border: 1px solid var(--gold); color: var(--text); transform: rotateY(180deg); }
+            .card-emoji { font-size: 4rem; margin-bottom: 20px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+            .card-word { font-size: 2.2rem; font-weight: bold; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+            .card-meaning { font-size: 1.5rem; color: #10b981; font-weight: bold; margin-bottom: 10px; }
+            .deck-controls { display: flex; justify-content: center; gap: 20px; margin-top: 25px; }
+            .btn-wrong { background: #ef4444; color: white; border: none; padding: 15px 30px; border-radius: 30px; font-weight: bold; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(239,68,68,0.3); transition: 0.2s; }
+            .btn-right { background: #10b981; color: white; border: none; padding: 15px 30px; border-radius: 30px; font-weight: bold; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(16,185,129,0.3); transition: 0.2s; }
+            .btn-wrong:hover { transform: scale(1.05); } .btn-right:hover { transform: scale(1.05); }
+            .deck-progress { text-align: center; color: var(--gold); font-weight: bold; font-size: 0.9rem; margin-bottom: 15px; letter-spacing: 1px; text-transform: uppercase; }
 
-      const P = window.VentuProgress;
-      if (P) {
-        try { P.checkStreak && P.checkStreak(); P.addXP && P.addXP(xp); P.registerMissionProgress && P.registerMissionProgress('complete_1_scene'); } catch (e) { console.warn(e); }
-      }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        `;
+        document.head.appendChild(style);
 
-      if (supabaseClient && !wasDone) {
-        try {
-          const { data: { session: auth } } = await supabaseClient.auth.getSession();
-          if (!auth) return;
-          const userId = auth.user.id, levelId = gameData.level;
-          const { data: profile } = await supabaseClient.from('profiles').select('xp, levels_completed').eq('id', userId).single();
-          if (!profile) return;
-          let done = profile.levels_completed || {};
-          if (typeof done === 'string') { try { done = JSON.parse(done); } catch (e) { done = {}; } }
-          if (!Array.isArray(done[levelId])) done[levelId] = [];
-          if (done[levelId].includes(gameData.charId)) return;
-          done[levelId].push(gameData.charId);
-          const { error } = await supabaseClient.from('profiles').update({ xp: (profile.xp || 0) + xp, levels_completed: done }).eq('id', userId);
-          if (error) console.error('Erro no update do Supabase:', error.message);
-        } catch (error) { console.error('Erro ao salvar progresso:', error); }
-      }
-    }
-
-    /* ---- áudio (AudioContext só nasce após o 1º gesto do usuário) ---- */
-    let audioCtx = null;
-    const SFX = {
-      send: { t: 'sine', a: 600, b: 800, when: 0.1, exp: true, g: 0.1, d: 0.1 },
-      receive: { t: 'triangle', a: 400, b: 300, when: 0.1, exp: true, g: 0.1, d: 0.15 },
-      cash: { t: 'square', a: 1200, b: 1500, when: 0.05, exp: false, g: 0.05, d: 0.2 },
-      success: { t: 'sine', a: 880, b: 1108, when: 0.1, exp: false, g: 0.05, d: 0.3 },
-      error: { t: 'sawtooth', a: 150, b: 100, when: 0.2, exp: true, g: 0.1, d: 0.2 }
+        const fab = document.createElement('div');
+        fab.className = 'fab-deck';
+        fab.innerHTML = '🎓';
+        fab.title = 'Meu Deck de Revisão';
+        fab.onclick = showDeck;
+        document.body.appendChild(fab);
     };
-    function playSound(type) {
-      if (!VL.settings.get('sound')) return;
-      const AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) return;
-      if (!audioCtx) audioCtx = new AC();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      const s = SFX[type]; if (!s) return;
-      const now = audioCtx.currentTime, osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-      osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.type = s.t;
-      osc.frequency.setValueAtTime(s.a, now);
-      if (s.exp) osc.frequency.exponentialRampToValueAtTime(s.b, now + s.when); else osc.frequency.setValueAtTime(s.b, now + s.when);
-      gain.gain.setValueAtTime(s.g, now);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + s.d);
-      osc.start(); osc.stop(now + s.d);
+
+    // --- UI E HELPERS ---
+    const chatHistory = () => document.getElementById('chat-history');
+    const quickReplies = () => document.getElementById('quick-replies');
+    const chatInput = () => document.getElementById('chat-input');
+    const btnSend = () => document.getElementById('btn-send');
+
+    function scrollToBottom() { chatHistory().scrollTop = chatHistory().scrollHeight; }
+
+    function triggerFloatingStat(text, color) {
+        const el = document.createElement('div');
+        el.className = 'floating-stat';
+        el.style.color = color;
+        el.style.right = '20px';
+        el.style.top = '60px';
+        el.textContent = text;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1500);
     }
 
-    /* ---- loja ---- */
-    if ($('btn-shop')) $('btn-shop').addEventListener('click', openShop);
-    if ($('btn-close-shop')) $('btn-close-shop').addEventListener('click', () => ($('shop-modal').style.display = 'none'));
-
-    function openShop() {
-      const list = $('shop-items-list');
-      list.innerHTML = '';
-      const items = gameData.shopItems || [
-        { id: 'coffee', name: '☕ Café Quentinho', price: 5, desc: 'Recupera 20 de Energia.' },
-        { id: 'umbrella', name: '☂️ Guarda-chuva', price: 10, desc: 'Evita perda de energia na chuva.' }
-      ];
-      const inventory = window.VentuStorage.get('inventory') || [];
-      items.forEach(item => {
-        const btn = document.createElement('button');
-        btn.style.cssText = 'background: var(--bg); color: var(--text); padding: 10px; border: 1px solid var(--border); border-radius: 6px; text-align: left; cursor: pointer; transition: 0.2s;';
-        btn.innerHTML = `<strong style="color: var(--gold); font-size: 1.1rem;">${item.name}</strong> - <span style="color: #10b981; font-weight: bold;">$ ${item.price.toFixed(2)}</span><br><small style="color: var(--text-muted);">${item.desc}</small>`;
-        btn.onmouseover = () => (btn.style.borderColor = 'var(--gold)');
-        btn.onmouseout = () => (btn.style.borderColor = 'var(--border)');
-        btn.onclick = () => buyItem(item, inventory);
-        list.appendChild(btn);
-      });
-      $('shop-modal').style.display = 'flex';
-    }
-
-    function buyItem(item, inventory) {
-      if (currentState.money < item.price) { playSound('error'); systemNote('💸 Dinheiro insuficiente!'); return; }
-      if (inventory.includes(item.id)) { playSound('error'); systemNote('Você já tem esse item!'); return; }
-      currentState.money -= item.price;
-      if (item.id === 'coffee' || item.energy) {
-        currentState.energy = Math.min(100, currentState.energy + (item.energy || 20)); playSound('success');
-      } else {
-        inventory.push(item.id); window.VentuStorage.set('inventory', inventory); playSound('cash');
-      }
-      updateHUD(); saveGame(); $('shop-modal').style.display = 'none';
-      systemNote(`🧾 <strong>Recibo:</strong> Você comprou <em>${item.name}</em> por $${item.price.toFixed(2)}.<br>Saldo atual: $${currentState.money.toFixed(2)}`);
-    }
-
-    /* ---- HUD ---- */
-    function updateHUD() {
-      if (statMoney) { statMoney.textContent = `$ ${currentState.money.toFixed(2)}`; statMoney.style.color = currentState.money <= 0 ? 'var(--error)' : 'var(--gold)'; }
-      if (statEnergy) { statEnergy.textContent = `${currentState.energy}/100`; statEnergy.style.color = currentState.energy <= 20 ? 'var(--error)' : 'var(--gold)'; }
-      if (currentState.trust !== undefined) { if (statTrust) statTrust.textContent = currentState.trust; if (containerTrust) containerTrust.style.display = 'flex'; }
-      else if (containerTrust) containerTrust.style.display = 'none';
-      if (currentState.rizz !== undefined) { if (statRizz) statRizz.textContent = currentState.rizz; if (containerRizz) containerRizz.style.display = 'flex'; }
-      else if (containerRizz) containerRizz.style.display = 'none';
-    }
-
-    function applyFx(fx) {
-      if (!fx) return;
-      if (fx.energy) currentState.energy = clamp(currentState.energy + fx.energy, 0, 100);
-      if (fx.trust !== undefined) currentState.trust = clamp(nz(currentState.trust, 100) + fx.trust, 0, 100);
-      if (fx.rizz !== undefined) currentState.rizz = clamp(nz(currentState.rizz, 50) + fx.rizz, 0, 100);
-      if (fx.money) currentState.money = Math.max(0, currentState.money + fx.money);
-    }
-
-    /* ---- exaustão (desmaio no lugar de game over) ---- */
-    async function checkExhaustion() {
-      if (currentState.energy > 0) return false;
-      currentState.energy = 50;
-      currentState.trust = Math.max(0, nz(currentState.trust, 100) - 10);
-      updateHUD(); saveGame();
-      toggleInputLock(true);
-      showTypingIndicator();
-      await sleep(1000);
-      removeTypingIndicator();
-      await addMessage('Narrador', 'Seus olhos pesam. Você apaga por um momento. Quando acorda, você se sente um pouco melhor, mas perdeu um pouco de confiança. (+50 Energia, -10 Trust)', 'npc', true);
-      return true;
-    }
-
-    /* ---- trava de input ---- */
-    function toggleInputLock(lock) {
-      isProcessing = lock;
-      const blockText = lock || textLocked;
-      chatInput.disabled = blockText;
-      const sendBtn = chatForm.querySelector('button');
-      if (sendBtn) sendBtn.disabled = blockText;
-      quickRepliesContainer.querySelectorAll('button').forEach(b => { b.disabled = lock || b.dataset.locked === '1'; });
-      if (!lock && !textLocked && finePointer) chatInput.focus();   // não abre o teclado no celular a cada fala
-    }
-
-    function scrollDown() { chatHistory.scrollTop = chatHistory.scrollHeight; }
-
-    function showTypingIndicator() {
-      const d = document.createElement('div');
-      d.className = 'chat-message npc typing-indicator-container';
-      d.id = 'typing-indicator';
-      d.innerHTML = `<div class="npc-avatar">👤</div><div class="msg-content"><div class="msg-bubble typing-bubble"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>`;
-      chatHistory.appendChild(d); scrollDown();
-    }
-    function removeTypingIndicator() { const i = $('typing-indicator'); if (i) i.remove(); }
-
-    /* ---- typewriter: toque no chat (ou Esc) para pular; respeita prefers-reduced-motion ---- */
-    function typeWriterEffect(el, text, speed = 15) {
-      return new Promise(resolve => {
-        if (!VL.settings.get('typewriter') || VL.reducedMotion()) { el.textContent = text; scrollDown(); return resolve(); }
-        let i = 0; el.textContent = '';
-        const finish = () => {
-          clearInterval(iv); activeTypers = activeTypers.filter(t => t !== iv);
-          skipCurrentTyper = null; el.textContent = text; scrollDown(); resolve();
-        };
-        const iv = setInterval(() => {
-          if (i < text.length) { i++; el.textContent = text.slice(0, i); scrollDown(); } else finish();
-        }, speed);
-        activeTypers.push(iv); skipCurrentTyper = finish;
-      });
-    }
-    chatHistory.addEventListener('click', e => { if (skipCurrentTyper && !e.target.closest('.vocab-word')) skipCurrentTyper(); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && skipCurrentTyper) skipCurrentTyper(); });
-
-    /* ---- mensagens ---- */
-    const VENTU_SVG = `<svg viewBox="0 0 100 100" width="40" height="40"><path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/></svg>`;
-    const VENTU_AVATAR = `<div class="npc-avatar ventu-avatar" style="background: transparent; border: none; width: 40px; height: 40px;">${VENTU_SVG}</div>`;
-
-    function npcEmoji(sender) {
-      if (gameData.emoji) return gameData.emoji;
-      if (sender.includes('Emma')) return '👩';
-      if (sender.includes('Silva')) return '👨‍💼';
-      if (sender.includes('Lucas')) return '🧑';
-      if (sender.includes('Davi')) return '👨‍🍳';
-      if (sender.includes('Chloe')) return '🕵️‍♀️';
-      if (sender === 'Narrador') return '📖';
-      if (sender === 'Sistema') return '⚙️';
-      return '👤';
-    }
-
-    async function addMessage(sender, text, type, useTypewriter, isCallback = false) {
-      const msgDiv = document.createElement('div');
-      msgDiv.className = `chat-message ${type}`;
-      const avatar = type === 'npc' ? `<div class="npc-avatar">${npcEmoji(sender)}</div>` : type === 'ventu' ? VENTU_AVATAR : `<div class="npc-avatar player-avatar">Você</div>`;
-      msgDiv.innerHTML = `${avatar}<div class="msg-content"><span class="msg-sender">${sender}</span><div class="msg-bubble ${isCallback ? 'callback-bubble' : ''}"></div></div>`;
-      const bubble = msgDiv.querySelector('.msg-bubble');
-      chatHistory.appendChild(msgDiv); scrollDown();
-
-      const safeText = text || '...';
-      const speakable = type === 'npc' && sender !== 'Narrador' && sender !== 'Sistema' && !looksPortuguese(safeText);
-      if (speakable) { lastNpcLine = safeText; if (VL.settings.get('tts')) VL.speak(safeText); }
-
-      if (useTypewriter) await typeWriterEffect(bubble, safeText); else bubble.innerHTML = safeText;
-      if (type === 'npc' && sender !== 'Narrador' && currentScene.glossary) VL.decorate(bubble, currentScene.glossary);
-      return bubble;
-    }
-    const ventuNote = html => addMessage('Ventu', html, 'ventu', false);
-    const systemNote = html => addMessage('Sistema', html, 'ventu', false);
-
-    function addUserMessage(text) {
-      const msgDiv = document.createElement('div');
-      msgDiv.className = 'chat-message player';
-      msgDiv.innerHTML = `<div class="npc-avatar player-avatar">Você</div><div class="msg-content"><span class="msg-sender">Você</span><div class="msg-bubble"></div></div>`;
-      msgDiv.querySelector('.msg-bubble').textContent = text;   // sem innerHTML: evita XSS
-      chatHistory.appendChild(msgDiv); scrollDown();
-    }
-
-    /* ---- Lente de Inglês (com áudio e salvar no deck) ---- */
-    function showLens(lens, userText, autoSaved) {
-      if (!lens) return;
-      const div = document.createElement('div');
-      div.className = 'lens-bubble';
-      let html = `<div class="lens-title">🔍 Lente de Inglês</div><div>${lens.explanation}</div>`;
-      if (lens.native) {
-        html += `<div class="lens-native"><strong>Como um nativo diria:</strong> <span class="lens-phrase">${lens.native}</span>
-          <button class="lens-btn" data-act="say" aria-label="Ouvir">🔊</button>
-          ${autoSaved ? '<small> · 🧠 salvo para revisão</small>' : '<button class="lens-btn" data-act="save">➕ Salvar</button>'}</div>`;
-      }
-      div.innerHTML = html;
-      div.addEventListener('click', e => {
-        const act = e.target.dataset && e.target.dataset.act;
-        if (act === 'say') VL.speak(stripTags(lens.native));
-        if (act === 'save') {
-          VL.addCard({ type: 'phrase', front: `Como um nativo diria isto?\n“${userText}”`, back: stripTags(lens.native), ctx: stripTags(currentScene.npcText || ''), source: 'lens' });
-          e.target.textContent = '✔ Salvo'; e.target.disabled = true;
+    function updateStats(trustChange = 0, rizzChange = 0) {
+        document.getElementById('stat-energy').textContent = `${state.energy}/100`;
+        
+        if (trustChange !== 0) {
+            state.trust = Math.max(0, Math.min(100, state.trust + trustChange));
+            triggerFloatingStat(`${trustChange > 0 ? '+' : ''}${trustChange} Trust`, trustChange > 0 ? '#10b981' : '#ef4444');
         }
-      });
-      chatHistory.appendChild(div); scrollDown();
-      playSound('receive');
+        if (rizzChange !== 0) {
+            state.rizz = Math.max(0, Math.min(100, state.rizz + rizzChange));
+            triggerFloatingStat(`${rizzChange > 0 ? '+' : ''}${rizzChange} Rizz`, rizzChange > 0 ? '#8b5cf6' : '#ef4444');
+        }
+
+        const trustContainer = document.getElementById('stat-trust-container');
+        const rizzContainer = document.getElementById('stat-rizz-container');
+        if (trustContainer) { trustContainer.style.display = 'flex'; document.getElementById('stat-trust').textContent = state.trust; }
+        if (rizzContainer) { rizzContainer.style.display = 'flex'; document.getElementById('stat-rizz').textContent = state.rizz; }
     }
 
-    /* ---- botões de resposta rápida, dica progressiva e rewind ---- */
-    const HINT_COSTS = VL.HINT_COSTS || [10];
-
-    function updateHintButton() {
-      const b = quickRepliesContainer.querySelector('.hint-btn');
-      if (!b) return;
-      if (hintLevel >= HINT_COSTS.length) { b.innerHTML = '✅ Dicas esgotadas'; b.dataset.locked = '1'; b.disabled = true; }
-      else { b.innerHTML = `💡 Dica ${hintLevel + 1}/${HINT_COSTS.length} (-${HINT_COSTS[hintLevel]} ⚡)`; b.dataset.locked = ''; }
+    function processTextWithGlossary(text, glossary) {
+        if (!glossary || glossary.length === 0) return text;
+        let formatted = text;
+        glossary.forEach(item => {
+            try {
+                const safeWord = item.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp(`\\b(${safeWord})\\b`, 'gi');
+                formatted = formatted.replace(regex, (match) => {
+                    return `<span class="keyword" data-word="${match}" data-meaning="${item.meaning}" data-phonetic="${item.phonetic || ''}">${match}</span>`;
+                });
+            } catch (e) {}
+        });
+        return formatted;
     }
 
-    function renderQuickReplies(opts = {}) {
-      quickRepliesContainer.innerHTML = '';
-      if (currentScene.intents && currentScene.intents.length) {
-        const hintBtn = document.createElement('button');
-        hintBtn.className = 'hint-btn'; hintBtn.onclick = useHint;
-        quickRepliesContainer.appendChild(hintBtn);
-      }
-      if (rewindStack.length) {
-        const rw = document.createElement('button');
-        rw.className = 'hint-btn rewind-btn';
-        rw.innerHTML = `⏪ Rewind (-${TUNING.rewindCost} ⚡)`;
-        rw.title = 'Volte uma escolha e veja outro resultado';
-        rw.onclick = doRewind;
-        quickRepliesContainer.appendChild(rw);
-      }
-      (currentScene.quickReplies || []).forEach(qr => {
-        const label = typeof qr === 'string' ? qr : qr.label;
-        const text = typeof qr === 'string' ? qr : qr.text;
-        const btn = document.createElement('button');
-        btn.className = 'quick-reply-btn';
-        btn.textContent = text; btn.title = label || text;
-        btn.onclick = () => submitText(text, { fromButton: true });
-        quickRepliesContainer.appendChild(btn);
-      });
-      if (opts.pulse && !VL.reducedMotion()) {
-        quickRepliesContainer.classList.add('qr-pulse');
-        setTimeout(() => quickRepliesContainer.classList.remove('qr-pulse'), 2600);
-      }
-      quickRepliesContainer.querySelectorAll('button').forEach(b => (b.disabled = isProcessing));
-      updateHintButton();
+    function updateGlossary(glossary) {
+        const list = document.getElementById('glossary-list');
+        list.innerHTML = '';
+        if (!glossary) return;
+        glossary.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'gloss-item';
+            div.innerHTML = `<span><strong>${item.word}</strong>: ${item.meaning}</span> <button class="action-btn tts-btn" data-text="${item.word}" data-gender="female">🔊</button>`;
+            div.onclick = (e) => { if(e.target.tagName !== 'BUTTON') window.VentuEngine.speak(item.word, 'female'); };
+            list.appendChild(div);
+        });
     }
 
-    function captureError(best) {
-      if (!VL.settings.get('autoCapture') || !best.phrase) return;
-      VL.addCard({ type: 'phrase', front: `Situação:\n“${stripTags(currentScene.npcText || '').slice(0, 110)}”\nComo responder?`, back: best.phrase, ctx: '', source: 'error' });
+        function getAvatarEmoji(name) {
+        if (!name) return '💬';
+        if (name.includes('Silva')) return '👨‍💼';
+        if (name.includes('Lucas')) return '👨🏾'; // Atualizado para diversidade
+        if (name.includes('Davi')) return '👨‍🍳';
+        if (name.includes('Emma')) return '👩';
+        if (name.includes('Narração') || name.includes('Narrador') || name.includes('Sistema')) return '📖';
+        return '💬';
     }
 
-    function useHint() {
-      if (isProcessing || hintLevel >= HINT_COSTS.length) return;
-      const cost = HINT_COSTS[hintLevel];
-      if (currentState.energy < cost) { playSound('error'); systemNote(`Energia insuficiente para esta dica (${cost} ⚡).`); return; }
-      currentState.energy -= cost;
-      hintLevel++; session.hints++;
-      updateHUD(); saveGame(); playSound('cash');
-      ventuNote(`💡 <strong>Dica ${hintLevel}/${HINT_COSTS.length} (-${cost} Energia):</strong><br>${esc(VL.hintFor(currentScene, hintLevel))}`);
-      if (hintLevel >= 3) { captureError(VL.bestAnswer(currentScene)); }
-      updateHintButton();
-    }
+    function addMessage(text, sender, npcName, isTyping = false, glossary = null) {
+        const div = document.createElement('div');
+        div.className = `chat-message ${sender}`;
+        
+        const isNarration = (npcName === 'Narração' || npcName === 'Narrador' || npcName === 'Sistema');
+        if (isNarration) div.classList.add('narration');
 
-    async function doRewind() {
-      if (isProcessing || !rewindStack.length) return;
-      if (currentState.energy < TUNING.rewindCost) { playSound('error'); systemNote(`Energia insuficiente para o Rewind (${TUNING.rewindCost} ⚡).`); return; }
-      const snap = rewindStack.pop();
-      toggleInputLock(true);
-      currentState = { ...snap.state, energy: Math.max(0, snap.state.energy - TUNING.rewindCost) };
-      window.VentuStorage.set(flagsKey, snap.flags);
-      session.rewinds++;
-      playSound('cash'); updateHUD();
-      const c = snap.choice;
-      await ventuNote(`⏪ <strong>Rewind.</strong> Da última vez você disse <em>“${esc(c.text)}”</em>${c.summary ? ` → ${esc(c.summary)}` : ''}. Que tal tentar outro caminho e comparar?`);
-      loadScene(snap.sceneId);
-    }
+        const content = document.createElement('div');
+        content.className = 'msg-content';
+        content.style.display = 'flex';
+        content.style.flexDirection = 'column';
+        content.style.alignItems = sender === 'player' ? 'flex-end' : 'flex-start';
+        content.style.width = '100%';
 
-    /* ---- carregamento de cena ---- */
-    async function loadScene(sceneId) {
-      currentSceneId = sceneId;
-      currentScene = gameData.scenes[sceneId];
-      if (!currentScene) { console.warn('Scene not found:', sceneId); return; }
+        if (!isNarration) {
+            const header = document.createElement('div');
+            header.className = 'msg-header';
+            const icon = sender === 'player' ? '👤' : getAvatarEmoji(npcName);
+            const displayName = sender === 'player' ? 'Você' : npcName;
+            header.innerHTML = `<span class="icon">${icon}</span><span class="name">${displayName}</span>`;
+            content.appendChild(header);
+        }
 
-      hintLevel = 0; sceneAttempts = 0; failStreak = 0; textLocked = false;
-      applyLanguage();
-      toggleInputLock(true);
-      setFlags(currentScene.addFlags);
-      if (mainChatContainer) mainChatContainer.dataset.bg = currentScene.bg || '';
-      saveGame();
-      if (currentScene.isEnd && gameData.charId) markCompleted();
-
-      if (currentScene.cost) {
-        if (currentState.money >= currentScene.cost) {
-          currentState.money -= currentScene.cost; updateHUD(); saveGame(); playSound('cash');
-          addMessage('Sistema', `Você pagou $${currentScene.cost.toFixed(2)}.`, 'ventu');
+        const bubble = document.createElement('div');
+        bubble.className = 'msg-bubble';
+        
+        if (isTyping) {
+            bubble.innerHTML = '<div class="typing-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
         } else {
-          setTimeout(() => {
-            addMessage('Sistema', `Saldo insuficiente ($${currentState.money.toFixed(2)}).`, 'ventu');
-            setTimeout(() => loadScene(currentScene.nextScene || currentSceneId), 2000);
-          }, 1000);
-          return;
+            if (glossary && glossary.length > 0) {
+                bubble.innerHTML = processTextWithGlossary(text, glossary);
+            } else {
+                bubble.textContent = text;
+            }
         }
-      }
 
-      glossaryList.innerHTML = '';
-      (currentScene.glossary || []).forEach(g => {
-        const li = document.createElement('li');
-        li.innerHTML = `<strong>${g.word}</strong>: ${g.meaning}`;
-        glossaryList.appendChild(li);
-      });
-
-      renderQuickReplies();
-
-      const npcData = resolveText(currentScene, 'npcText');
-      await sleep(500);
-      showTypingIndicator();
-      await sleep(1000);
-      removeTypingIndicator();
-      await addMessage(currentScene.npcName, npcData.text, 'npc', true, npcData.isCallback);
-      playSound('receive');
-      if (!currentScene.isEnd) toggleInputLock(false);
-      else {
-        textLocked = true;            // no final o texto livre fica bloqueado, mas o Rewind continua disponível
-        toggleInputLock(false);
-        setTimeout(showEndingHint, 1500);
-      }
+        content.appendChild(bubble);
+        div.appendChild(content);
+        chatHistory().appendChild(div);
+        
+        scrollToBottom();
+        return div;
     }
 
-    /* ---- entrada do jogador ---- */
-    function submitText(text, opts = {}) {
-      if (isProcessing) return;
-      text = String(text || '').trim();
-      if (!text) return;
-      addUserMessage(text);
-      chatInput.value = '';
-      handleUserInput(text, opts);
+    function addLens(lens, gender) {
+        const div = document.createElement('div');
+        div.className = 'chat-message npc';
+        
+        const lensDiv = document.createElement('div');
+        lensDiv.className = 'lens-bubble';
+        lensDiv.innerHTML = `
+            <div class="lens-line good"><span class="ico">✓</span><span>${lens.good}</span></div>
+            <div class="lens-line odd"><span class="ico">~</span><span>${lens.odd}</span></div>
+            <div class="lens-line native">
+                <span class="ico">→</span>
+                <span style="flex:1">${lens.native}</span>
+                <button class="action-btn tts-btn" data-text="${lens.native}" data-gender="${gender}">🔊</button>
+                <button class="action-btn save-btn" data-text="${lens.native}" data-context="Frase nativa">💾</button>
+            </div>
+        `;
+        
+        div.appendChild(lensDiv);
+        chatHistory().appendChild(div);
+        scrollToBottom();
     }
-    chatForm.addEventListener('submit', e => { e.preventDefault(); submitText(chatInput.value); });
 
-    async function handleUserInput(text, opts = {}) {
-      toggleInputLock(true);
-      playSound('send');
-      lastUserText = text;
+    document.body.addEventListener('click', (e) => {
+        document.querySelectorAll('.tooltip-popover').forEach(el => el.remove());
 
-      if (OFFENSIVE.test(text) && currentScene.offensiveScene) {
-        playSound('error');
-        VL.logError({ type: 'offensive', said: text, sceneId: currentSceneId, tag: 'politeness' });
-        await sleep(1000);
-        loadScene(currentScene.offensiveScene);
-        return;
-      }
+        if (e.target.classList.contains('keyword')) {
+            e.stopPropagation();
+            const word = e.target.getAttribute('data-word');
+            const meaning = e.target.getAttribute('data-meaning');
+            const phonetic = e.target.getAttribute('data-phonetic');
 
-      sceneAttempts++;
-      // O texto é SEMPRE validado pelas regex. Botão e digitação seguem a mesma regra.
-      let m = VL.matchIntent(currentScene, text);
-      if (!m.intent && opts.fromButton && currentScene.intents) {
-        // Rede de segurança: botão sem regex correspondente não pode travar o jogador.
-        const qi = (currentScene.quickReplies || []).findIndex(q => (typeof q === 'string' ? q : q.text) === text);
-        if (qi >= 0 && currentScene.intents[qi]) {
-          console.warn(`[Ventu] botão “${text}” em ${currentSceneId} não casa com nenhuma regex; usando índice legado. Corrija o JSON (rode ?debug=1).`);
-          m = { intent: currentScene.intents[qi], index: qi, kind: 'legacy' };
+            const popover = document.createElement('div');
+            popover.className = 'tooltip-popover';
+            popover.innerHTML = `
+                <div style="font-weight:bold; color:var(--gold); display:flex; justify-content:space-between; align-items:center;">
+                    ${word} <button class="action-btn tts-btn" data-text="${word}" data-gender="female" style="font-size:1rem; padding:0; margin:0;">🔊</button>
+                </div>
+                ${phonetic ? `<div class="tooltip-phonetic">${phonetic}</div>` : ''}
+                <div class="tooltip-meaning">${meaning}</div>
+            `;
+            e.target.appendChild(popover);
+
+            window.VentuEngine.savePhrase(word, meaning);
         }
-      }
-      if (DEBUG) console.debug('[match]', currentSceneId, m.kind, m.index, m.intent && m.intent.id, text);
 
-      if (m.intent) await onMatched(m, text); else await onNoMatch(text);
-    }
-
-    async function onMatched(m, text) {
-      const intent = m.intent;
-      const quality = VL.qualityOf(intent);
-      const assisted = hintLevel >= 3;
-      const firstTry = sceneAttempts === 1 && hintLevel === 0 && m.kind !== 'fuzzy';
-      const best = VL.bestAnswer(currentScene);
-      const tag = intent.tag || currentScene.tag;
-
-      // snapshot para o Rewind (antes de qualquer efeito)
-      const snap = {
-        sceneId: currentSceneId, state: { ...currentState }, flags: { ...getFlags() },
-        choice: { text, summary: stripTags((intent.lens && intent.lens.explanation) || intent.explanation || '').slice(0, 140) }
-      };
-
-      playSound('success');
-      failStreak = 0;
-      if (intent.addsFlags) setFlags(intent.addsFlags);
-
-      // erro de digitação aceito, mas explicado
-      if (m.kind === 'fuzzy') {
-        session.fuzzy++;
-        VL.logError({ type: 'typo', said: text, expected: m.suggestion, sceneId: currentSceneId, tag: 'grammar' });
-        await ventuNote(`✍️ <strong>Quase!</strong> Você escreveu “${esc(text)}”. O correto é <strong>${esc(m.suggestion)}</strong>.`);
-      }
-
-      // efeitos narrativos + mecânica de aprendizado
-      const fx = { ...(intent.fx || {}) };
-      if (assisted && TUNING.assistedNoRizz && fx.rizz > 0) fx.rizz = 0;
-      applyFx(fx);
-      if (currentState.trust !== undefined) {
-        if (firstTry && quality === 'ideal') currentState.trust = clamp(currentState.trust + TUNING.firstTryTrustBonus, 0, 100);
-        if (m.kind === 'fuzzy') currentState.trust = clamp(currentState.trust - TUNING.typoTrustPenalty, 0, 100);
-      }
-      if (intent.energyCost) currentState.energy = Math.max(0, currentState.energy - intent.energyCost);
-      updateHUD(); saveGame();
-      if (currentState.energy <= 0) await checkExhaustion();
-
-      // pontuação da cena (1x por cena na sessão: Rewind não vira farm)
-      if (!session.scored.has(currentSceneId)) {
-        session.scored.add(currentSceneId);
-        session.scenes++; session.matched++;
-        if (firstTry) session.firstTry++;
-        if (quality === 'ideal') session.ideal++;
-        if (assisted) session.assisted++;
-        VL.recordResult({ sceneId: currentSceneId, firstTry, quality, hintLevel, assisted, kind: m.kind });
-        if (firstTry && window.VentuProgress && window.VentuProgress.addXP) { try { window.VentuProgress.addXP(TUNING.xp.firstTryHit); } catch (e) { /* opcional */ } }
-      }
-
-      // resposta pouco natural vira erro + carta de produção
-      if (quality === 'awkward' || quality === 'bad') {
-        VL.logError({ type: 'register', said: text, expected: best.phrase, sceneId: currentSceneId, tag: tag || 'register' });
-        captureError(best);
-      }
-
-      // resposta do NPC
-      if (intent.response) {
-        showTypingIndicator();
-        await sleep(1000);
-        removeTypingIndicator();
-        await addMessage(currentScene.npcName, pick(intent, 'response'), 'npc', true);
-        playSound('receive');
-        await sleep(500);
-      }
-
-      // feedback (Lente ou explicação) depois da resposta, com tempo de leitura
-      let feedbackLen = 0;
-      if (intent.lens) {
-        const autoSaved = VL.settings.get('autoCapture') && quality !== 'ideal' && intent.lens.native;
-        if (autoSaved) VL.addCard({ type: 'phrase', front: `Como um nativo diria isto?\n“${text}”`, back: stripTags(intent.lens.native), ctx: stripTags(currentScene.npcText || ''), source: 'lens' });
-        showLens(intent.lens, text, autoSaved);
-        feedbackLen = stripTags(intent.lens.explanation).length + stripTags(intent.lens.native || '').length;
-      } else if (intent.explanation) {
-        await ventuNote(`💡 <em>${intent.explanation}</em>`);
-        feedbackLen = stripTags(intent.explanation).length;
-      }
-
-      if (intent.nextScene) {
-        rewindStack.push(snap); if (rewindStack.length > 10) rewindStack.shift();
-        await sleep(feedbackLen ? clamp(900 + feedbackLen * TUNING.readMsPerChar, 1500, 6000) : 1000);
-        loadScene(intent.nextScene);
-      } else {
-        toggleInputLock(false);
-      }
-    }
-
-    async function onNoMatch(text) {
-      playSound('error');
-      failStreak++; session.errors++;
-      const best = VL.bestAnswer(currentScene);
-      VL.logError({ type: 'nomatch', said: text, expected: best.phrase, sceneId: currentSceneId, tag: currentScene.tag || 'geral' });
-
-      // quem está travado não é punido para sempre: só as primeiras falhas custam energia
-      const shielded = currentScene.protectedBy
-        ? (window.VentuStorage.get('inventory') || []).includes(currentScene.protectedBy)
-        : gameData.charId === 'emma' && (window.VentuStorage.get('inventory') || []).includes('umbrella') && currentSceneId.includes('emma_a2');
-      if (shielded) {
-        systemNote('☂️ Seu guarda-chuva te protegeu da chuva! (Nenhuma energia perdida)');
-      } else if (failStreak < TUNING.failsBeforeLock) {
-        currentState.energy = Math.max(0, currentState.energy - TUNING.failEnergyLoss);
-      }
-      updateHUD(); saveGame();
-      if (currentState.energy <= 0) await checkExhaustion();
-
-      // 1ª falha: o NPC reage (fallback)
-      showTypingIndicator();
-      await sleep(1000);
-      removeTypingIndicator();
-      await addMessage(currentScene.npcName, currentScene.fallback || '...', 'npc', true);
-      playSound('receive');
-
-      const hasButtons = (currentScene.quickReplies || []).length > 0;
-
-      // 2ª falha seguida: o Ventu destrava e reexibe as opções
-      if (failStreak === TUNING.failsBeforeNudge) {
-        captureError(best);
-        if (hasButtons) {
-          await ventuNote('🐾 Parece que você travou. Tente usar uma das opções abaixo:');
-          renderQuickReplies({ pulse: true });
-        } else if (hintLevel === 0) {
-          await ventuNote(`🐾 Parece que você travou. Dica grátis: ${esc(VL.hintFor(currentScene, 1))}`);
+        if (e.target.classList.contains('tts-btn')) {
+            e.stopPropagation();
+            window.VentuEngine.speak(e.target.getAttribute('data-text'), e.target.getAttribute('data-gender'));
         }
-      }
-
-      // 3ª falha seguida: trava o texto livre (ou entrega a resposta modelo se não há botões)
-      if (failStreak >= TUNING.failsBeforeLock) {
-        if (hasButtons) {
-          textLocked = true;
-          applyLanguage();
-          renderQuickReplies({ pulse: true });
-          await ventuNote('🔒 Vamos com calma: escolha uma das opções abaixo para continuar.');
-        } else if (best.phrase) {
-          const bubble = await addMessage('Ventu', `🐾 Resposta modelo: <strong>${esc(best.phrase)}</strong> `, 'ventu', false);
-          const use = document.createElement('button');
-          use.className = 'lens-btn'; use.textContent = 'Usar esta resposta';
-          use.onclick = () => { use.disabled = true; hintLevel = 3; submitText(best.phrase); };
-          bubble.appendChild(use);
+        if (e.target.classList.contains('save-btn')) {
+            e.stopPropagation();
+            window.VentuEngine.savePhrase(e.target.getAttribute('data-text'), e.target.getAttribute('data-context'));
         }
-      }
-      toggleInputLock(false);
+    });
+
+    function findBestChoice(inputText, choices) {
+        const t = inputText.toLowerCase();
+        let bestMatch = null;
+        let maxHits = 0;
+
+        choices.forEach(choice => {
+            let hits = 0;
+            if (choice.keywords) {
+                choice.keywords.forEach(k => { if (t.includes(k.toLowerCase())) hits++; });
+            }
+            if (hits > maxHits) {
+                maxHits = hits;
+                bestMatch = choice;
+            }
+        });
+        return maxHits > 0 ? bestMatch : null;
     }
 
-    /* ---- final de história ---- */
-    function showEndingHint() {
-      const label = currentScene.endingType === 'ruim' ? 'Final ruim' : currentScene.endingType === 'ok' ? 'Final ok' : 'Final bom';
-      const rep = sessionReport();
-      const due = VL.cardStats ? VL.cardStats().due : 0;
+    function handleFallback(text) {
+        addMessage(text, 'player');
+        state.energy = Math.max(0, state.energy - 5);
+        updateStats();
 
-      const btns = [];
-      if (currentScene.endingType !== 'ruim') {
-        const next = gameData.nextLevel || (gameData.level === 'a1' ? { id: 'a2', label: 'Nível 2 (Hotel Luxo)' } : null);
-        if (next) btns.push(`<button class="retry-btn" style="background-color: var(--player-bubble); color: white;" data-act="next" data-id="${esc(next.id)}">Avançar para o ${esc(next.label)}</button>`);
-      }
-      if (gameData.charId) btns.push(`<button class="retry-btn" data-act="retry">Tentar de Novo (Reiniciar POV)</button>`);
-      btns.push(`<button class="retry-btn" style="background-color: var(--border); color: var(--text);" data-act="back">Voltar para as Perspectivas</button>`);
-      if (due > 0) btns.push(`<button class="retry-btn" data-act="review">🧠 Revisar ${due} carta${due > 1 ? 's' : ''}</button>`);
+        const currentScene = gameData.characters[currentCharId].scenes[currentSceneId];
+        const gender = (currentScene.npcName === 'Mr. Silva' || currentScene.npcName === 'Lucas') ? 'male' : 'female';
 
-      const shareText = encodeURIComponent(`Eu sobrevivi ao caos do ${gameData.title} com ${currentState.energy} de energia sobrando${rep ? ` e ${rep.accuracy}% de precisão` : ''}! Jogue agora no Ventu: https://ventu-nine.vercel.app`);
-      const reportHtml = rep ? `<div class="end-report">📊 Precisão <strong>${rep.accuracy}%</strong> · Naturalidade <strong>${rep.naturalness}%</strong> · Autonomia <strong>${rep.autonomy}%</strong>${session.rewinds ? ` · ⏪ ${session.rewinds}` : ''}</div>` : '';
-
-      const hint = document.createElement('div');
-      hint.className = 'chat-message ventu';
-      hint.innerHTML = `${VENTU_AVATAR}<div class="msg-content"><span class="msg-sender">Ventu</span><div class="msg-bubble"><strong>${label}.</strong>${reportHtml}
-        <div class="end-actions">${btns.join(' ')}</div>
-        <div style="margin-top: 15px;"><a href="https://api.whatsapp.com/send?text=${shareText}" target="_blank" rel="noopener" class="retry-btn" style="background-color: #25D366; color: white; text-decoration: none; display: inline-block; text-align: center; margin-top: 10px;">Compartilhar no WhatsApp</a></div></div></div>`;
-      hint.addEventListener('click', e => {
-        const act = e.target.dataset && e.target.dataset.act;
-        if (act === 'next') window.location.href = `?l=${e.target.dataset.id}&c=${gameData.charId || ''}`;
-        if (act === 'retry') { window.VentuStorage.remove(saveKey); window.location.href = `?l=${gameData.level}&c=${gameData.charId}`; }
-        if (act === 'back') window.location.href = `?l=${gameData.level}`;
-        if (act === 'review') VL.openReview();
-      });
-      chatHistory.appendChild(hint); scrollDown();
+        setTimeout(() => {
+            const typingMsg = addMessage('', 'npc', currentScene.npcName, true);
+            setTimeout(() => {
+                typingMsg.remove();
+                addMessage("Huh? I don't understand. What do you mean?", 'npc', currentScene.npcName);
+                
+                setTimeout(() => {
+                    if (state.energy <= 0) return endGame('Você perdeu toda a sua energia tentando se comunicar. Fim de jogo.');
+                    renderQuickReplies(currentScene.choices);
+                    isProcessing = false;
+                    chatInput().disabled = false;
+                    btnSend().disabled = false;
+                }, 1000);
+            }, 1000);
+        }, 400);
     }
 
-    /* ---- inicialização ---- */
-    async function boot() {
-      if (gameData.mature) {
-        const choice = await VL.confirmMature({ title: gameData.title });
-        if (choice === 'back') { if (history.length > 1) history.back(); else window.location.href = window.location.pathname; return; }
-      }
-      chatHistory.innerHTML = '';
-      updateHUD();
-      VL.mountToolbar({ input: chatInput, submit: t => submitText(t), getLastNpcLine: () => lastNpcLine });
-      if (DEBUG) VL.validate(gameData, { print: true });
-      loadScene(currentSceneId);
+    function processChoice(choice, typedText = null) {
+        if (isProcessing) return;
+        isProcessing = true;
+        
+        chatInput().disabled = true;
+        btnSend().disabled = true;
+        quickReplies().innerHTML = '';
+
+        addMessage(typedText || choice.text, 'player');
+        state.history.push({ said: typedText || choice.text, choice: choice });
+
+        updateStats(choice.trust || 0, choice.rizz || 0);
+        
+        if (choice.addsFlags) {
+            choice.addsFlags.forEach(f => { if (!state.flags.includes(f)) state.flags.push(f); });
+        }
+
+        const currentScene = gameData.characters[currentCharId].scenes[currentSceneId];
+        const gender = (currentScene.npcName === 'Mr. Silva' || currentScene.npcName === 'Lucas') ? 'male' : 'female';
+
+        setTimeout(() => {
+            const typingMsg = addMessage('', 'npc', currentScene.npcName, true);
+            setTimeout(() => {
+                typingMsg.remove();
+                addMessage(choice.response, 'npc', currentScene.npcName, false, currentScene.glossary);
+                
+                setTimeout(() => {
+                    if (choice.lens) addLens(choice.lens, gender);
+                    setTimeout(() => {
+                        if (choice.nextScene) loadScene(choice.nextScene);
+                        else isProcessing = false;
+                    }, 2000); 
+                }, 800);
+            }, 1200); 
+        }, 400);
     }
-    boot();
-  }
-});
+
+    function renderQuickReplies(choices) {
+        quickReplies().innerHTML = '';
+        choices.forEach((choice, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'quick-reply-btn';
+            const regLabel = choice.registry.charAt(0).toUpperCase() + choice.registry.slice(1);
+            btn.textContent = `[${regLabel}] ${choice.text}`;
+            btn.onclick = () => processChoice(choice);
+            quickReplies().appendChild(btn);
+        });
+    }
+
+    function renderSubtext(subtext, scene) {
+        const quickArea = quickReplies();
+        quickArea.innerHTML = '';
+        
+        const container = document.createElement('div');
+        container.className = 'subtext-container';
+        
+        const title = document.createElement('div');
+        title.className = 'subtext-title';
+        title.innerHTML = '🧠 O que ele realmente quis dizer?';
+        container.appendChild(title);
+
+        subtext.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'subtext-btn';
+            btn.textContent = opt.text;
+            
+            btn.onclick = () => {
+                quickArea.innerHTML = ''; 
+                
+                if (opt.correct) {
+                    state.rizz = Math.min(100, state.rizz + 5);
+                    updateStats(0, 5);
+                    
+                    const successMsg = document.createElement('div');
+                    successMsg.className = 'subtext-feedback correct';
+                    successMsg.innerHTML = `✓ <strong>Exatamente!</strong> ${opt.tell ? 'Pistas: ' + opt.tell.join(' / ') : ''}`;
+                    quickArea.appendChild(successMsg);
+                } else {
+                    const failMsg = document.createElement('div');
+                    failMsg.className = 'subtext-feedback wrong';
+                    const correctOpt = subtext.options.find(o=>o.correct);
+                    failMsg.innerHTML = `✗ <strong>Na verdade não.</strong> ${correctOpt.tell ? 'Pistas ignoradas: ' + correctOpt.tell.join(' / ') : ''}`;
+                    quickArea.appendChild(failMsg);
+                }
+
+                setTimeout(() => {
+                    const promptDiv = document.createElement('div');
+                    promptDiv.style.cssText = "font-size:0.85rem; color:var(--text-muted); margin-bottom:5px; margin-top:10px;";
+                    promptDiv.textContent = "Agora, escolha sua resposta:";
+                    quickArea.appendChild(promptDiv);
+                    
+                    renderQuickReplies(scene.choices);
+                    isProcessing = false;
+                    chatInput().disabled = false;
+                    btnSend().disabled = false;
+                }, 2500);
+            };
+            container.appendChild(btn);
+        });
+
+        quickArea.appendChild(container);
+        isProcessing = true;
+        chatInput().disabled = true;
+        btnSend().disabled = true;
+    }
+
+    function loadScene(sceneId) {
+        const char = gameData.characters[currentCharId];
+        const scene = char.scenes[sceneId];
+        if (!scene) return;
+
+        currentSceneId = sceneId;
+        
+        if (state.energy <= 0) return endGame('Você desmaiou de exaustão. Fim de jogo.');
+
+        let finalNpcText = scene.npcText;
+        if (scene.npcTextVariants) {
+            scene.npcTextVariants.forEach(variant => {
+                if (state.flags.includes(variant.ifFlag)) finalNpcText = variant.text;
+            });
+        }
+
+        if (scene.energyCost) {
+            state.energy = Math.max(0, state.energy - scene.energyCost);
+            updateStats();
+        }
+        if (scene.addFlags) {
+            scene.addFlags.forEach(f => { if (!state.flags.includes(f)) state.flags.push(f); });
+        }
+
+        updateGlossary(scene.glossary);
+
+        const progress = window.VentuStorage.getProgress();
+        progress.lastLevel = currentLevel;
+        progress.lastPOV = currentCharId;
+        progress.lastScene = currentSceneId;
+        window.VentuStorage.saveProgress(progress);
+
+        if (scene.isEnd) {
+            setTimeout(() => {
+                const typingMsg = addMessage('', 'npc', scene.npcName, true);
+                setTimeout(() => {
+                    typingMsg.remove();
+                    addMessage(finalNpcText, 'npc', scene.npcName, false, scene.glossary);
+                    setTimeout(() => endGame(null, scene.endingType), 2000);
+                }, 1000);
+            }, 500);
+            return;
+        }
+
+        setTimeout(() => {
+            const typingMsg = addMessage('', 'npc', scene.npcName, true);
+            setTimeout(() => {
+                typingMsg.remove();
+                addMessage(finalNpcText, 'npc', scene.npcName, false, scene.glossary);
+                
+                if (scene.subtext) {
+                    setTimeout(() => {
+                        renderSubtext(scene.subtext, scene);
+                    }, 1000);
+                } else {
+                    setTimeout(() => {
+                        renderQuickReplies(scene.choices);
+                        isProcessing = false;
+                        chatInput().disabled = false;
+                        btnSend().disabled = false;
+                        chatInput().focus();
+                    }, 1000);
+                }
+            }, 1500);
+        }, 800);
+    }
+
+    function endGame(customText, endingType) {
+        isProcessing = true;
+        chatInput().disabled = true;
+        btnSend().disabled = true;
+        quickReplies().innerHTML = '';
+
+        if (customText) addMessage(customText, 'npc', 'Narração');
+
+        const progress = window.VentuStorage.getProgress();
+        if (!progress.completedPOVs[currentLevel]) progress.completedPOVs[currentLevel] = [];
+        if (!progress.completedPOVs[currentLevel].includes(currentCharId)) {
+            progress.completedPOVs[currentLevel].push(currentCharId);
+            window.VentuStorage.saveProgress(progress);
+        }
+
+        let xpGained = endingType === 'bom' ? 100 : endingType === 'ok' ? 50 : 10;
+        window.VentuProgress.addXP(xpGained);
+        window.VentuProgress.checkStreak();
+        window.VentuProgress.registerMissionProgress('complete_1_scene');
+
+        const btn = document.createElement('button');
+        btn.className = 'retry-btn';
+        btn.style.width = '100%';
+        btn.style.marginTop = '15px';
+        btn.textContent = '🎬 Ver o Corte do Diretor';
+        btn.onclick = showDirectorCut;
+        
+        setTimeout(() => {
+            chatHistory().appendChild(btn);
+            scrollToBottom();
+        }, 1000);
+    }
+
+    function showDirectorCut() {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        let html = `<div class="modal-content"><h2 style="color: var(--gold); margin-bottom: 15px;">🎬 Corte do Diretor</h2>`;
+        state.history.forEach(h => {
+            html += `<div class="cut-line">
+                <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">${h.choice.registry}</div>
+                <div style="margin: 5px 0; font-weight: 500;">"${h.said}"</div>
+                <div class="native">
+                    <span>"${h.choice.lens.native}"</span>
+                    <button class="action-btn tts-btn" data-text="${h.choice.lens.native}" data-gender="female">🔊</button>
+                </div>
+            </div>`;
+        });
+        html += `<button id="btn-close-cut" style="width: 100%; padding: 12px; background: var(--gold); color: var(--bg); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px;">Fechar e Voltar</button></div>`;
+        modal.innerHTML = html;
+        document.body.appendChild(modal);
+        document.getElementById('btn-close-cut').onclick = () => { modal.remove(); window.location.href = 'jogar.html'; };
+    }
+
+    let deckQueue = [];
+    let currentCardIndex = 0;
+    let deckModalInstance = null;
+
+    function getCardEmoji(word) {
+        const w = word.toLowerCase();
+        if (w.includes('rain')) return '🌧️';
+        if (w.includes('late')) return '⏰';
+        if (w.includes('street')) return '🛣️';
+        if (w.includes('hate')) return '😡';
+        if (w.includes('onion')) return '🧅';
+        if (w.includes('cook')) return '👨‍🍳';
+        if (w.includes('cold')) return '🥶';
+        if (w.includes('wait')) return '⏳';
+        if (w.includes('job')) return '💼';
+        if (w.includes('tip')) return '💵';
+        if (w.includes('soak')) return '☔';
+        if (w.includes('angry')) return '😠';
+        return '📖';
+    }
+
+    function showDeck() {
+        const deck = window.VentuStorage.getWordBank() || [];
+        if (deck.length === 0) {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `<div class="modal-content" style="text-align:center; background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 20px; border: 1px solid #30363d;">
+                <h2 style="color: var(--gold); margin-bottom: 15px;">🎓 Meu Deck</h2>
+                <div style="font-size: 4rem; margin-bottom: 15px;">📭</div>
+                <p style="color: var(--text-muted);">Seu deck está vazio. Clique nas palavras sublinhadas no jogo para salvá-las!</p>
+                <button id="btn-close-empty" style="margin-top:20px; padding: 12px 24px; background: var(--gold); color: #000; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Entendi</button>
+            </div>`;
+            document.body.appendChild(modal);
+            document.getElementById('btn-close-empty').onclick = () => modal.remove();
+            return;
+        }
+
+        deckQueue = [...deck]; 
+        currentCardIndex = 0;
+
+        deckModalInstance = document.createElement('div');
+        deckModalInstance.className = 'modal-overlay';
+        deckModalInstance.style.backgroundColor = 'rgba(11, 15, 25, 0.95)';
+        deckModalInstance.style.backdropFilter = 'blur(10px)';
+        
+        document.body.appendChild(deckModalInstance);
+        renderDeckCard();
+    }
+
+    function renderDeckCard() {
+        if (!deckModalInstance) return;
+        
+        if (currentCardIndex >= deckQueue.length) {
+            deckModalInstance.innerHTML = `<div class="modal-content" style="text-align:center; background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 20px; border: 1px solid #30363d;">
+                <h2 style="color: var(--gold); margin-bottom: 15px;">🎉 Deck Concluído!</h2>
+                <div style="font-size: 4rem; margin-bottom: 15px;">🏆</div>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">Você revisou todos os cards por hoje. Excelente trabalho!</p>
+                <button id="btn-close-deck" style="width: 100%; padding: 14px; background: var(--gold); color: var(--bg); border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1rem;">Voltar ao Jogo</button>
+            </div>`;
+            document.getElementById('btn-close-deck').onclick = () => {
+                deckModalInstance.remove();
+                deckModalInstance = null;
+            };
+            return;
+        }
+
+        const card = deckQueue[currentCardIndex];
+        const emoji = getCardEmoji(card.front);
+        
+        deckModalInstance.innerHTML = `<div class="modal-content" style="background: transparent; border: none; box-shadow: none; padding: 0;">
+            <div class="deck-progress">Card ${currentCardIndex + 1} de ${deckQueue.length}</div>
+            
+            <div class="flashcard-scene" id="flashcard-scene">
+                <div class="flashcard" id="flashcard">
+                    <div class="card-face card-front">
+                        <div class="card-emoji">${emoji}</div>
+                        <div class="card-word">${card.front}</div>
+                        <button class="action-btn tts-btn" data-text="${card.front}" data-gender="female" style="font-size: 2rem; margin-top: 20px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">🔊</button>
+                        <div style="color:var(--text-muted); font-size:0.8rem; margin-top:auto; opacity: 0.5;">Clique para virar</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <div style="font-size: 2rem; margin-bottom: 15px;">💡</div>
+                        <div class="card-meaning">${card.back}</div>
+                        <div style="color:var(--text-muted); font-size: 0.8rem; margin-top: 15px;">Significado</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="deck-controls">
+                <button class="btn-wrong" id="btn-deck-wrong">Errei</button>
+                <button class="btn-right" id="btn-deck-right">Acertei</button>
+            </div>
+        </div>`;
+
+        const flashcard = document.getElementById('flashcard');
+        document.getElementById('flashcard-scene').onclick = () => {
+            flashcard.classList.toggle('is-flipped');
+        };
+
+        document.getElementById('btn-deck-right').onclick = () => {
+            currentCardIndex++;
+            renderDeckCard();
+        };
+
+        document.getElementById('btn-deck-wrong').onclick = () => {
+            const wrongCard = deckQueue.splice(currentCardIndex, 1)[0];
+            deckQueue.push(wrongCard);
+            if(currentCardIndex >= deckQueue.length) currentCardIndex = 0;
+            renderDeckCard();
+        };
+    }
+
+    function setupInputs() {
+        const form = document.getElementById('chat-form');
+        if (form) {
+            const micBtn = document.createElement('button');
+            micBtn.type = 'button';
+            micBtn.className = 'mic-btn';
+            micBtn.innerHTML = '🎙️';
+            form.insertBefore(micBtn, document.getElementById('btn-send'));
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRecognition) {
+                const recognition = new SpeechRecognition();
+                recognition.lang = 'en-US';
+                recognition.interimResults = false;
+                
+                micBtn.onclick = () => {
+                    if (isProcessing) return;
+                    micBtn.classList.add('active');
+                    recognition.start();
+                };
+
+                recognition.onresult = (e) => {
+                    micBtn.classList.remove('active');
+                    const transcript = e.results[0][0].transcript.toLowerCase();
+                    
+                    const currentScene = gameData.characters[currentCharId].scenes[currentSceneId];
+                    
+                    if (currentScene.phoneme_trap) {
+                        const trap = currentScene.phoneme_trap;
+                        const isConfused = trap.confusions.some(c => transcript.includes(c));
+                        
+                        if (isConfused) {
+                            isProcessing = true;
+                            chatInput().disabled = true;
+                            btnSend().disabled = true;
+                            quickReplies().innerHTML = '';
+                            
+                            addMessage(transcript, 'player');
+                            window.VentuEngine.savePhrase(`${trap.confusions[0].toUpperCase()} vs ${trap.target.toUpperCase()}`, 'Pronunciation Trap');
+                            
+                            setTimeout(() => {
+                                const typingMsg = addMessage('', 'npc', currentScene.npcName, true);
+                                setTimeout(() => {
+                                    typingMsg.remove();
+                                    addMessage(trap.npc_on_confusion, 'npc', currentScene.npcName);
+                                    
+                                    setTimeout(() => {
+                                        renderQuickReplies(currentScene.choices);
+                                        isProcessing = false;
+                                        chatInput().disabled = false;
+                                        btnSend().disabled = false;
+                                    }, 2000);
+                                }, 1000);
+                            }, 400);
+                            return; 
+                        }
+                    }
+
+                    chatInput().value = transcript;
+                    document.getElementById('chat-form').dispatchEvent(new Event('submit'));
+                };
+
+                recognition.onerror = () => micBtn.classList.remove('active');
+                recognition.onend = () => micBtn.classList.remove('active');
+            } else {
+                micBtn.style.display = 'none';
+            }
+        }
+
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            if (isProcessing) return;
+            const text = chatInput().value.trim();
+            if (!text) return;
+            chatInput().value = '';
+            
+            const badWords = ['fuck', 'shit', 'bitch', 'asshole', 'idiot', 'stupid', 'dick', 'bastard', 'cunt', 'motherfucker'];
+            const lowerText = text.toLowerCase();
+            if (badWords.some(word => lowerText.includes(word))) {
+                addMessage(text, 'player');
+                setTimeout(() => {
+                    addMessage("*Silence.* I'm not talking to you anymore. Call ended.", 'npc', gameData.characters[currentCharId].scenes[currentSceneId].npcName);
+                    setTimeout(() => endGame("Você foi grosseiro(a). O atendimento foi encerrado e você perdeu o jogo.", 'ruim'), 2000);
+                }, 1000);
+                return;
+            }
+
+            const scene = gameData.characters[currentCharId].scenes[currentSceneId];
+            const match = findBestChoice(text, scene.choices);
+            if (match) processChoice(match, text);
+            else handleFallback(text);
+        };
+    }
+
+    window.VentuEngine = {
+               init: function() {
+            injectCSS();
+            const params = new URLSearchParams(window.location.search);
+            
+            // LÊ DA URL, SE NÃO TIVER, LÊ DO STORAGE (Último jogado)
+            const progress = window.VentuStorage.getProgress();
+            
+            currentLevel = params.get('l') || progress.lastLevel || 'a1';
+            currentCharId = params.get('c') || progress.lastPOV || 'emma';
+            
+            // Se a URL não tiver os parâmetros, coloca eles lá para ficar visível (Ex: localhost:3000/jogo?l=a1&c=lucas)
+            if (!params.get('l') || !params.get('c')) {
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.set('l', currentLevel);
+                newUrl.searchParams.set('c', currentCharId);
+                window.history.replaceState({}, '', newUrl);
+            }
+
+            gameData = window.currentGameData;
+            if (!gameData) return;
+
+            const char = gameData.characters[currentCharId];
+            if (!char) return;
+
+            document.getElementById('mission-title').textContent = gameData.title;
+            state.energy = char.initialState.energy;
+            
+            setupInputs();
+            updateStats();
+            loadScene(char.startScene);
+        },
+
+        speak: function(text, gender = 'female') {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                
+                const voices = window.speechSynthesis.getVoices();
+                const maleNames = ['david', 'mark', 'george', 'daniel', 'james', 'paul', 'man', 'male'];
+                const femaleNames = ['zira', 'samantha', 'victoria', 'karen', 'susan', 'female'];
+                
+                let selectedVoice = null;
+                if (gender === 'male') {
+                    selectedVoice = voices.find(v => v.lang.startsWith('en') && maleNames.some(n => v.name.toLowerCase().includes(n)));
+                }
+                if (!selectedVoice) {
+                    selectedVoice = voices.find(v => v.lang.startsWith('en') && femaleNames.some(n => v.name.toLowerCase().includes(n)));
+                }
+                if (!selectedVoice) {
+                    selectedVoice = voices.find(v => v.lang.startsWith('en'));
+                }
+                if (selectedVoice) utterance.voice = selectedVoice;
+                window.speechSynthesis.speak(utterance);
+            }
+        },
+
+        savePhrase: function(phrase, context) {
+            let bank = window.VentuStorage.getWordBank() || [];
+            if (!bank.find(c => c.front === phrase)) {
+                bank.push({ front: phrase, back: context, type: 'phrase' });
+                window.VentuStorage.set('wordBank', bank);
+                const toast = document.createElement('div');
+                toast.style = "position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--gold); color:var(--bg); padding:10px 20px; border-radius:20px; font-weight:bold; z-index:2000; font-size:0.9rem; animation: fadeIn 0.3s ease;";
+                toast.textContent = "Salvo no Deck! 🎓";
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 2000);
+            }
+        }
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', window.VentuEngine.init);
+    } else {
+        window.VentuEngine.init();
+    }
+})();

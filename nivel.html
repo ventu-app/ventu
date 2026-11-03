@@ -4,8 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cenário da Missão — Ventu</title>
-  <meta name="description" content="Prepare-se para o próximo desafio no Ventu.">
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=2">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -25,78 +24,56 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background-color: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; display: flex; flex-direction: column; transition: 0.3s; overflow-x: hidden; }
-    .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; width: 100%; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; width: 100%; flex: 1; display: flex; flex-direction: column; justify-content: center; }
     a { text-decoration: none; color: inherit; }
     :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 
-    /* Skip link */
     .skip-link { position: absolute; left: -9999px; top: 0; background: var(--gold); color: var(--bg); padding: 10px 20px; z-index: 9999; border-radius: 0 0 8px 0; font-weight: 700; }
     .skip-link:focus { left: 0; }
-
     .site-header { background: var(--bg); border-bottom: 1px solid var(--border); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; width: 100%; z-index: 10; }
     .logo { display: flex; align-items: center; gap: 12px; font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; color: var(--text); }
-    
     .theme-toggle { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; padding: 8px; border-radius: 50%; }
     .theme-toggle:hover { background: var(--border); }
     [data-theme="dark"] .icon-sun { display: block; } [data-theme="dark"] .icon-moon { display: none; }
     [data-theme="light"] .icon-sun { display: none; } [data-theme="light"] .icon-moon { display: block; }
 
-    .dossier-box {
-      background: var(--panel); border: 2px solid var(--level-color, var(--border)); border-radius: 24px;
-      padding: 40px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-      animation: fadeIn 0.5s ease;
-      position: relative;
-    }
+    .dossier-box { background: var(--panel); border: 2px solid var(--level-color, var(--border)); border-radius: 24px; padding: 40px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); animation: fadeIn 0.5s ease; position: relative; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-
     .level-icon-big { font-size: 5rem; margin-bottom: 15px; animation: float 3s infinite ease-in-out; }
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-    
     .level-title { font-family: var(--font-heading); font-size: 3rem; color: var(--text); margin-bottom: 5px; line-height: 1.1; }
     .level-subtitle { font-size: 1rem; color: var(--level-color, var(--gold)); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; font-weight: bold; }
-
-    .ventu-bubble { 
-      background: var(--level-color-bg, rgba(251, 191, 36, 0.1)); 
-      border-left: 6px solid var(--level-color, var(--gold)); 
-      border-radius: 0 16px 16px 0; padding: 25px; text-align: left; margin-bottom: 30px; 
-      display: flex; gap: 20px; align-items: flex-start;
-    }
+    
+    .ventu-bubble { background: var(--level-color-bg, rgba(251, 191, 36, 0.1)); border-left: 6px solid var(--level-color, var(--gold)); border-radius: 0 16px 16px 0; padding: 25px; text-align: left; margin-bottom: 30px; display: flex; gap: 20px; align-items: flex-start; }
     .ventu-avatar { font-size: 3rem; flex-shrink: 0; }
     .ventu-text { font-size: 1.1rem; line-height: 1.6; color: var(--text); font-style: italic; }
     .ventu-name { font-size: 0.85rem; font-weight: bold; color: var(--level-color, var(--gold)); margin-bottom: 5px; text-transform: uppercase; }
-
-    .objectives-box { 
-      background: var(--bg); border: 1px solid var(--border); border-radius: 16px; 
-      padding: 25px; text-align: left; margin-bottom: 40px; 
-    }
+    
+    .objectives-box { background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 25px; text-align: left; margin-bottom: 40px; }
     .objectives-box h3 { color: var(--level-color, var(--gold)); font-size: 1.2rem; margin-bottom: 15px; text-transform: uppercase; }
     .objectives-box ul { list-style: none; }
     .objectives-box li { margin-bottom: 10px; font-size: 1rem; color: var(--text-muted); display: flex; align-items: center; gap: 10px; }
     .objectives-box li::before { content: '🎯'; font-size: 1.1rem; }
 
-    .actions { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
-    .btn { padding: 15px 30px; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.2s; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; font-family: var(--font-body); }
-    .btn-back { background: var(--bg); color: var(--text); border: 1px solid var(--border); flex: 1; min-width: 200px; }
+    .pov-section { margin-top: 30px; border-top: 1px dashed var(--border); padding-top: 30px; }
+    .pov-section h3 { font-family: var(--font-heading); font-size: 1.8rem; margin-bottom: 20px; color: var(--text); }
+    .pov-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    @media (max-width: 768px) { .pov-grid { grid-template-columns: 1fr; } }
+
+    .pov-card { background: var(--bg); border: 2px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); color: inherit; text-decoration: none; }
+    .pov-card:hover { border-color: var(--level-color); transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+    .pov-emoji { font-size: 3.5rem; margin-bottom: 10px; }
+    .pov-name { font-family: var(--font-heading); font-size: 1.4rem; color: var(--text); margin-bottom: 5px; }
+    .pov-role { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; color: var(--level-color, var(--gold)); margin-bottom: 15px; }
+    .pov-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 20px; flex-grow: 1; }
+    .pov-btn { width: 100%; padding: 10px; background: var(--level-color, var(--gold)); color: var(--bg); border: none; border-radius: 8px; font-weight: bold; font-size: 0.95rem; transition: 0.2s; pointer-events: none; }
+    .pov-card:hover .pov-btn { filter: brightness(1.1); transform: scale(1.02); }
+
+    .actions { display: flex; justify-content: center; margin-top: 30px; }
+    .btn-back { padding: 15px 30px; background: transparent; border: 1px solid var(--border); color: var(--text); border-radius: 12px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s; text-decoration: none; }
     .btn-back:hover { border-color: var(--text); }
-    .btn-play { background: var(--level-color, var(--gold)); color: var(--bg); flex: 2; min-width: 250px; }
-    .btn-play:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); filter: brightness(1.1); }
-    
-    .btn-play.disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; transform: none; box-shadow: none; filter: none; }
-    
-    .toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 15px 30px; border-radius: 30px; font-weight: bold; transition: bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center;}
-    .toast.show { bottom: 30px; }
 
-    @media (max-width: 600px) {
-      .dossier-box { padding: 30px 20px; }
-      .level-title { font-size: 2.2rem; }
-      .ventu-bubble { flex-direction: column; text-align: center; align-items: center; border-left: none; border-top: 6px solid var(--level-color); border-radius: 0 0 16px 16px; }
-      .actions { flex-direction: column; }
-      .btn { width: 100%; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
-    }
+    @media (max-width: 600px) { .dossier-box { padding: 30px 20px; } .level-title { font-size: 2.2rem; } .ventu-bubble { flex-direction: column; text-align: center; align-items: center; border-left: none; border-top: 6px solid var(--level-color); border-radius: 0 0 16px 16px; } }
   </style>
 </head>
 <body>
@@ -108,7 +85,7 @@
       <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 22 46 L 25 22 L 36 38 Z" fill="#ea580c"/><path d="M 78 46 L 75 22 L 64 38 Z" fill="#ea580c"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><circle cx="36" cy="56" r="1.2" fill="#fff"/><circle cx="66" cy="56" r="1.2" fill="#fff"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/></svg>
       <span class="logo-text">VENTU</span>
     </a>
-    <button id="theme-toggle" class="theme-toggle" aria-label="Alternar tema claro/escuro"><span class="icon-sun">☀️</span><span class="icon-moon">🌙</span></button>
+    <button id="theme-toggle" class="theme-toggle" aria-label="Alternar tema"><span class="icon-sun">☀️</span><span class="icon-moon">🌙</span></button>
   </header>
 
   <main class="container" id="conteudo">
@@ -130,19 +107,21 @@
         <ul id="objectives-list"></ul>
       </div>
 
+      <div class="pov-section">
+        <h3>Escolha sua Perspectiva:</h3>
+        <div class="pov-grid" id="pov-grid"></div>
+      </div>
+
       <div class="actions">
-        <a href="jogar.html" class="btn btn-back">Voltar para o Hub</a>
-        <button class="btn btn-play" id="btn-play">Iniciar Missão</button>
+        <a href="jogar.html" class="btn-back">← Voltar para o Hub</a>
       </div>
     </div>
   </main>
 
-  <div id="toast" class="toast" role="alert" aria-live="assertive">Em breve! Este nível está em desenvolvimento. 🦊</div>
-
   <script src="src/data/levels.js?v=2"></script>
+  <script src="src/data/a1_burger.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      // 1. Tema
       try {
         const themeToggle = document.getElementById('theme-toggle');
         if (themeToggle) {
@@ -154,32 +133,17 @@
         }
       } catch(e) {}
 
-      // 2. Carregar Dados
       const urlParams = new URLSearchParams(window.location.search);
       const levelId = urlParams.get('l');
 
-      if (!levelId) {
-        alert("ERRO: O link não tem o parâmetro de nível (?l=a1). Voltando para o hub.");
-        window.location.href = 'jogar.html';
-        return;
-      }
-
-      if (typeof levelsData === 'undefined') {
-        alert("ERRO CRÍTICO: A variável levelsData não foi encontrada. O arquivo levels.js não carregou. Verifique a pasta src/data/.");
-        return; // Deixei sem redirecionar para a tela ficar travada no erro
-      }
+      if (!levelId) { alert("ERRO: O link não tem o parâmetro de nível (?l=a1). Voltando."); window.location.href = 'jogar.html'; return; }
+      if (typeof levelsData === 'undefined') { alert("ERRO CRÍTICO: levels.js não carregou."); return; }
 
       const level = levelsData.find(l => l.id === levelId);
-      if (!level) {
-        alert("ERRO: O nível '" + levelId + "' não existe dentro do levels.js. Voltando.");
-        window.location.href = 'jogar.html';
-        return;
-      }
+      if (!level) { alert("ERRO: O nível não existe. Voltando."); window.location.href = 'jogar.html'; return; }
 
-      // 3. Preencher a Tela
       const box = document.getElementById('dossier-box');
       box.style.setProperty('--level-color', level.color);
-      
       const hex = level.color.replace('#', '');
       const r = parseInt(hex.substring(0, 2), 16);
       const g = parseInt(hex.substring(2, 4), 16);
@@ -189,12 +153,11 @@
       document.getElementById('level-icon').textContent = level.icon;
       document.getElementById('level-title').textContent = level.title;
       document.getElementById('level-subtitle').textContent = `NÍVEL ${level.cefr}`;
-      
       document.getElementById('ventu-avatar').textContent = level.mascot || '🦊';
       document.getElementById('ventu-says').textContent = `"${level.ventuSays}"`;
       
       const list = document.getElementById('objectives-list');
-      list.textContent = ''; // Limpa
+      list.textContent = '';
       if (level.objectives && Array.isArray(level.objectives)) {
         level.objectives.forEach(obj => {
           const li = document.createElement('li');
@@ -203,13 +166,39 @@
         });
       }
 
-      // 4. Botão de Jogar (Com Auth Check)
-      const btnPlay = document.getElementById('btn-play');
-      
-      if (level.available) {
-          btnPlay.addEventListener('click', async () => {
-              btnPlay.textContent = 'Carregando...';
-              btnPlay.disabled = true;
+      const povGrid = document.getElementById('pov-grid');
+      let gameData = null;
+      if (levelId === 'a1') gameData = typeof gameDataA1 !== 'undefined' ? gameDataA1 : null;
+      else if (levelId === 'a2') gameData = typeof gameDataA2 !== 'undefined' ? gameDataA2 : null;
+      else if (levelId === 'b1') gameData = typeof gameDataB1 !== 'undefined' ? gameDataB1 : null;
+      else if (levelId === 'b2') gameData = typeof gameDataB2 !== 'undefined' ? gameDataB2 : null;
+      else if (levelId === 'c1') gameData = typeof gameDataC1 !== 'undefined' ? gameDataC1 : null;
+      else if (levelId === 'c2') gameData = typeof gameDataC2 !== 'undefined' ? gameDataC2 : null;
+
+      if (gameData && gameData.characters) {
+        Object.keys(gameData.characters).forEach(charKey => {
+          const char = gameData.characters[charKey];
+          
+          // Cria o link já com os parâmetros corretos (URL LIMPA, SEM .html)
+          const targetUrl = `jogo?l=${levelId}&c=${char.charId}`;
+          
+          const card = document.createElement('a');
+          card.href = targetUrl;
+          card.className = 'pov-card';
+          
+          card.innerHTML = `
+            <div class="pov-emoji">${char.emoji}</div>
+            <div class="pov-name">${char.name}</div>
+            <div class="pov-role">${char.role}</div>
+            <div class="pov-desc">${char.description}</div>
+            <button class="pov-btn">Jogar como ${char.name}</button>
+          `;
+          
+          // Intercepta o clique para fazer o Auth Check
+          card.addEventListener('click', async (e) => {
+              e.preventDefault();
+              const btn = card.querySelector('.pov-btn');
+              btn.textContent = 'Carregando...';
               
               try {
                   if (!window.supabase) throw new Error("Supabase não carregado");
@@ -217,26 +206,19 @@
                   const { data: { session } } = await supabase.auth.getSession();
                   
                   if (!session) {
-                      // Se não tiver logado, vai pro Auth com redirect de volta pro nivel (SEM O .html)
-                      window.location.href = `auth?redirect=${encodeURIComponent('nivel?l=' + level.id)}`;
+                      window.location.href = `auth.html?redirect=${encodeURIComponent(targetUrl)}`;
                   } else {
-                      // Se tiver logado, vai pro Jogo (SEM O .html)
-                      window.location.href = `jogo?l=${level.id}`;
+                      window.location.href = targetUrl;
                   }
-              } catch(e) {
-                  console.warn("Erro no auth, usando fallback:", e);
-                  // Fallback se o Supabase falhar ou demorar (SEM O .html)
-                  window.location.href = `jogo?l=${level.id}`;
+              } catch(err) {
+                  window.location.href = targetUrl;
               }
           });
+          
+          povGrid.appendChild(card);
+        });
       } else {
-          btnPlay.classList.add('disabled');
-          btnPlay.textContent = '🔒 Iniciar Missão';
-          btnPlay.addEventListener('click', () => {
-              const toast = document.getElementById('toast');
-              toast.classList.add('show');
-              setTimeout(() => { toast.classList.remove('show'); }, 3000);
-          });
+        povGrid.innerHTML = `<p style="grid-column: 1/-1; color: var(--text-muted); padding: 20px;">Os personagens deste nível ainda estão em reforma. 🚧</p>`;
       }
     });
   </script>
