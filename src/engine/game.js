@@ -1,5 +1,5 @@
 ﻿/**
- * Ventu Game Engine v5.4 (Pronunciation Traps + Complete Clean)
+ * Ventu Game Engine v5.6 (Store & Items Integration)
  */
 
 (function() {
@@ -7,7 +7,7 @@
     let currentLevel = 'a1';
     let currentCharId = null;
     let currentSceneId = null;
-    let state = { energy: 100, trust: 50, rizz: 50, flags: [], history: [] };
+    let state = { energy: 100, trust: 50, rizz: 50, money: 0, flags: [], history: [] };
     let isProcessing = false;
 
     const injectCSS = () => {
@@ -107,6 +107,23 @@
             .cut-line:last-child { border-bottom: none; }
             .cut-line .native { color: #8ab4f8; font-style: italic; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; }
 
+            /* BOTÃO CORTE DO DIRETOR */
+            .retry-btn {
+                background-color: var(--gold);
+                color: var(--bg);
+                border: none;
+                padding: 15px;
+                border-radius: 12px;
+                font-weight: bold;
+                font-size: 1rem;
+                cursor: pointer;
+                transition: 0.2s;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                width: 100%;
+                margin-top: 15px;
+            }
+            .retry-btn:hover { background-color: var(--gold-hover); transform: translateY(-2px); }
+
             /* FLASHCARD PREMIUM */
             .flashcard-scene { perspective: 1000px; width: 100%; max-width: 320px; height: 420px; margin: 0 auto; cursor: pointer; }
             .flashcard { width: 100%; height: 100%; position: relative; transition: transform 0.6s; transform-style: preserve-3d; }
@@ -200,10 +217,10 @@
         });
     }
 
-        function getAvatarEmoji(name) {
+    function getAvatarEmoji(name) {
         if (!name) return '💬';
         if (name.includes('Silva')) return '👨‍💼';
-        if (name.includes('Lucas')) return '👨🏾'; // Atualizado para diversidade
+        if (name.includes('Lucas')) return '👨🏾';
         if (name.includes('Davi')) return '👨‍🍳';
         if (name.includes('Emma')) return '👩';
         if (name.includes('Narração') || name.includes('Narrador') || name.includes('Sistema')) return '📖';
@@ -227,7 +244,7 @@
         if (!isNarration) {
             const header = document.createElement('div');
             header.className = 'msg-header';
-            const icon = sender === 'player' ? '👤' : getAvatarEmoji(npcName);
+            const icon = sender === 'player' ? (window.playerSkin || '👤') : getAvatarEmoji(npcName);
             const displayName = sender === 'player' ? 'Você' : npcName;
             header.innerHTML = `<span class="icon">${icon}</span><span class="name">${displayName}</span>`;
             content.appendChild(header);
@@ -276,6 +293,7 @@
         scrollToBottom();
     }
 
+    // --- EVENTO DE CLIQUE NAS PALAVRAS (TOOLTIP) ---
     document.body.addEventListener('click', (e) => {
         document.querySelectorAll('.tooltip-popover').forEach(el => el.remove());
 
@@ -309,6 +327,7 @@
         }
     });
 
+    // --- LÓGICA DE TEXTO E FLUXO ---
     function findBestChoice(inputText, choices) {
         const t = inputText.toLowerCase();
         let bestMatch = null;
@@ -547,10 +566,8 @@
 
         const btn = document.createElement('button');
         btn.className = 'retry-btn';
-        btn.style.width = '100%';
-        btn.style.marginTop = '15px';
         btn.textContent = '🎬 Ver o Corte do Diretor';
-        btn.onclick = showDirectorCut;
+        btn.onclick = () => showDirectorCut(); // Arrow function garante o clique
         
         setTimeout(() => {
             chatHistory().appendChild(btn);
@@ -562,22 +579,51 @@
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
         let html = `<div class="modal-content"><h2 style="color: var(--gold); margin-bottom: 15px;">🎬 Corte do Diretor</h2>`;
+        
         state.history.forEach(h => {
+            // Verifica se a Lente existe para não quebrar o código
+            const safeLensNative = (h.choice && h.choice.lens && h.choice.lens.native) ? h.choice.lens.native : (h.choice.text || h.said);
+            const safeRegistry = (h.choice && h.choice.registry) ? h.choice.registry : 'neutral';
+
             html += `<div class="cut-line">
-                <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">${h.choice.registry}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">${safeRegistry}</div>
                 <div style="margin: 5px 0; font-weight: 500;">"${h.said}"</div>
                 <div class="native">
-                    <span>"${h.choice.lens.native}"</span>
-                    <button class="action-btn tts-btn" data-text="${h.choice.lens.native}" data-gender="female">🔊</button>
+                    <span>"${safeLensNative}"</span>
+                    <button class="action-btn tts-btn" data-text="${safeLensNative.replace(/"/g, '&quot;')}" data-gender="female">🔊</button>
                 </div>
             </div>`;
         });
-        html += `<button id="btn-close-cut" style="width: 100%; padding: 12px; background: var(--gold); color: var(--bg); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px;">Fechar e Voltar</button></div>`;
+        
+        // Novos botões de navegação no final
+        html += `
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+                <button id="btn-play-other-pov" style="width: 100%; padding: 15px; background: var(--gold); color: var(--bg); border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: 0.2s;">
+                    🎭 Jogar com outro POV
+                </button>
+                <button id="btn-back-hub" style="width: 100%; padding: 15px; background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: 0.2s;">
+                    🎮 Voltar para o Hub
+                </button>
+            </div>
+        </div>`;
+        
         modal.innerHTML = html;
         document.body.appendChild(modal);
-        document.getElementById('btn-close-cut').onclick = () => { modal.remove(); window.location.href = 'jogar.html'; };
+        
+        // Ação do botão "Outro POV" (Vai para o nivel.html)
+        document.getElementById('btn-play-other-pov').onclick = () => { 
+            modal.remove(); 
+            window.location.href = `nivel.html?l=${currentLevel}`; 
+        };
+
+        // Ação do botão "Voltar para o Hub" (Vai para o jogar.html)
+        document.getElementById('btn-back-hub').onclick = () => { 
+            modal.remove(); 
+            window.location.href = 'jogar.html'; 
+        };
     }
 
+    // --- FLASHCARD SWIPE MODAL ---
     let deckQueue = [];
     let currentCardIndex = 0;
     let deckModalInstance = null;
@@ -690,6 +736,7 @@
         };
     }
 
+    // --- SETUP E EVENTOS GLOBAIS ---
     function setupInputs() {
         const form = document.getElementById('chat-form');
         if (form) {
@@ -811,6 +858,7 @@
 
             document.getElementById('mission-title').textContent = gameData.title;
             state.energy = char.initialState.energy;
+            state.money = char.initialState.money || 0; // Pega o dinheiro inicial
             
             setupInputs();
             updateStats();
@@ -858,6 +906,53 @@
                 if (selectedVoice) utterance.voice = selectedVoice;
                 window.speechSynthesis.speak(utterance);
             }
+        },
+
+        updateShopMoneyUI: function() {
+            const el = document.getElementById('shop-money');
+            if (el) el.textContent = `$ ${state.money.toFixed(2)}`;
+            
+            const headerMoney = document.getElementById('stat-money');
+            if (headerMoney) headerMoney.textContent = `$ ${state.money.toFixed(2)}`;
+        },
+
+        buyItem: function(itemType, cost) {
+            if (state.money < cost) {
+                alert("Saldo insuficiente! Continue jogando para ganhar mais dinheiro (gorjetas).");
+                return;
+            }
+
+            state.money -= cost;
+
+            if (itemType === 'coffee') {
+                state.energy = Math.min(100, state.energy + 20);
+                updateStats();
+                alert("☕ Café tomado! +20 de Energia restaurada.");
+            } 
+            else if (itemType === 'freeze') {
+                const user = window.VentuStorage.getUser();
+                user.freezes = (user.freezes || 0) + 1;
+                window.VentuStorage.saveUser(user);
+                alert("🧊 Gelo comprado! Sua ofensiva está protegida.");
+            }
+            else if (itemType === 'hint') {
+                window.showHintNext = true;
+                alert("🎯 Dica ativada! A próxima resposta mostrará a versão nativa.");
+            }
+            else if (itemType === 'revive') {
+                window.hasRevive = true;
+                alert("💖 Coração Extra comprado! Se sua energia zerar, você será revivido.");
+            }
+            else if (itemType === 'skin') {
+                window.playerSkin = '🦊';
+                alert("🦊 Skin VIP equipada! Seu avatar no chat foi alterado.");
+            }
+            else if (itemType === 'translator') {
+                window.hasTranslator = true;
+                alert("🗣️ Tradutor Simultâneo comprado! A próxima fala do NPC será traduzida.");
+            }
+
+            this.updateShopMoneyUI();
         },
 
         savePhrase: function(phrase, context) {
