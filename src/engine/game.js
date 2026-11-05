@@ -1,5 +1,5 @@
 ﻿/**
- * Ventu Game Engine v5.6 (Store & Items Integration)
+ * Ventu Game Engine v6.0 (variantes por flag, flags por POV, itens, LCS/diff/iscas no treino)
  */
 
 (function() {
@@ -10,11 +10,42 @@
     let state = { energy: 100, trust: 50, rizz: 50, money: 0, flags: [], history: [] };
     let isProcessing = false;
 
+    // ===== Helpers v6: HTML seguro, condições por flag, variantes =====
+    const esc = (v) => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    const glossOf = (sc) => pickVariant(sc.glossaryVariants, sc.glossary, 'glossary');
+    const asArr = (v) => v === undefined || v === null ? [] : (Array.isArray(v) ? v : [v]);
+    // Um objeto passa se TODAS as ifFlag existem e NENHUMA ifNotFlag existe.
+    const cond = (o) => !o || (asArr(o.ifFlag).every(f => state.flags.includes(f)) && asArr(o.ifNotFlag).every(f => !state.flags.includes(f)));
+    // Entre as variantes válidas, a ÚLTIMA vence. Sem nenhuma válida, usa o padrão.
+    const pickVariant = (list, fallback, key) => { let r = fallback; (list || []).forEach(v => { if (cond(v)) r = v[key]; }); return r; };
+    const addFlag = (f) => {
+        if (!state.flags.includes(f)) {
+            state.flags.push(f);
+            try { localStorage.setItem('ventu_flags', JSON.stringify(state.flags)); } catch (e) {}
+        }
+    };
+    const MALE_NPCS = ['Mr. Silva', 'Lucas', 'Davi', 'Cliente furioso'];
+    const genderOf = (name) => MALE_NPCS.includes(name) ? 'male' : 'female';
+    const isNarr = (n) => n === 'Narração' || n === 'Narrador' || n === 'Sistema';
+    function tryRevive() {
+        if (!window.hasRevive) return false;
+        window.hasRevive = false;
+        state.energy = 30;
+        updateStats();
+        addMessage('💖 Coração Extra usado! Você voltou com 30 de energia.', 'npc', 'Sistema');
+        return true;
+    }
+    function showTranslation(scene) {
+        if (!window.hasTranslator || !glossOf(scene) || !glossOf(scene).length) return;
+        window.hasTranslator = false;
+        addMessage('🗣️ ' + glossOf(scene).map(g => g.word + ' = ' + g.meaning).join('  ·  '), 'npc', 'Sistema');
+    }
+
     const injectCSS = () => {
         const style = document.createElement('style');
         style.innerHTML = `
             .stat:has(#stat-money) { display: none !important; }
-            
+
             /* Chat Moderno */
             .chat-message { display: flex; flex-direction: column; width: 100%; margin-bottom: 15px; animation: fadeIn 0.3s ease; }
             .chat-message.npc { align-items: flex-start; }
@@ -141,6 +172,51 @@
             .deck-progress { text-align: center; color: var(--gold); font-weight: bold; font-size: 0.9rem; margin-bottom: 15px; letter-spacing: 1px; text-transform: uppercase; }
 
             @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+            /* ============ TREINO PÓS-RODADA (CSS que faltava) ============ */
+            .training-modal { background: linear-gradient(145deg, rgba(30,41,59,0.97), rgba(15,23,42,0.99)); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 26px 22px; max-width: 520px; width: 100%; max-height: 92vh; overflow-y: auto; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.8); backdrop-filter: blur(10px); animation: fadeIn 0.3s ease; }
+            .training-modal h2 { color: #fff; font-family: 'Playfair Display', serif; font-size: 1.7rem; margin: 4px 0 0; }
+            .training-subtitle { font-size: 0.75rem; color: var(--gold); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+
+            /* Word Order estilo Duolingo: cada palavra é um chip */
+            .wo-assembly { min-height: 76px; background: rgba(0,0,0,0.35); border: 2px dashed #4a90d9; border-radius: 14px; padding: 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; align-content: flex-start; justify-content: flex-start; margin-bottom: 12px; text-align: left; }
+            .wo-pool { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; padding: 10px 0; min-height: 52px; }
+            .wo-chip { display: inline-flex; align-items: center; justify-content: center; background: #1e293b; color: #e2e8f0; border: 1px solid #3b4a63; border-bottom-width: 3px; padding: 9px 16px; border-radius: 12px; cursor: pointer; font-size: 1rem; font-weight: 600; font-family: 'Inter', sans-serif; user-select: none; transition: transform .15s, background .15s, border-color .15s; }
+            .wo-chip:hover { background: #2a3a55; border-color: #4a90d9; transform: translateY(-2px); }
+            .wo-chip:active { transform: translateY(1px); border-bottom-width: 1px; }
+            .wo-chip-used { background: rgba(251,191,36,0.15); color: var(--gold); border-color: var(--gold); }
+            .wo-chip-used:hover { background: rgba(239,68,68,0.2); border-color: #ef4444; color: #fecaca; }
+            .wo-feedback { padding: 12px; border-radius: 10px; margin-top: 12px; font-size: 0.92rem; font-weight: 600; line-height: 1.4; animation: fadeIn 0.3s ease; }
+            .wo-feedback.ok { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid #10b981; }
+            .wo-feedback.partial { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid #fbbf24; }
+            .wo-feedback.bad { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid #ef4444; }
+
+            /* Listen & Type */
+            .listen-play-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 20px; border: none; border-radius: 16px; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #0b0f19; font-size: 1.15rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; box-shadow: 0 6px 20px rgba(251,191,36,0.35); transition: transform .2s, box-shadow .2s; font-family: 'Inter', sans-serif; }
+            .listen-play-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(251,191,36,0.5); }
+            .listen-play-btn:active { transform: scale(0.98); }
+            .listen-play-btn:disabled { background: #30363d; color: #8b949e; box-shadow: none; cursor: not-allowed; transform: none; opacity: 1; }
+            input.listen-input { width: 100%; box-sizing: border-box; padding: 16px; background: rgba(0,0,0,0.5) !important; color: #fff !important; -webkit-text-fill-color: #fff; border: 2px solid #30363d; border-radius: 14px; font-size: 1.05rem; font-family: 'Inter', sans-serif; text-align: center; outline: none; transition: border-color .2s, box-shadow .2s; }
+            input.listen-input::placeholder { color: #64748b; -webkit-text-fill-color: #64748b; }
+            input.listen-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(251,191,36,0.15); }
+            input.listen-input:disabled { opacity: .7; }
+
+            /* Diff colorido (Word Order e Listen & Type) */
+            .diff-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin: 10px 0 4px; text-align: left; font-weight: 600; }
+            .diff-row { display: flex; flex-wrap: wrap; gap: 6px; text-align: left; }
+            .diff-word { padding: 4px 10px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; }
+            .diff-word.ok { background: rgba(16,185,129,0.15); color: #10b981; }
+            .diff-word.bad { background: rgba(239,68,68,0.15); color: #f87171; text-decoration: line-through; }
+            .diff-word.miss { background: rgba(251,191,36,0.15); color: #fbbf24; }
+
+            /* Resultado */
+            .tier-badge { display: inline-block; margin: 16px 0 20px; padding: 10px 28px; border-radius: 30px; font-size: 1.3rem; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; box-shadow: 0 8px 25px rgba(0,0,0,0.5); }
+            .result-row { display: flex; justify-content: space-between; align-items: center; padding: 13px 18px; margin-bottom: 8px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; color: #cbd5e1; }
+            .result-row strong { color: #fff; }
+            .result-total { background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.3); }
+            .result-total strong { color: var(--gold); font-size: 1.2rem; }
+            .result-reward { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin: 20px 0 0; font-weight: 800; }
+            .result-reward > div { background: rgba(255,255,255,0.06); padding: 10px 18px; border-radius: 20px; }
         `;
         document.head.appendChild(style);
 
@@ -197,7 +273,7 @@
                 const safeWord = item.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const regex = new RegExp(`\\b(${safeWord})\\b`, 'gi');
                 formatted = formatted.replace(regex, (match) => {
-                    return `<span class="keyword" data-word="${match}" data-meaning="${item.meaning}" data-phonetic="${item.phonetic || ''}">${match}</span>`;
+                    return `<span class="keyword" data-word="${esc(match)}" data-meaning="${esc(item.meaning)}" data-phonetic="${esc(item.phonetic || '')}">${match}</span>`;
                 });
             } catch (e) {}
         });
@@ -211,7 +287,7 @@
         glossary.forEach(item => {
             const div = document.createElement('div');
             div.className = 'gloss-item';
-            div.innerHTML = `<span><strong>${item.word}</strong>: ${item.meaning}</span> <button class="action-btn tts-btn" data-text="${item.word}" data-gender="female">🔊</button>`;
+            div.innerHTML = `<span><strong>${item.word}</strong>: ${item.meaning}</span> <button class="action-btn tts-btn" data-text="${esc(item.word)}" data-gender="female">🔊</button>`;
             div.onclick = (e) => { if(e.target.tagName !== 'BUTTON') window.VentuEngine.speak(item.word, 'female'); };
             list.appendChild(div);
         });
@@ -223,6 +299,7 @@
         if (name.includes('Lucas')) return '👨🏾';
         if (name.includes('Davi')) return '👨‍🍳';
         if (name.includes('Emma')) return '👩';
+        if (name.includes('Cliente')) return '😠';
         if (name.includes('Narração') || name.includes('Narrador') || name.includes('Sistema')) return '📖';
         return '💬';
     }
@@ -283,8 +360,8 @@
             <div class="lens-line native">
                 <span class="ico">→</span>
                 <span style="flex:1">${lens.native}</span>
-                <button class="action-btn tts-btn" data-text="${lens.native}" data-gender="${gender}">🔊</button>
-                <button class="action-btn save-btn" data-text="${lens.native}" data-context="Frase nativa">💾</button>
+                <button class="action-btn tts-btn" data-text="${esc(lens.native)}" data-gender="${gender}">🔊</button>
+                <button class="action-btn save-btn" data-text="${esc(lens.native)}" data-context="Frase nativa">💾</button>
             </div>
         `;
         
@@ -294,7 +371,7 @@
     }
 
     // --- EVENTO DE CLIQUE NAS PALAVRAS (TOOLTIP) ---
-    document.body.addEventListener('click', (e) => {
+    document.addEventListener('click', (e) => {
         document.querySelectorAll('.tooltip-popover').forEach(el => el.remove());
 
         if (e.target.classList.contains('keyword')) {
@@ -352,7 +429,7 @@
         updateStats();
 
         const currentScene = gameData.characters[currentCharId].scenes[currentSceneId];
-        const gender = (currentScene.npcName === 'Mr. Silva' || currentScene.npcName === 'Lucas') ? 'male' : 'female';
+        const gender = genderOf(currentScene.npcName);
 
         setTimeout(() => {
             const typingMsg = addMessage('', 'npc', currentScene.npcName, true);
@@ -361,7 +438,7 @@
                 addMessage("Huh? I don't understand. What do you mean?", 'npc', currentScene.npcName);
                 
                 setTimeout(() => {
-                    if (state.energy <= 0) return endGame('Você perdeu toda a sua energia tentando se comunicar. Fim de jogo.');
+                    if (state.energy <= 0 && !tryRevive()) return endGame('Você perdeu toda a sua energia tentando se comunicar. Fim de jogo.');
                     renderQuickReplies(currentScene.choices);
                     isProcessing = false;
                     chatInput().disabled = false;
@@ -380,27 +457,31 @@
         quickReplies().innerHTML = '';
 
         addMessage(typedText || choice.text, 'player');
-        state.history.push({ said: typedText || choice.text, choice: choice });
-
+        
         updateStats(choice.trust || 0, choice.rizz || 0);
         
-        if (choice.addsFlags) {
-            choice.addsFlags.forEach(f => { if (!state.flags.includes(f)) state.flags.push(f); });
-        }
+        (choice.addsFlags || []).forEach(addFlag);
+        // Resolvido DEPOIS das flags da própria escolha, para elas já valerem
+        const respText = pickVariant(choice.responseVariants, choice.response, 'text');
+        const nextId = pickVariant(choice.nextSceneVariants, choice.nextScene, 'scene');
+        state.history.push({
+            said: typedText || choice.text, choice: choice, response: respText,
+            npcName: gameData.characters[currentCharId].scenes[currentSceneId].npcName
+        });
 
         const currentScene = gameData.characters[currentCharId].scenes[currentSceneId];
-        const gender = (currentScene.npcName === 'Mr. Silva' || currentScene.npcName === 'Lucas') ? 'male' : 'female';
+        const gender = genderOf(currentScene.npcName);
 
         setTimeout(() => {
             const typingMsg = addMessage('', 'npc', currentScene.npcName, true);
             setTimeout(() => {
                 typingMsg.remove();
-                addMessage(choice.response, 'npc', currentScene.npcName, false, currentScene.glossary);
+                addMessage(respText, 'npc', currentScene.npcName, false, glossOf(currentScene));
                 
                 setTimeout(() => {
                     if (choice.lens) addLens(choice.lens, gender);
                     setTimeout(() => {
-                        if (choice.nextScene) loadScene(choice.nextScene);
+                        if (nextId) loadScene(nextId);
                         else isProcessing = false;
                     }, 2000); 
                 }, 800);
@@ -409,15 +490,24 @@
     }
 
     function renderQuickReplies(choices) {
+        choices = (choices || []).filter(cond);
+        const hintOn = !!window.showHintNext;
         quickReplies().innerHTML = '';
         choices.forEach((choice, index) => {
             const btn = document.createElement('button');
             btn.className = 'quick-reply-btn';
             const regLabel = choice.registry.charAt(0).toUpperCase() + choice.registry.slice(1);
             btn.textContent = `[${regLabel}] ${choice.text}`;
+            if (hintOn && choice.lens && choice.lens.native) {
+                const h = document.createElement('div');
+                h.style.cssText = 'font-size:0.75rem; opacity:0.8; margin-top:4px; font-style:italic;';
+                h.textContent = '💡 Nativo: ' + choice.lens.native;
+                btn.appendChild(h);
+            }
             btn.onclick = () => processChoice(choice);
             quickReplies().appendChild(btn);
         });
+        if (hintOn) window.showHintNext = false;
     }
 
     function renderSubtext(subtext, scene) {
@@ -429,7 +519,7 @@
         
         const title = document.createElement('div');
         title.className = 'subtext-title';
-        title.innerHTML = '🧠 O que ele realmente quis dizer?';
+        title.innerHTML = `🧠 ${subtext.question || 'O que ele realmente quis dizer?'}`;
         container.appendChild(title);
 
         subtext.options.forEach(opt => {
@@ -441,7 +531,6 @@
                 quickArea.innerHTML = ''; 
                 
                 if (opt.correct) {
-                    state.rizz = Math.min(100, state.rizz + 5);
                     updateStats(0, 5);
                     
                     const successMsg = document.createElement('div');
@@ -484,24 +573,20 @@
 
         currentSceneId = sceneId;
         
-        if (state.energy <= 0) return endGame('Você desmaiou de exaustão. Fim de jogo.');
+        if (state.energy <= 0 && !tryRevive()) return endGame('Você desmaiou de exaustão. Fim de jogo.');
 
-        let finalNpcText = scene.npcText;
-        if (scene.npcTextVariants) {
-            scene.npcTextVariants.forEach(variant => {
-                if (state.flags.includes(variant.ifFlag)) finalNpcText = variant.text;
-            });
-        }
+        let finalNpcText = pickVariant(scene.npcTextVariants, scene.npcText, 'text');
+        const activeSubtext = pickVariant(scene.subtextVariants, scene.subtext, 'subtext');
 
         if (scene.energyCost) {
             state.energy = Math.max(0, state.energy - scene.energyCost);
             updateStats();
         }
         if (scene.addFlags) {
-            scene.addFlags.forEach(f => { if (!state.flags.includes(f)) state.flags.push(f); });
+            scene.addFlags.forEach(addFlag);
         }
 
-        updateGlossary(scene.glossary);
+        updateGlossary(glossOf(scene));
 
         const progress = window.VentuStorage.getProgress();
         progress.lastLevel = currentLevel;
@@ -514,7 +599,7 @@
                 const typingMsg = addMessage('', 'npc', scene.npcName, true);
                 setTimeout(() => {
                     typingMsg.remove();
-                    addMessage(finalNpcText, 'npc', scene.npcName, false, scene.glossary);
+                    addMessage(finalNpcText, 'npc', scene.npcName, false, glossOf(scene));
                     setTimeout(() => endGame(null, scene.endingType), 2000);
                 }, 1000);
             }, 500);
@@ -525,11 +610,12 @@
             const typingMsg = addMessage('', 'npc', scene.npcName, true);
             setTimeout(() => {
                 typingMsg.remove();
-                addMessage(finalNpcText, 'npc', scene.npcName, false, scene.glossary);
+                addMessage(finalNpcText, 'npc', scene.npcName, false, glossOf(scene));
                 
-                if (scene.subtext) {
+                showTranslation(scene);
+                if (activeSubtext) {
                     setTimeout(() => {
-                        renderSubtext(scene.subtext, scene);
+                        renderSubtext(activeSubtext, scene);
                     }, 1000);
                 } else {
                     setTimeout(() => {
@@ -553,6 +639,7 @@
         if (customText) addMessage(customText, 'npc', 'Narração');
 
         const progress = window.VentuStorage.getProgress();
+        if (!progress.completedPOVs) progress.completedPOVs = {};
         if (!progress.completedPOVs[currentLevel]) progress.completedPOVs[currentLevel] = [];
         if (!progress.completedPOVs[currentLevel].includes(currentCharId)) {
             progress.completedPOVs[currentLevel].push(currentCharId);
@@ -566,9 +653,15 @@
 
         const btn = document.createElement('button');
         btn.className = 'retry-btn';
-        btn.textContent = '🎬 Ver o Corte do Diretor';
-        btn.onclick = () => showDirectorCut(); // Arrow function garante o clique
-        
+        btn.textContent = '🎯 Rodada de Treino';
+        btn.onclick = () => {
+            if (btn.disabled) return;
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            btn.textContent = '🎬 Ver o Corte do Diretor';
+            startPostRoundTraining(() => showDirectorCut());
+        };
+
         setTimeout(() => {
             chatHistory().appendChild(btn);
             scrollToBottom();
@@ -587,10 +680,10 @@
 
             html += `<div class="cut-line">
                 <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">${safeRegistry}</div>
-                <div style="margin: 5px 0; font-weight: 500;">"${h.said}"</div>
+                <div style="margin: 5px 0; font-weight: 500;">"${esc(h.said)}"</div>
                 <div class="native">
-                    <span>"${safeLensNative}"</span>
-                    <button class="action-btn tts-btn" data-text="${safeLensNative.replace(/"/g, '&quot;')}" data-gender="female">🔊</button>
+                    <span>"${esc(safeLensNative)}"</span>
+                    <button class="action-btn tts-btn" data-text="${esc(safeLensNative)}" data-gender="female">🔊</button>
                 </div>
             </div>`;
         });
@@ -755,7 +848,7 @@
                 micBtn.onclick = () => {
                     if (isProcessing) return;
                     micBtn.classList.add('active');
-                    recognition.start();
+                    try { recognition.start(); } catch (err) { micBtn.classList.remove('active'); }
                 };
 
                 recognition.onresult = (e) => {
@@ -815,7 +908,7 @@
             
             const badWords = ['fuck', 'shit', 'bitch', 'asshole', 'idiot', 'stupid', 'dick', 'bastard', 'cunt', 'motherfucker'];
             const lowerText = text.toLowerCase();
-            if (badWords.some(word => lowerText.includes(word))) {
+            if (badWords.some(word => new RegExp('\\b' + word + '\\b').test(lowerText))) {
                 addMessage(text, 'player');
                 setTimeout(() => {
                     addMessage("*Silence.* I'm not talking to you anymore. Call ended.", 'npc', gameData.characters[currentCharId].scenes[currentSceneId].npcName);
@@ -825,10 +918,347 @@
             }
 
             const scene = gameData.characters[currentCharId].scenes[currentSceneId];
-            const match = findBestChoice(text, scene.choices);
+            const match = findBestChoice(text, scene.choices.filter(cond));
             if (match) processChoice(match, text);
             else handleFallback(text);
         };
+    }
+
+    // ============================================================
+    // SPRINT 6 — TREINO PÓS-RODADA (Word Order + Listen & Type)
+    // ============================================================
+
+    const TRAINING_TIERS = [
+        { min: 19, name: '💎 Perfeito', coins: 50, xp: 40, color: '#8b5cf6' },
+        { min: 14, name: '🥇 Ouro',     coins: 30, xp: 20, color: '#fbbf24' },
+        { min: 8,  name: '🥈 Prata',    coins: 15, xp: 10, color: '#94a3b8' },
+        { min: 0,  name: '🥉 Bronze',   coins: 5,  xp: 5,  color: '#b45309' }
+    ];
+
+    function getTier(score) {
+        return TRAINING_TIERS.find(t => score >= t.min) || TRAINING_TIERS[TRAINING_TIERS.length - 1];
+    }
+
+    function addCoins(amount) {
+        state.money += amount;
+        try { localStorage.setItem('ventu_money', state.money.toString()); } catch(e) {}
+        const h = document.getElementById('stat-money');
+        if (h) h.textContent = `$ ${state.money.toFixed(2)}`;
+        const s = document.getElementById('shop-money');
+        if (s) s.textContent = `$ ${state.money.toFixed(2)}`;
+    }
+
+    function cleanPhrase(text) {
+        return String(text || '')
+            .replace(/\[.*?\]/g, '')
+            .replace(/\*[^*]*\*/g, '')
+            .replace(/\([^)]*\)/g, '')
+            .replace(/[\u2018\u2019]/g, "'")
+            .replace(/[^a-zA-Z0-9\s'\-]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
+    // Maior subsequência comum (LCS): nota justa mesmo se o jogador errar uma palavra no começo
+    function lcsMarks(a, b) {
+        const n = a.length, m = b.length;
+        const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+        for (let i = 1; i <= n; i++) {
+            for (let j = 1; j <= m; j++) {
+                dp[i][j] = a[i - 1] === b[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
+            }
+        }
+        const hitA = new Set(), hitB = new Set();
+        let i = n, j = m;
+        while (i > 0 && j > 0) {
+            if (a[i - 1] === b[j - 1]) { hitA.add(i - 1); hitB.add(j - 1); i--; j--; }
+            else if (dp[i - 1][j] >= dp[i][j - 1]) i--;
+            else j--;
+        }
+        return { len: dp[n][m], hitA, hitB };
+    }
+
+    function computeWordOrderSimilarity(a, b) {
+        const wA = a.toLowerCase().split(' ').filter(Boolean);
+        const wB = b.toLowerCase().split(' ').filter(Boolean);
+        const maxLen = Math.max(wA.length, wB.length);
+        return maxLen === 0 ? 0 : lcsMarks(wA, wB).len / maxLen;
+    }
+
+    // Verde = no lugar certo · vermelho riscado = sobrou/errou · amarelo = faltou
+    function renderDiff(attemptWords, targetWords) {
+        const lo = (w) => w.toLowerCase();
+        const { hitA, hitB } = lcsMarks(attemptWords.map(lo), targetWords.map(lo));
+        const yours = attemptWords.map((w, i) => '<span class="diff-word ' + (hitA.has(i) ? 'ok' : 'bad') + '">' + esc(w) + '</span>').join('');
+        const right = targetWords.map((w, j) => '<span class="diff-word ' + (hitB.has(j) ? 'ok' : 'miss') + '">' + esc(w) + '</span>').join('');
+        return '<div class="diff-label">Você montou</div><div class="diff-row">' + (yours || '<em>—</em>') + '</div>' +
+               '<div class="diff-label">Frase correta</div><div class="diff-row">' + right + '</div>';
+    }
+
+    function computeListenSimilarity(a, b) {
+        const wA = a.split(/\s+/).filter(Boolean);
+        const wB = b.split(/\s+/).filter(Boolean);
+        if (wA.length === 0 && wB.length === 0) return 1;
+        if (wA.length === 0 || wB.length === 0) return 0;
+        const bagA = {}, bagB = {};
+        wA.forEach(w => bagA[w] = (bagA[w] || 0) + 1);
+        wB.forEach(w => bagB[w] = (bagB[w] || 0) + 1);
+        let matches = 0;
+        for (const w in bagA) if (bagB[w]) matches += Math.min(bagA[w], bagB[w]);
+        return matches / Math.max(wA.length, wB.length);
+    }
+
+    function extractTrainingData() {
+        let pool = [];
+        const add = (t) => {
+            const c = cleanPhrase(t);
+            const n = c.split(' ').filter(Boolean).length;
+            if (c.length > 3 && n >= 3 && n <= 10) pool.push(c);
+        };
+        state.history.forEach(h => {
+            if (h.choice && h.choice.lens && h.choice.lens.native) add(h.choice.lens.native);
+            if (h.response && h.npcName && !isNarr(h.npcName)) add(h.response);
+        });
+        const scene = gameData.characters[currentCharId].scenes[currentSceneId];
+        if (scene && scene.npcText && !isNarr(scene.npcName)) add(pickVariant(scene.npcTextVariants, scene.npcText, 'text'));
+        pool = [...new Set(pool)];
+        pool.sort(() => Math.random() - 0.5);
+
+        let wordOrderPhrases = pool.filter(p => p.split(' ').length <= 9).slice(0, 3);
+        if (wordOrderPhrases.length === 0) wordOrderPhrases = ["Hello how are you today"];
+        let listenPhrases = pool.filter(p => !wordOrderPhrases.includes(p)).slice(0, 3);
+        if (listenPhrases.length === 0) listenPhrases = pool.slice(0, 3);
+        if (listenPhrases.length === 0) listenPhrases = [wordOrderPhrases[0]];
+        return { wordOrderPhrases, listenPhrases };
+    }
+
+    function showWordOrderGame(targetPhrase, onComplete, currentRound, totalRounds) {
+        const targetWords = targetPhrase.split(' ').filter(Boolean);
+        const lowerTarget = targetWords.map(w => w.toLowerCase());
+        // Iscas: sempre distintas e nunca palavras que já fazem parte da frase
+        const DECOYS = ['very', 'always', 'maybe', 'today', 'really', 'never', 'just', 'now', 'still', 'also'];
+        const decoys = DECOYS.filter(d => !lowerTarget.includes(d)).sort(() => Math.random() - 0.5).slice(0, targetWords.length >= 4 ? 2 : 1);
+        const fullPool = [...targetWords, ...decoys];
+        const shuffle = (arr) => {
+            let r, tries = 0;
+            do { r = [...arr].sort(() => Math.random() - 0.5); tries++; }
+            while (tries < 6 && r.length > 1 && r.join(' ') === targetWords.join(' '));
+            return r;
+        };
+
+        let poolWords = shuffle(fullPool);
+        let assembledWords = [];
+        let submitted = false;
+        let finalScore = 0;
+
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.style.zIndex = '5000';
+        overlay.innerHTML = `
+            <div class="training-modal" style="border-top: 4px solid var(--gold);">
+                <div style="text-align:center; margin-bottom:15px;">
+                    <div class="training-subtitle">🎯 Treino Pós-Rodada — 1/2</div>
+                    <h2>Word Order (${currentRound}/${totalRounds})</h2>
+                    <p style="color:var(--text-muted); font-size:0.9rem; margin-top:5px;">Monte a frase na ordem correta. Cuidado: ${decoys.length > 1 ? 'há palavras que não fazem' : 'há uma palavra que não faz'} parte dela.</p>
+                </div>
+                <div id="wo-assembly" class="wo-assembly"></div>
+                <div style="text-align:center; margin:10px 0; color:var(--text-muted); font-size:0.8rem;">Palavras disponíveis:</div>
+                <div id="wo-pool" class="wo-pool"></div>
+                <div id="wo-feedback"></div>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button id="wo-reset" style="flex:0 0 auto; padding:14px 20px; background:transparent; color:var(--text); border:1px solid var(--border); border-radius:12px; font-weight:bold; cursor:pointer;">Resetar</button>
+                    <button id="wo-check" style="flex:1; padding:14px; background:var(--gold); color:var(--bg); border:none; border-radius:12px; font-weight:bold; cursor:pointer;">Verificar</button>
+                </div>
+            </div>`;
+        document.body.appendChild(overlay);
+
+        const assembly = document.getElementById('wo-assembly');
+        const pool = document.getElementById('wo-pool');
+        const feedback = document.getElementById('wo-feedback');
+        const checkBtn = document.getElementById('wo-check');
+        const resetBtn = document.getElementById('wo-reset');
+
+        function render() {
+            assembly.innerHTML = '';
+            pool.innerHTML = '';
+            if (assembledWords.length === 0) {
+                assembly.innerHTML = '<span style="color:var(--text-muted); font-style:italic; font-size:0.9rem;">Clique nas palavras abaixo…</span>';
+            } else {
+                assembledWords.forEach((w, i) => {
+                    const chip = document.createElement('span');
+                    chip.className = 'wo-chip wo-chip-used';
+                    chip.textContent = w;
+                    chip.onclick = () => { if (submitted) return; assembledWords.splice(i, 1); poolWords.push(w); render(); };
+                    assembly.appendChild(chip);
+                });
+            }
+            poolWords.forEach((w, i) => {
+                const chip = document.createElement('span');
+                chip.className = 'wo-chip';
+                chip.textContent = w;
+                chip.onclick = () => { if (submitted) return; poolWords.splice(i, 1); assembledWords.push(w); render(); };
+                pool.appendChild(chip);
+            });
+        }
+        render();
+
+        resetBtn.onclick = () => {
+            if (submitted) return;
+            poolWords = shuffle(fullPool);   // mesmas iscas, só reembaralha
+            assembledWords = [];
+            feedback.innerHTML = '';
+            render();
+        };
+
+        checkBtn.onclick = () => {
+            if (submitted) { overlay.remove(); onComplete(finalScore); return; }
+            if (assembledWords.length === 0) {
+                feedback.innerHTML = '<div class="wo-feedback bad">Monte a frase primeiro.</div>';
+                return;
+            }
+            submitted = true;
+            const sim = computeWordOrderSimilarity(assembledWords.join(' '), targetPhrase);
+            finalScore = sim === 1 ? 10 : Math.min(9, Math.round(sim * 10));
+
+            let cls = 'bad', txt = '❌ Não foi dessa vez.';
+            if (sim === 1) { cls = 'ok'; txt = '✓ Perfeito! Frase montada corretamente.'; }
+            else if (sim >= 0.5) { cls = 'partial'; txt = '~ Quase! Nota: ' + finalScore + '/10.'; }
+            const diff = sim === 1 ? '' : renderDiff(assembledWords, targetWords);
+            feedback.innerHTML = '<div class="wo-feedback ' + cls + '">' + txt + diff + '</div>';
+
+            resetBtn.disabled = true;
+            resetBtn.style.opacity = '0.4';
+            checkBtn.textContent = 'Continuar →';
+        };
+    }
+
+    function showListenTypeGame(targetPhrase, onComplete, currentRound, totalRounds) {
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.style.zIndex = '5000';
+        overlay.innerHTML = `
+            <div class="training-modal" style="border-top: 4px solid #8b5cf6;">
+                <div style="text-align:center; margin-bottom:15px;">
+                    <div class="training-subtitle" style="color:#8b5cf6;">🎯 Treino Pós-Rodada — 2/2</div>
+                    <h2>Listen & Type (${currentRound}/${totalRounds})</h2>
+                    <p style="color:var(--text-muted); font-size:0.9rem; margin-top:5px;">Ouça e digite o que você ouviu.</p>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                    <button id="lt-play" class="listen-play-btn">🔊 Ouvir (3)</button>
+                    <input id="lt-input" class="listen-input" type="text" placeholder="Digite em inglês…" autocomplete="off" autocapitalize="off" />
+                </div>
+                <div id="lt-feedback"></div>
+                <button id="lt-check" style="width:100%; margin-top:15px; padding:14px; background:var(--gold); color:var(--bg); border:none; border-radius:12px; font-weight:bold; cursor:pointer;">Verificar</button>
+            </div>`;
+        document.body.appendChild(overlay);
+
+        let replaysLeft = 3;
+        let checked = false;
+        let finalScore = 0;
+        const playBtn = document.getElementById('lt-play');
+        const input = document.getElementById('lt-input');
+        const feedback = document.getElementById('lt-feedback');
+        const checkBtn = document.getElementById('lt-check');
+
+        setTimeout(() => window.VentuEngine.speak(targetPhrase, 'female'), 400);
+
+        playBtn.onclick = () => {
+            if (replaysLeft <= 0) return;
+            window.VentuEngine.speak(targetPhrase, 'female');
+            replaysLeft--;
+            playBtn.textContent = '🔊 Ouvir (' + replaysLeft + ')';
+            if (replaysLeft <= 0) playBtn.disabled = true;
+        };
+
+        input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); checkBtn.click(); } });
+
+        checkBtn.onclick = () => {
+            if (checked) { overlay.remove(); onComplete(finalScore); return; }
+            const raw = input.value.trim();
+            if (!raw) {
+                feedback.innerHTML = '<div class="wo-feedback bad">Digite o que você ouviu.</div>';
+                return;
+            }
+            checked = true;
+            const attemptWords = cleanPhrase(raw).split(' ').filter(Boolean);
+            const targetWords = cleanPhrase(targetPhrase).split(' ').filter(Boolean);
+            const sim = computeListenSimilarity(attemptWords.join(' ').toLowerCase(), targetWords.join(' ').toLowerCase());
+            finalScore = sim === 1 ? 10 : Math.min(9, Math.round(sim * 10));
+
+            let cls = 'bad', txt = '❌ Não foi dessa vez.';
+            if (sim === 1) { cls = 'ok'; txt = '✓ Perfeito! Você ouviu certinho.'; }
+            else if (sim >= 0.5) { cls = 'partial'; txt = '~ Quase! Nota: ' + finalScore + '/10.'; }
+            const diff = sim === 1 ? '' : renderDiff(attemptWords, targetWords);
+            feedback.innerHTML = '<div class="wo-feedback ' + cls + '">' + txt + diff + '</div>';
+
+            input.disabled = true;
+            playBtn.disabled = true;
+            checkBtn.textContent = 'Continuar →';
+        };
+
+        setTimeout(() => input.focus(), 500);
+    }
+
+    function showTrainingResults(wordScore, listenScore, onComplete) {
+        const total = wordScore + listenScore;
+        const tier = getTier(total);
+
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.style.zIndex = '5000';
+        overlay.innerHTML = `
+            <div class="training-modal" style="border-top: 4px solid ${tier.color};">
+                <div style="font-size:3rem; margin-bottom:10px;">🎉</div>
+                <h2 style="color:white; margin-bottom:5px; font-family:'Playfair Display',serif;">Rodada Completa!</h2>
+                <div class="tier-badge" style="background:${tier.color}; color:#0b0f19;">${tier.name}</div>
+                <div class="result-row"><span>Word Order</span><strong>${wordScore}/10</strong></div>
+                <div class="result-row"><span>Listen & Type</span><strong>${listenScore}/10</strong></div>
+                <div class="result-row" style="background:rgba(251,191,36,0.1); border:1px solid var(--gold);">
+                    <span><strong>Total</strong></span>
+                    <strong style="color:var(--gold);">${total}/20</strong>
+                </div>
+                <div class="result-reward">
+                    <div style="color:var(--gold);">💰 +${tier.coins} moedas</div>
+                    <div style="color:#8b5cf6;">✨ +${tier.xp} XP</div>
+                </div>
+                <button id="lt-continue" style="width:100%; margin-top:25px; padding:15px; background:var(--gold); color:var(--bg); border:none; border-radius:12px; font-weight:bold; cursor:pointer; font-size:1rem;">
+                    🎬 Ver o Corte do Diretor
+                </button>
+            </div>`;
+        document.body.appendChild(overlay);
+
+        addCoins(tier.coins);
+        if (tier.xp > 0 && window.VentuProgress) window.VentuProgress.addXP(tier.xp);
+
+        document.getElementById('lt-continue').onclick = () => {
+            overlay.remove();
+            if (onComplete) onComplete();
+        };
+    }
+
+    function startPostRoundTraining(onComplete) {
+        const data = extractTrainingData();
+        let woScoreTotal = 0, woIndex = 0;
+        let listenScoreTotal = 0, listenIndex = 0;
+
+        function playWordOrder() {
+            if (woIndex >= data.wordOrderPhrases.length) return playListen();
+            showWordOrderGame(data.wordOrderPhrases[woIndex], (score) => {
+                woScoreTotal += score; woIndex++; playWordOrder();
+            }, woIndex + 1, data.wordOrderPhrases.length);
+        }
+
+        function playListen() {
+            if (listenIndex >= data.listenPhrases.length) {
+                const finalWo = Math.round(woScoreTotal / (data.wordOrderPhrases.length || 1));
+                const finalLt = Math.round(listenScoreTotal / (data.listenPhrases.length || 1));
+                return showTrainingResults(finalWo, finalLt, onComplete);
+            }
+            showListenTypeGame(data.listenPhrases[listenIndex], (score) => {
+                listenScoreTotal += score; listenIndex++; playListen();
+            }, listenIndex + 1, data.listenPhrases.length);
+        }
+        playWordOrder();
     }
 
    window.VentuEngine = {
@@ -858,10 +1288,18 @@
 
             document.getElementById('mission-title').textContent = gameData.title;
             state.energy = char.initialState.energy;
-            state.money = char.initialState.money || 0; // Pega o dinheiro inicial
+            try { state.flags = JSON.parse(localStorage.getItem('ventu_flags') || '[]'); } catch(e) { state.flags = []; }
+            // Recomeçar um POV apaga só as flags DELE (a1_silva_*, etc). As dos outros POVs continuam valendo.
+            const ownPrefix = `${currentLevel}_${currentCharId}_`;
+            state.flags = state.flags.filter(f => !f.startsWith(ownPrefix));
+            try { localStorage.setItem('ventu_flags', JSON.stringify(state.flags)); } catch(e) {}
+            if ('speechSynthesis' in window) { window.speechSynthesis.getVoices(); window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices(); }
+            const savedMoney = localStorage.getItem('ventu_money');
+            state.money = savedMoney !== null ? (parseFloat(savedMoney) || 0) : (char.initialState.money || 0);
             
             setupInputs();
             updateStats();
+            window.VentuEngine.updateShopMoneyUI();
             loadScene(char.startScene);
 
             // ==========================================
@@ -923,6 +1361,7 @@
             }
 
             state.money -= cost;
+            try { localStorage.setItem('ventu_money', state.money.toString()); } catch(e) {}
 
             if (itemType === 'coffee') {
                 state.energy = Math.min(100, state.energy + 20);
