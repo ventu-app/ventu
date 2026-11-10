@@ -1,0 +1,4 @@
+window.VENTU_CHAPTER = {
+  "meta": { "level": "ESPECIAL", "volume": "INTERCAMBIO", "chapter": 4, "title": "Em Breve", "subtitle": "Em Construção", "format": "coming-soon", "estimatedMinutes": 0, "xp": 0, "characters": [], "loreHook": "", "canDo": ["Aguarde novidades..."] },
+  "warmup": { "recall": [], "hook": "", "ptHelp": "" }, "input": { "scene": "", "tone": "", "lines": [], "listeningMission": "" }, "vocab": [], "grammar": { "rule": "", "pattern": "", "traps": [] }, "pronunciation": { "focus": "", "mouthTip": "", "minimalPairs": [] }, "activities": [], "roleplay": { "setup": "", "npcPersona": "", "complications": [], "successCriteria": [], "starterPrompt": "" }, "culturalPass": { "work": "", "type": "film", "year": "", "whyA1": "", "listeningMission": "" }
+};

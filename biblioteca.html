@@ -11,7 +11,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/ventu-biblioteca.css">
   <script>
-    // Aplica o tema salvo antes da página renderizar (evita flash)
     const savedTheme = localStorage.getItem('ventu_theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
   </script>
@@ -20,7 +19,6 @@
 
   <header class="site-header">
     <div class="header-inner">
-      <!-- LOGO REAL DA VENTU -->
       <a href="index.html" class="logo" aria-label="Ventu — Início">
         <img src="assets/logo.svg" alt="Ventu" height="36">
       </a>
@@ -32,7 +30,6 @@
         <a href="dashboard.html">Meu QG</a>
       </nav>
 
-      <!-- BOTÃO DE TEMA -->
       <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema claro/escuro">
         <span class="icon-sun">☀️</span>
         <span class="icon-moon">🌙</span>
@@ -56,6 +53,61 @@
       <p>Cada nível tem sua cor, sua ilustração e seus volumes. Clique em "Ver volumes" para abrir os capítulos.</p>
     </div>
     <div class="levels-grid" id="levels-grid"></div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- SEÇÃO DE CENÁRIOS ESPECIAIS (NOVO)         -->
+  <!-- ========================================== -->
+  <section class="levels-section" aria-labelledby="specials-title" style="margin-top: 20px;">
+    <div class="section-head">
+      <span class="eyebrow" style="background: rgba(239, 68, 68, .15); color: #ef4444; border-color: rgba(239, 68, 68, .3);">🔞 Cenários Especiais</span>
+      <h2 id="specials-title">O Inglês da Vida Real</h2>
+      <p>Missões intensas, +18 e sem filtro. Para quem quer sobreviver à vida adulta fora do país.</p>
+    </div>
+
+    <div class="levels-grid">
+      <!-- FLERTE -->
+      <article class="level-card" style="--level-color: #ec4899; --level-bg: rgba(236, 72, 153, .15); --level-border: rgba(236, 72, 153, .35); --level-glow: rgba(236, 72, 153, .40);">
+        <div class="level-head">
+          <span class="level-badge">Social</span>
+          <div class="level-illust"><span style="font-size: 4rem;">💕</span></div>
+        </div>
+        <h3 class="level-title">Bairro do Flerte</h3>
+        <p class="level-sub">Dating & Red Flags</p>
+        <p class="level-desc">Small talk picante, encontros tensos, a conversa do "What are we?", lidar com o ex e o famoso ghosting.</p>
+        <button class="level-expand" disabled style="opacity: 0.7; cursor: not-allowed;">
+          <span>🚧 Em Construção</span>
+        </button>
+      </article>
+
+      <!-- RUA -->
+      <article class="level-card" style="--level-color: #e11d48; --level-bg: rgba(225, 29, 72, .15); --level-border: rgba(225, 29, 72, .35); --level-glow: rgba(225, 29, 72, .40);">
+        <div class="level-head">
+          <span class="level-badge">Street</span>
+          <div class="level-illust"><span style="font-size: 4rem;">🚬</span></div>
+        </div>
+        <h3 class="level-title">Beco da Rua</h3>
+        <p class="level-sub">Sobrevivência Urbana</p>
+        <p class="level-desc">Gírias pesadas, palavrões, como desescalar uma briga e sobreviver a uma abordagem policial sem pânico.</p>
+        <button class="level-expand" disabled style="opacity: 0.7; cursor: not-allowed;">
+          <span>🚧 Em Construção</span>
+        </button>
+      </article>
+
+      <!-- INTERCÂMBIO -->
+      <article class="level-card" style="--level-color: #06b6d4; --level-bg: rgba(6, 182, 212, .15); --level-border: rgba(6, 182, 212, .35); --level-glow: rgba(6, 182, 212, .40);">
+        <div class="level-head">
+          <span class="level-badge">Abroad</span>
+          <div class="level-illust"><span style="font-size: 4rem;">✈️</span></div>
+        </div>
+        <h3 class="level-title">Vida no Exterior</h3>
+        <p class="level-sub">Burocracia & Choque Cultural</p>
+        <p class="level-desc">A temida imigração, regras da host family, o inferno do SSN, xenofobia velada e como matar a saudade.</p>
+        <button class="level-expand" disabled style="opacity: 0.7; cursor: not-allowed;">
+          <span>🚧 Em Construção</span>
+        </button>
+      </article>
+    </div>
   </section>
 
   <footer class="site-footer">
