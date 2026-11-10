@@ -96,7 +96,16 @@
       nextBtn.style.display = 'inline-flex';
     }
 
-    const scriptPath = `content/biblioteca/${n}/vol-${v}/ch${c.padStart(2, '0')}.js`;
+    // =========================================================
+    // CORREÇÃO AQUI: Rota dinâmica para Níveis ou Especiais
+    // =========================================================
+    let scriptPath = '';
+    if (n === 'ESPECIAIS') {
+      scriptPath = `content/biblioteca/ESPECIAIS/${v}/ch${c.padStart(2, '0')}.js`;
+    } else {
+      scriptPath = `content/biblioteca/${n}/vol-${v}/ch${c.padStart(2, '0')}.js`;
+    }
+    // =========================================================
     
     const s = document.createElement('script');
     s.src = scriptPath;
@@ -120,7 +129,6 @@
       stage.innerHTML = `
         <article class="a4-page" style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
           
-          <!-- LOGO COM FUNDO ESCURO PARA FICAR VISÍVEL NO PAPEL BRANCO -->
           <div style="background: #0b0f19; padding: 16px 32px; border-radius: 16px; display: inline-block; margin-bottom: 24px;">
             <img src="assets/logo.svg" height="80" alt="Ventu">
           </div>
@@ -206,7 +214,7 @@
         parts.push(`<section class="a4-block a4-roleplay"><h2 class="a4-block-title">🎭 Missão de Roleplay com IA</h2><p><strong>Cenário:</strong> ${esc(r.scenario || r.setup)}</p><p><strong>A IA é:</strong> ${esc(r.aiCharacter || r.npcPersona)} · <strong>Você é:</strong> ${esc(r.studentRole || '')}</p><p><strong>Seu objetivo:</strong> ${esc(r.studentGoal || '')}</p><h3 class="a4-subblock">Checklist de Sucesso:</h3><ul class="a4-list">${(r.objectives || r.successCriteria || []).map(o => `<li>☐ ${esc(o)}</li>`).join('')}</ul>${r.promptText || r.starterPrompt ? `<details class="a4-prompt"><summary>Copiar Prompt para o ChatGPT/Claude</summary><pre>${esc(r.promptText || r.starterPrompt)}</pre></details>` : ''}</section>`);
       }
 
-      // CULTURAL PASS CORRIGIDO
+      // CULTURAL PASS
       if (ch.culturalPass) {
         const cp = ch.culturalPass;
         let cpHtml = '';
