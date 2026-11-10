@@ -1,25 +1,19 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Define qual link está ativo baseado na URL
   const path = window.location.pathname;
   const isHome = path.includes('index.html') || path === '/' || path === '';
   const isJogar = path.includes('jogar.html');
   const isBiblio = path.includes('biblioteca.html');
   const isDash = path.includes('dashboard.html');
 
-  // 2. HTML do Header
+  // CORREÇÃO: Usando a sua imagem oficial do logo (assets/logo.svg)
   const headerHTML = `
     <header class="site-header">
       <div class="header-inner">
+        
+        <!-- LOGO OFICIAL -->
         <a href="index.html" class="logo" aria-label="Ventu — Início">
-          <svg viewBox="0 0 100 100" width="36" height="36" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20 40 L10 10 L40 25 Z" fill="#fbbf24"/>
-            <path d="M80 40 L90 10 L60 25 Z" fill="#fbbf24"/>
-            <path d="M50 20 L20 40 L20 70 C20 85 35 95 50 95 C65 95 80 85 80 70 L80 40 Z" fill="#fbbf24"/>
-            <circle cx="35" cy="55" r="5" fill="#0b0f19"/>
-            <circle cx="65" cy="55" r="5" fill="#0b0f19"/>
-            <path d="M45 70 L55 70 L50 78 Z" fill="#0b0f19"/>
-          </svg>
-          <span class="logo-text">VENTU</span>
+          <img src="assets/logo.svg" alt="Ventu" height="36" style="object-fit: contain;">
+          <span class="logo-text" style="margin-left: 8px;">VENTU</span>
         </a>
 
         <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Abrir menu">☰</button>
@@ -52,10 +46,8 @@ document.addEventListener("DOMContentLoaded", () => {
     </header>
   `;
 
-  // Injeta o header no topo do body
   document.body.insertAdjacentHTML('afterbegin', headerHTML);
 
-  // 3. Lógica do Tema
   const savedTheme = localStorage.getItem('ventu_theme') || 'dark';
   document.documentElement.setAttribute('data-theme', savedTheme);
 
@@ -66,14 +58,12 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem('ventu_theme', next);
   };
 
-  // 4. Lógica do Menu Mobile
   window.toggleMobileMenu = () => {
     const nav = document.getElementById('main-nav');
     nav.classList.toggle('mobile-open');
   };
 
-  // 5. Lógica de Autenticação (Supabase Mock)
-  const hasSession = localStorage.getItem('ventu_user_session'); // Troque pela sua validação real
+  const hasSession = localStorage.getItem('ventu_user_session'); 
   const elLoggedOut = document.getElementById('auth-logged-out');
   const elLoggedIn = document.getElementById('auth-logged-in');
 
@@ -86,7 +76,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   window.handleLogout = async () => {
-    // if (window.supabaseClient) await window.supabaseClient.auth.signOut();
     localStorage.removeItem('ventu_user_session');
     window.location.href = 'index.html';
   };
