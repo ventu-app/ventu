@@ -28,14 +28,14 @@ html[data-theme="dark"] .icon-sun { display: none; }
 html[data-theme="light"] .icon-moon { display: none; }
 
 /* Folhas A4 */
-.a4-stage { padding: 40px 16px 80px; display: flex; flex-direction: column; align-items: center; gap: 40px; }
+.a4-stage { padding: 40px 16px 100px; display: flex; flex-direction: column; align-items: center; gap: 40px; }
 .a4-page { width: 100%; max-width: 21cm; min-height: 29.7cm; background: #fff; color: #111; padding: 2cm; box-shadow: 0 20px 50px -10px rgba(0,0,0,.3); border-radius: 4px; font-family: 'Inter', Georgia, sans-serif; font-size: 11pt; line-height: 1.55; position: relative; }
 .a4-page h1, .a4-page h2, .a4-page h3, .a4-page h4 { font-family: 'Playfair Display', Georgia, serif; color: #0b0f19; line-height: 1.25; }
 
-/* CAPA DO LIVRO (Contraste Corrigido) */
+/* CAPA DO LIVRO */
 .a4-cover { display: flex; flex-direction: column; justify-content: space-between; background: linear-gradient(135deg, #0b0f19 0%, #151b2b 100%) !important; color: #fff !important; border: 10px solid #0b0f19; box-shadow: 0 30px 60px -15px rgba(0,0,0,.6); }
 .cover-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,.2); padding-bottom: 20px; }
-.cover-brand { display: flex; align-items: center; } /* Removido gap e font, apenas alinhamento */
+.cover-brand { display: flex; align-items: center; }
 .cover-level { background: rgba(251,191,36,.15); color: #fbbf24 !important; padding: 6px 16px; border-radius: 999px; font-weight: 800; letter-spacing: 1px; font-size: .9rem; border: 1px solid rgba(251,191,36,.3); }
 .cover-main { text-align: center; margin: auto 0; }
 .cover-eyebrow { color: #fbbf24 !important; text-transform: uppercase; letter-spacing: 4px; font-size: .8rem; font-weight: 700; margin-bottom: 20px; }
@@ -50,7 +50,7 @@ html[data-theme="light"] .icon-moon { display: none; }
 
 /* CONTEÚDO */
 .a4-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; margin-bottom: 24px; border-bottom: 2px solid #0b0f19; }
-.a4-brand { display: flex; align-items: center; } /* Removido gap e font */
+.a4-brand { display: flex; align-items: center; }
 .a4-chapter-info { display: flex; align-items: center; gap: 10px; font-size: .8rem; color: #555; }
 .a4-badge { background: #0b0f19; color: #fbbf24; padding: 3px 10px; border-radius: 6px; font-weight: 700; font-size: .75rem; }
 .a4-title { font-size: 26pt; margin-bottom: 6px; }
@@ -104,6 +104,30 @@ html[data-theme="light"] .icon-moon { display: none; }
 .btn-ghost:hover { color: #fff; background: rgba(255,255,255,.05); }
 .btn-gold { background: #fbbf24; color: #0b0f19; border: none; padding: 10px 18px; border-radius: 999px; font-weight: 700; cursor: pointer; transition: .2s; }
 .btn-gold:hover { background: #f59e0b; transform: translateY(-1px); }
+
+/* BOTÃO PRÓXIMO CAPÍTULO FLUTUANTE */
+.btn-next-chapter {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: linear-gradient(135deg, var(--gold), #f59e0b);
+  color: #0b0f19;
+  padding: 14px 24px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  box-shadow: 0 10px 30px -5px rgba(251, 191, 36, 0.6);
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+.btn-next-chapter:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 15px 35px -5px rgba(251, 191, 36, 0.8);
+}
 
 /* IMPRESSÃO */
 @page { size: A4; margin: 2cm; }

@@ -19,16 +19,19 @@
   <div class="a4-toolbar no-print">
     <a href="biblioteca.html" class="btn-back">← Biblioteca</a>
     <span class="a4-toolbar-title" id="toolbar-title">Carregando…</span>
-    
     <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema">
       <span class="icon-sun">☀️</span>
       <span class="icon-moon">🌙</span>
     </button>
-
     <button class="btn-print" type="button" onclick="openPrintGate()">🖨️ Imprimir / PDF</button>
   </div>
 
   <main class="a4-stage" id="a4-stage"></main>
+
+  <!-- Botão Flutuante: Próximo Capítulo -->
+  <a href="#" id="next-chapter-btn" class="btn-next-chapter no-print" style="display: none;">
+    Próximo Capítulo <span style="margin-left: 8px;">→</span>
+  </a>
 
   <!-- MODAL PIX -->
   <div class="print-modal no-print" id="print-modal" hidden>
@@ -74,12 +77,25 @@
     const v = params.get('v') || '1';
     const c = params.get('c') || '01';
     
-    window.currentTier = n.charAt(0);
+    window.currentTier = n.charAt(0) === 'E' ? n : n.charAt(0);
     
     const stage = document.getElementById('a4-stage');
     const toolbar = document.getElementById('toolbar-title');
+    const nextBtn = document.getElementById('next-chapter-btn');
 
     document.title = `Cap. ${c} · ${n} · Ventu`;
+
+    // Lógica do Botão Próximo Capítulo
+    const cNum = parseInt(c, 10);
+    if (cNum < 10) {
+      const nextC = String(cNum + 1).padStart(2, '0');
+      nextBtn.href = `biblioteca-leitor.html?n=${n}&v=${v}&c=${nextC}`;
+      nextBtn.style.display = 'inline-flex';
+    } else if (cNum === 10) {
+      nextBtn.href = `biblioteca.html`;
+      nextBtn.innerHTML = `Finalizar Volume <span style="margin-left: 8px;">✔</span>`;
+      nextBtn.style.display = 'inline-flex';
+    }
 
     const scriptPath = `content/biblioteca/${n}/vol-${v}/ch${c.padStart(2, '0')}.js`;
     
@@ -88,26 +104,19 @@
     
     s.onload = () => {
       const ch = window.VENTU_CHAPTER;
-      if (!ch) { 
+      if (!ch || ch.meta?.format === 'coming-soon') { 
         renderComingSoon(n, v, c); 
         return; 
-      }
-      if (ch.meta?.format === 'coming-soon') {
-        renderComingSoon(n, v, c);
-        return;
       }
       toolbar.textContent = `${n}.${v} · Cap. ${c} — ${ch.meta?.title || ''}`;
       renderChapter(ch, { n, v, c });
     };
     
-    // A MÁGICA ACONTECE AQUI: Se o arquivo não existir, chama a tela bonita!
-    s.onerror = () => {
-      renderComingSoon(n, v, c);
-    };
+    s.onerror = () => renderComingSoon(n, v, c);
     document.head.appendChild(s);
 
-    // Função que desenha a tela de "Em Breve"
     function renderComingSoon(nivel, vol, cap) {
+      nextBtn.style.display = 'none'; 
       toolbar.textContent = `${nivel}.${vol} · Cap. ${cap} — Em Breve`;
       stage.innerHTML = `
         <article class="a4-page" style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
@@ -165,41 +174,41 @@
       }
 
       if (ch.warmup) {
-        parts.push(`<section class="a4-block"><h2 class="a4-block-title">🔥 Warm-up</h2><p>${esc(ch.warmup.prompt)}</p>${ch.warmup.image_concept ? `<p class="a4-note">💡 ${esc(ch.warmup.image_concept)}</p>` : ''}</section>`);
+        parts.push(`<section class="a4-block"><h2 class="a4-block-title">🔥 Warm-up</h2><p>${esc(ch.warmup.prompt || ch.warmup.hook)}</p>${ch.warmup.image_concept ? `<p class="a4-note">💡 ${esc(ch.warmup.image_concept)}</p>` : ''}</section>`);
       }
 
       if (ch.input?.lines?.length) {
-        parts.push(`<section class="a4-block"><h2 class="a4-block-title">📖 ${esc(ch.input.title || 'Input')}</h2><div class="a4-dialogue">${ch.input.lines.map(l => `<p class="a4-line"><strong>${esc(l.speaker)}:</strong> ${esc(l.text)}${l.ptHelp ? `<br><em class="a4-pt">${esc(l.ptHelp)}</em>` : ''}</p>`).join('')}</div></section>`);
+        parts.push(`<section class="a4-block"><h2 class="a4-block-title">📖 ${esc(ch.input.title || ch.input.scene || 'Input')}</h2><div class="a4-dialogue">${ch.input.lines.map(l => `<p class="a4-line"><strong>${esc(l.speaker)}:</strong> ${esc(l.text || l.en)}${l.ptHelp ? `<br><em class="a4-pt">${esc(l.ptHelp)}</em>` : ''}</p>`).join('')}</div></section>`);
       }
 
       if (ch.vocab?.length) {
-        parts.push(`<section class="a4-block"><h2 class="a4-block-title">📚 Vocabulário</h2><table class="a4-table"><thead><tr><th>Termo</th><th>IPA</th><th>Como falar (BR)</th><th>Significado</th></tr></thead><tbody>${ch.vocab.map(v => `<tr><td><strong>${esc(v.term)}</strong></td><td class="a4-ipa">${esc(v.ipa || '')}</td><td class="a4-br">${esc(v.br || '')}</td><td>${esc(v.meaning)}</td></tr>`).join('')}</tbody></table></section>`);
+        parts.push(`<section class="a4-block"><h2 class="a4-block-title">📚 Vocabulário</h2><table class="a4-table"><thead><tr><th>Termo</th><th>IPA</th><th>Como falar (BR)</th><th>Significado</th></tr></thead><tbody>${ch.vocab.map(v => `<tr><td><strong>${esc(v.term || v.en)}</strong></td><td class="a4-ipa">${esc(v.ipa || '')}</td><td class="a4-br">${esc(v.br || '')}</td><td>${esc(v.meaning || v.ptHelp)}</td></tr>`).join('')}</tbody></table></section>`);
       }
 
-      if (ch.grammar?.focus) {
-        parts.push(`<section class="a4-block"><h2 class="a4-block-title">🧩 Gramática · ${esc(ch.grammar.focus)}</h2>${ch.grammar.rule ? `<p><strong>Regra:</strong> ${esc(ch.grammar.rule)}</p>` : ''}${ch.grammar.examples?.length ? `<ul class="a4-list">${ch.grammar.examples.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}${ch.grammar.brazilianTraps?.length ? `<h3 class="a4-subblock">⚠️ Armadilhas do brasileiro</h3><ul class="a4-list a4-traps">${ch.grammar.brazilianTraps.map(t => `<li>❌ <s>${esc(t.wrong)}</s> → ✅ <strong>${esc(t.right)}</strong> <em>(${esc(t.why)})</em></li>`).join('')}</ul>` : ''}</section>`);
+      if (ch.grammar?.focus || ch.grammar?.rule) {
+        parts.push(`<section class="a4-block"><h2 class="a4-block-title">🧩 Gramática · ${esc(ch.grammar.focus || '')}</h2>${ch.grammar.rule ? `<p><strong>Regra:</strong> ${esc(ch.grammar.rule)}</p>` : ''}${ch.grammar.examples?.length ? `<ul class="a4-list">${ch.grammar.examples.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}${ch.grammar.brazilianTraps?.length || ch.grammar.traps?.length ? `<h3 class="a4-subblock">⚠️ Armadilhas do brasileiro</h3><ul class="a4-list a4-traps">${(ch.grammar.brazilianTraps || ch.grammar.traps).map(t => `<li>❌ <s>${esc(t.wrong)}</s> → ✅ <strong>${esc(t.right)}</strong> <em>(${esc(t.why)})</em></li>`).join('')}</ul>` : ''}</section>`);
       }
 
       if (ch.pronunciation?.focus) {
-        parts.push(`<section class="a4-block"><h2 class="a4-block-title">🗣 Pronúncia · ${esc(ch.pronunciation.focus)}</h2>${ch.pronunciation.explanation ? `<p>${esc(ch.pronunciation.explanation)}</p>` : ''}${ch.pronunciation.minimalPairs?.length ? `<table class="a4-table" style="max-width:400px"><thead><tr><th>Par A</th><th>IPA</th><th>Par B</th><th>IPA</th></tr></thead><tbody>${ch.pronunciation.minimalPairs.map(p => `<tr><td>${esc(p.a)}</td><td class="a4-ipa">${esc(p.aIpa)}</td><td>${esc(p.b)}</td><td class="a4-ipa">${esc(p.bIpa)}</td></tr>`).join('')}</tbody></table>` : ''}</section>`);
+        parts.push(`<section class="a4-block"><h2 class="a4-block-title">🗣 Pronúncia · ${esc(ch.pronunciation.focus)}</h2>${ch.pronunciation.explanation || ch.pronunciation.mouthTip ? `<p>${esc(ch.pronunciation.explanation || ch.pronunciation.mouthTip)}</p>` : ''}${ch.pronunciation.minimalPairs?.length ? `<table class="a4-table" style="max-width:400px"><thead><tr><th>Par A</th><th>IPA</th><th>Par B</th><th>IPA</th></tr></thead><tbody>${ch.pronunciation.minimalPairs.map(p => `<tr><td>${esc(p[0] || p.a)}</td><td class="a4-ipa">${esc(p.aIpa || '')}</td><td>${esc(p[1] || p.b)}</td><td class="a4-ipa">${esc(p.bIpa || '')}</td></tr>`).join('')}</tbody></table>` : ''}</section>`);
       }
 
       if (ch.activities?.length) {
-        parts.push(`<section class="a4-block"><h2 class="a4-block-title">✏️ Atividades Práticas</h2>${ch.activities.map((a, i) => `<div class="a4-activity"><p><strong>${i+1}. ${esc(a.instruction)}</strong></p>${a.items?.length ? `<ol class="a4-items">${a.items.map(it => `<li>${esc(typeof it === 'string' ? it : it.q)}</li>`).join('')}</ol>` : ''}</div>`).join('')}</section>`);
+        parts.push(`<section class="a4-block"><h2 class="a4-block-title">✏️ Atividades Práticas</h2>${ch.activities.map((a, i) => `<div class="a4-activity"><p><strong>${i+1}. ${esc(a.instruction || a.prompt)}</strong></p>${a.items?.length ? `<ol class="a4-items">${a.items.map(it => `<li>${esc(typeof it === 'string' ? it : it.q)}</li>`).join('')}</ol>` : ''}</div>`).join('')}</section>`);
       }
 
-      if (ch.roleplay?.title) {
+      if (ch.roleplay?.title || ch.roleplay?.setup) {
         const r = ch.roleplay;
-        parts.push(`<section class="a4-block a4-roleplay"><h2 class="a4-block-title">🎭 Missão de Roleplay com IA</h2><p><strong>Cenário:</strong> ${esc(r.scenario)}</p><p><strong>A IA é:</strong> ${esc(r.aiCharacter)} · <strong>Você é:</strong> ${esc(r.studentRole)}</p><p><strong>Seu objetivo:</strong> ${esc(r.studentGoal)}</p><h3 class="a4-subblock">Checklist de Sucesso:</h3><ul class="a4-list">${(r.objectives || []).map(o => `<li>☐ ${esc(o)}</li>`).join('')}</ul>${r.promptText ? `<details class="a4-prompt"><summary>Copiar Prompt para o ChatGPT/Claude</summary><pre>${esc(r.promptText)}</pre></details>` : ''}</section>`);
+        parts.push(`<section class="a4-block a4-roleplay"><h2 class="a4-block-title">🎭 Missão de Roleplay com IA</h2><p><strong>Cenário:</strong> ${esc(r.scenario || r.setup)}</p><p><strong>A IA é:</strong> ${esc(r.aiCharacter || r.npcPersona)} · <strong>Você é:</strong> ${esc(r.studentRole || '')}</p><p><strong>Seu objetivo:</strong> ${esc(r.studentGoal || '')}</p><h3 class="a4-subblock">Checklist de Sucesso:</h3><ul class="a4-list">${(r.objectives || r.successCriteria || []).map(o => `<li>☐ ${esc(o)}</li>`).join('')}</ul>${r.promptText || r.starterPrompt ? `<details class="a4-prompt"><summary>Copiar Prompt para o ChatGPT/Claude</summary><pre>${esc(r.promptText || r.starterPrompt)}</pre></details>` : ''}</section>`);
       }
 
       if (ch.culturalPass) {
         const cp = ch.culturalPass;
-        const block = (kind, item) => {
-          if (!item?.title) return '';
-          return `<div class="a4-cultural-item"><h4>${kind === 'film' ? '🎬' : kind === 'series' ? '📺' : '🎵'} ${esc(item.title)} (${item.year || ''})</h4><p><em>${esc(item.creator || '')} · Dificuldade ${item.difficulty || '?'}/5</em></p><p>${esc(item.why || '')}</p>${item.listeningMission ? `<p><strong>Missão:</strong> ${esc(item.listeningMission)}</p>` : ''}</div>`;
+        const block = (item) => {
+          if (!item?.title && !item?.work) return '';
+          return `<div class="a4-cultural-item"><h4>🎬 ${esc(item.title || item.work)} (${item.year || ''})</h4><p><em>${esc(item.creator || '')} · Dificuldade ${item.difficulty || '?'}/5</em></p><p>${esc(item.why || item.whyA1 || '')}</p>${item.listeningMission ? `<p><strong>Missão:</strong> ${esc(item.listeningMission)}</p>` : ''}</div>`;
         };
-        parts.push(`<section class="a4-block"><h2 class="a4-block-title">🌎 Cultural Pass</h2>${block('film', cp.film)}${block('series', cp.series)}${block('song', cp.song)}</section>`);
+        parts.push(`<section class="a4-block"><h2 class="a4-block-title">🌎 Cultural Pass</h2>${block(cp.film || cp.work)}${block(cp.series)}${block(cp.song)}</section>`);
       }
 
       parts.push(`<footer class="a4-footer"><span>Ventu · ${esc(ctx.n)}.${ctx.v} · Cap. ${ctx.c}</span><span>Criado por Brayam Porphirio</span></footer>`);
@@ -249,9 +258,7 @@
       let crc = 0xFFFF;
       for (let i = 0; i < str.length; i++) {
         crc ^= str.charCodeAt(i) << 8;
-        for (let j = 0; j < 8; j++) {
-          crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
-        }
+        for (let j = 0; j < 8; j++) crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
       }
       return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
     }
@@ -259,16 +266,9 @@
     const pix = tag('00', 'BR.GOV.BCB.PIX') + tag('01', key);
     
     let payload = '';
-    payload += tag('00', '01');
-    payload += tag('26', pix);
-    payload += tag('52', '0000');
-    payload += tag('53', '986');
+    payload += tag('00', '01') + tag('26', pix) + tag('52', '0000') + tag('53', '986');
     if (amtStr) payload += tag('54', amtStr); 
-    payload += tag('58', 'BR');
-    payload += tag('59', name);
-    payload += tag('60', city);
-    payload += tag('62', tag('05', '***'));
-    payload += '6304';
+    payload += tag('58', 'BR') + tag('59', name) + tag('60', city) + tag('62', tag('05', '***')) + '6304';
     payload += crc16(payload);
 
     document.getElementById('pix-payload').textContent = payload;
