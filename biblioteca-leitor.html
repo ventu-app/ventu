@@ -85,7 +85,6 @@
 
     document.title = `Cap. ${c} · ${n} · Ventu`;
 
-    // Lógica do Botão Próximo Capítulo
     const cNum = parseInt(c, 10);
     if (cNum < 10) {
       const nextC = String(cNum + 1).padStart(2, '0');
@@ -202,13 +201,40 @@
         parts.push(`<section class="a4-block a4-roleplay"><h2 class="a4-block-title">🎭 Missão de Roleplay com IA</h2><p><strong>Cenário:</strong> ${esc(r.scenario || r.setup)}</p><p><strong>A IA é:</strong> ${esc(r.aiCharacter || r.npcPersona)} · <strong>Você é:</strong> ${esc(r.studentRole || '')}</p><p><strong>Seu objetivo:</strong> ${esc(r.studentGoal || '')}</p><h3 class="a4-subblock">Checklist de Sucesso:</h3><ul class="a4-list">${(r.objectives || r.successCriteria || []).map(o => `<li>☐ ${esc(o)}</li>`).join('')}</ul>${r.promptText || r.starterPrompt ? `<details class="a4-prompt"><summary>Copiar Prompt para o ChatGPT/Claude</summary><pre>${esc(r.promptText || r.starterPrompt)}</pre></details>` : ''}</section>`);
       }
 
+      // CULTURAL PASS CORRIGIDO
       if (ch.culturalPass) {
         const cp = ch.culturalPass;
-        const block = (item) => {
-          if (!item?.title && !item?.work) return '';
-          return `<div class="a4-cultural-item"><h4>🎬 ${esc(item.title || item.work)} (${item.year || ''})</h4><p><em>${esc(item.creator || '')} · Dificuldade ${item.difficulty || '?'}/5</em></p><p>${esc(item.why || item.whyA1 || '')}</p>${item.listeningMission ? `<p><strong>Missão:</strong> ${esc(item.listeningMission)}</p>` : ''}</div>`;
-        };
-        parts.push(`<section class="a4-block"><h2 class="a4-block-title">🌎 Cultural Pass</h2>${block(cp.film || cp.work)}${block(cp.series)}${block(cp.song)}</section>`);
+        let cpHtml = '';
+
+        // Verifica se é a estrutura nova (com "work" ou "title" direto)
+        if (cp.work || cp.title) {
+          const icon = cp.type === 'film' ? '🎬' : cp.type === 'series' ? '📺' : cp.type === 'song' ? '🎵' : '🎧';
+          cpHtml += `<div class="a4-cultural-item">
+            <h4>${icon} ${esc(cp.title || cp.work)} (${cp.year || ''})</h4>
+            <p><em>${esc(cp.creator || '')} ${cp.difficulty ? '· Dificuldade ' + cp.difficulty + '/5' : ''}</em></p>
+            <p>${esc(cp.why || cp.whyA1 || '')}</p>
+            ${cp.listeningMission ? `<p><strong>Missão:</strong> ${esc(cp.listeningMission)}</p>` : ''}
+          </div>`;
+        } 
+        // Verifica se é a estrutura antiga (com "film", "series", "song" separados)
+        else {
+          const renderOld = (item, icon) => {
+            if (!item || (!item.title && !item.work)) return '';
+            return `<div class="a4-cultural-item">
+              <h4>${icon} ${esc(item.title || item.work)} (${item.year || ''})</h4>
+              <p><em>${esc(item.creator || '')} ${item.difficulty ? '· Dificuldade ' + item.difficulty + '/5' : ''}</em></p>
+              <p>${esc(item.why || item.whyA1 || '')}</p>
+              ${item.listeningMission ? `<p><strong>Missão:</strong> ${esc(item.listeningMission)}</p>` : ''}
+            </div>`;
+          };
+          cpHtml += renderOld(cp.film, '🎬');
+          cpHtml += renderOld(cp.series, '📺');
+          cpHtml += renderOld(cp.song, '🎵');
+        }
+
+        if (cpHtml) {
+          parts.push(`<section class="a4-block"><h2 class="a4-block-title">🌎 Cultural Pass</h2>${cpHtml}</section>`);
+        }
       }
 
       parts.push(`<footer class="a4-footer"><span>Ventu · ${esc(ctx.n)}.${ctx.v} · Cap. ${ctx.c}</span><span>Criado por Brayam Porphirio</span></footer>`);

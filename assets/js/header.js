@@ -5,15 +5,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const isBiblio = path.includes('biblioteca.html');
   const isDash = path.includes('dashboard.html');
 
-  // CORREÇÃO: Usando a sua imagem oficial do logo (assets/logo.svg)
   const headerHTML = `
     <header class="site-header">
       <div class="header-inner">
         
-        <!-- LOGO OFICIAL -->
+        <!-- APENAS A RAPOSA (Aumentada) -->
         <a href="index.html" class="logo" aria-label="Ventu — Início">
-          <img src="assets/logo.svg" alt="Ventu" height="36" style="object-fit: contain;">
-          <span class="logo-text" style="margin-left: 8px;">VENTU</span>
+          <img src="assets/logo.svg" alt="Ventu" height="42" style="object-fit: contain;">
         </a>
 
         <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Abrir menu">☰</button>
