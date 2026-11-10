@@ -1,0 +1,152 @@
+/* ============================================================
+   VENTU · Pix (global) — botão flutuante + modal
+   ============================================================ */
+.ventu-pix-fab {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 1px solid rgba(251, 191, 36, .5);
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #0b0f19;
+  font-size: 1.6rem;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 10px 30px -8px rgba(251, 191, 36, .7), 0 0 0 0 rgba(251, 191, 36, .4);
+  z-index: 9000;
+  transition: transform .2s ease, box-shadow .2s ease;
+  animation: ventu-pix-pulse 3s ease-in-out infinite;
+}
+.ventu-pix-fab:hover { transform: translateY(-3px) scale(1.05); }
+.ventu-pix-fab:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+@keyframes ventu-pix-pulse {
+  0%, 100% { box-shadow: 0 10px 30px -8px rgba(251,191,36,.7), 0 0 0 0 rgba(251,191,36,.4); }
+  50%      { box-shadow: 0 10px 30px -8px rgba(251,191,36,.7), 0 0 0 12px rgba(251,191,36,0); }
+}
+
+.ventu-pix-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.ventu-pix-modal[hidden] { display: none; }
+
+.ventu-pix-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, .65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.ventu-pix-card {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  background: #151b2b;
+  border: 1px solid rgba(251, 191, 36, .3);
+  border-radius: 20px;
+  padding: 28px 24px 24px;
+  box-shadow: 0 30px 70px -20px rgba(0, 0, 0, .7);
+  color: #e6ebf5;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  text-align: center;
+  animation: ventu-pix-in .25s ease-out;
+}
+@keyframes ventu-pix-in {
+  from { opacity: 0; transform: scale(.94) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.ventu-pix-card h3 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.35rem;
+  margin: 0 0 8px;
+  color: #fbbf24;
+}
+.ventu-pix-card p {
+  font-size: .9rem;
+  color: #93a0b8;
+  margin: 0 0 18px;
+  line-height: 1.5;
+}
+
+.ventu-pix-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  background: rgba(255, 255, 255, .05);
+  color: #e6ebf5;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  line-height: 1;
+}
+.ventu-pix-close:hover { background: rgba(255, 255, 255, .12); }
+
+.ventu-pix-qr {
+  background: #fff;
+  padding: 10px;
+  border-radius: 12px;
+  display: inline-block;
+  margin-bottom: 16px;
+}
+.ventu-pix-qr img { display: block; border-radius: 6px; }
+
+.ventu-pix-key {
+  display: flex;
+  gap: 8px;
+  background: rgba(0, 0, 0, .3);
+  border: 1px solid rgba(255, 255, 255, .08);
+  padding: 8px 12px;
+  border-radius: 10px;
+  margin-bottom: 14px;
+  font-size: .82rem;
+}
+.ventu-pix-key code {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #e6ebf5;
+  font-family: 'SF Mono', Consolas, monospace;
+  text-align: left;
+}
+.ventu-pix-key button {
+  background: none;
+  border: none;
+  color: #fbbf24;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: .82rem;
+  padding: 0 4px;
+  font-family: inherit;
+}
+.ventu-pix-key button:hover { text-decoration: underline; }
+
+.ventu-pix-open {
+  display: inline-block;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #0b0f19;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: .88rem;
+  text-decoration: none;
+}
+.ventu-pix-open:hover { filter: brightness(1.08); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ventu-pix-fab,
+  .ventu-pix-card { animation: none !important; }
+}

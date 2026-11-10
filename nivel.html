@@ -222,5 +222,27 @@
       }
     });
   </script>
+
+
+
+
+
+<!-- VENTU:PIX:START -->
+<link rel="stylesheet" href="assets/css/ventu-pix.css?v=1">
+<button class="ventu-pix-fab" id="ventu-pix-fab" type="button" aria-label="Apoiar o Ventu via Pix" title="Apoiar o Ventu" aria-haspopup="dialog"><span aria-hidden="true">&#x1F49B;</span></button>
+<div class="ventu-pix-modal" id="ventu-pix-modal" role="dialog" aria-modal="true" aria-labelledby="ventu-pix-title" hidden>
+  <div class="ventu-pix-backdrop" data-pix-close></div>
+  <div class="ventu-pix-card">
+    <button class="ventu-pix-close" type="button" aria-label="Fechar" data-pix-close>&times;</button>
+    <h3 id="ventu-pix-title">&#x1F49B; Apoiar o Ventu</h3>
+    <p>O Ventu &eacute; feito por uma pessoa s&oacute;, sem an&uacute;ncios. Se ele te ajuda, considere colaborar.</p>
+    <div class="ventu-pix-qr"><img alt="QR Code Pix para colaborar com o Ventu" width="220" height="220" data-pix-qr></div>
+    <div class="ventu-pix-key"><code data-pix-key>---</code><button type="button" data-pix-copy>Copiar</button></div>
+    <a class="ventu-pix-open" href="#" data-pix-open target="_blank" rel="noopener">Abrir no app do banco</a>
+  </div>
+</div>
+<script>window.VENTU_PIX_CONFIG={key:'cd5e70df-ddb5-4c74-8589-bee68ed718d0',name:'Brayam Porphirio',city:'Rio de Janeiro',amount:''};</script>
+<script src="assets/js/pix.js?v=1" defer></script>
+<!-- VENTU:PIX:END -->
 </body>
 </html>
