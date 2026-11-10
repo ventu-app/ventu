@@ -1,75 +1,106 @@
 window.VENTU_CHAPTER = {
   "meta": {
     "level": "ESPECIAL", "volume": "INTERCAMBIO", "chapter": 1,
-    "title": "Welcome to Sydney", "subtitle": "Passando pela Imigração",
+    "title": "The Host Family Nightmare", "subtitle": "Quando a família te odeia",
     "canDo": [
-      "Eu consigo responder às perguntas do oficial de imigração sem gaguejar.",
-      "Eu consigo falar sobre meus planos de estudo e onde vou ficar.",
-      "Eu consigo usar frases formais para burocracia."
+      "Eu consigo identificar microagressões e rebatê-las na hora.",
+      "Eu consigo usar a voz passiva para colocar limites sem gritar.",
+      "Eu consigo entender como funciona a burocracia de uma reclamação formal."
     ],
-    "estimatedMinutes": 25, "xp": 200,
-    "characters": ["Emma", "Officer"],
-    "loreHook": "Emma chegou em Sydney para o intercâmbio, mas o oficial da imigração parece desconfiado do visto dela."
+    "estimatedMinutes": 40, "xp": 300,
+    "characters": ["Emma", "Host Mom", "Agency Rep"],
+    "loreHook": "A host mom de Emma (Sra. Higgins) está claramente tentando fazer Emma desistir do intercâmbio para alugar o quarto para outra pessoa."
   },
   "warmup": {
     "recall": [],
-    "hook": "Você desceu do avião na Austrália depois de 30 horas de voo. O oficial te olha de cara fechada e pergunta: 'What is the purpose of your visit?'. O que você responde?",
-    "ptHelp": "A imigração não é hora de usar gírias ou fazer piadas. Aja de forma educada e direta."
+    "hook": "Your host mom locks the kitchen at 8 PM and says: 'You should be grateful, in my country we don't feed strangers.' What do you do?",
+    "image_concept": "This is a real story from Reddit. It happens more often than you think. You need to know how to document and report."
   },
   "input": {
-    "scene": "Guichê da Imigração (Austrália)",
-    "tone": "Formal e intimidador",
+    "scene": "The Host Family Kitchen",
+    "tone": "Passive-aggressive and hostile.",
     "lines": [
-      { "speaker": "Officer", "en": "Good morning. Passport, please.", "ptHelp": "Bom dia. Passaporte, por favor.", "register": "formal" },
-      { "speaker": "Emma", "en": "Good morning. Here you go.", "ptHelp": "Bom dia. Aqui está.", "register": "formal" },
-      { "speaker": "Officer", "en": "What is the purpose of your visit? Study or tourism?", "ptHelp": "Qual o propósito da sua visita? Estudo ou turismo?", "register": "formal" },
-      { "speaker": "Emma", "en": "Study. I have a student visa. I am going to study English for six months.", "ptHelp": "Estudo. Eu tenho um visto de estudante. Eu vou estudar inglês por seis meses.", "register": "formal" },
-      { "speaker": "Officer", "en": "And where will you be staying? Do you have an address?", "ptHelp": "E onde você vai ficar? Você tem um endereço?", "register": "formal" },
-      { "speaker": "Emma", "en": "Yes, I have a host family in Bondi. Here is the confirmation letter.", "ptHelp": "Sim, eu tenho uma host family em Bondi. Aqui está a carta de confirmação.", "register": "formal" }
-    ],
-    "listeningMission": "Ouça e anote quanto tempo Emma vai ficar na Austrália."
+      { "speaker": "Host Mom", "en": "I see you're eating again. The groceries here are quite expensive, you know. Not everyone can afford to feed an extra mouth.", "register": "passive-aggressive" },
+      { "speaker": "Emma", "en": "I pay rent, Mrs. Higgins. The contract clearly states that three meals a day are included.", "register": "formal" },
+      { "speaker": "Host Mom", "en": "Well, in my house, we don't talk about money. It's rude. I'm just saying, maybe you should lose some weight anyway.", "register": "passive-aggressive" },
+      { "speaker": "Emma", "en": "That comment is completely inappropriate. I am documenting this conversation and sending it to the agency.", "register": "neutral" },
+      { "speaker": "Host Mom", "en": "Go ahead. They won't believe you. You're just a spoiled foreigner who can't speak proper English.", "register": "passive-aggressive" },
+      { "speaker": "Emma", "en": "I am not a foreigner in this house, I am a client. And my English is good enough to file a formal complaint.", "register": "neutral" }
+    ]
   },
   "vocab": [
-    { "en": "Purpose", "ipa": "/ˈpɜːr.pəs/", "br": "PÂR-pâs", "ptHelp": "Propósito / Motivo", "register": "formal", "example": "What is the purpose of your visit?", "recycled": false },
-    { "en": "Student visa", "ipa": "/ˈstuː.dənt ˈviː.zə/", "br": "STÚ-dânt VÍ-zâ", "ptHelp": "Visto de estudante", "register": "formal", "example": "I have a student visa.", "recycled": false },
-    { "en": "Host family", "ipa": "/hoʊst ˈfæm.əl.i/", "br": "RÔUST FÉM-mi-li", "ptHelp": "Família anfitriã", "register": "formal", "example": "I will stay with a host family.", "recycled": false },
-    { "en": "Confirmation letter", "ipa": "/ˌkɑːn.fɚˈmeɪ.ʃən ˈlet̬.ɚ/", "br": "kân-fâr-MÊI-chân LÉ-râr", "ptHelp": "Carta de confirmação", "register": "formal", "example": "Here is my confirmation letter.", "recycled": false },
-    { "en": "Here you go", "ipa": "/hɪr ju ɡoʊ/", "br": "RÍR iú GÔU", "ptHelp": "Aqui está", "register": "neutral", "example": "Passport? Here you go.", "recycled": true }
+    { "en": "Microaggression", "ipa": "/ˈmaɪ.kroʊ.əˌɡreʃ.ən/", "br": "MÁI-krô â-GRÉ-chân", "ptHelp": "Microagressão", "register": "formal", "example": "That comment is a microaggression.", "recycled": false },
+    { "en": "To document", "ipa": "/ˈdɑː.kjə.ment/", "br": "DÓ-kiu-mânt", "ptHelp": "Documentar / Registrar", "register": "formal", "example": "I am documenting this incident.", "recycled": false },
+    { "en": "Formal complaint", "ipa": "/ˈfɔːr.məl kəmˈpleɪnt/", "br": "FÓR-mâl kâm-PLÊINT", "ptHelp": "Reclamação formal", "register": "formal", "example": "I will file a formal complaint.", "recycled": false },
+    { "en": "To be included", "ipa": "/tu bi ɪnˈkluː.dɪd/", "br": "tu bi in-KLÚ-ded", "ptHelp": "Estar incluso", "register": "formal", "example": "Three meals are included.", "recycled": false },
+    { "en": "Inappropriate", "ipa": "/ˌɪn.əˈproʊ.pri.ət/", "br": "in-â-PRÔU-pri-ât", "ptHelp": "Inapropriado", "register": "formal", "example": "That comment is inappropriate.", "recycled": false }
   ],
   "grammar": {
-    "rule": "Em situações formais, evite contrações (use 'I am' em vez de 'I'm') e responda na sequência exata que a pergunta foi feita.",
-    "pattern": "I am going to... / I will be staying at...",
-    "traps": [
-      { "wrong": "I go to study.", "right": "I am going to study.", "why": "Para planos futuros, use 'going to'." },
-      { "wrong": "I stay in a hotel.", "right": "I will be staying at a hotel.", "why": "O futuro contínuo ('will be staying') soa muito mais formal e correto para a imigração." }
+    "focus": "Passive Voice for Boundaries",
+    "rule": "When someone attacks you, use the passive voice to detach emotion. Instead of 'You are lying', say 'The contract clearly states that...'. It sounds more professional.",
+    "examples": [
+      "The contract states that meals are included.",
+      "This incident is being documented.",
+      "These rules were not agreed upon."
+    ],
+    "brazilianTraps": [
+      { "wrong": "You are very rude.", "right": "That behavior is unacceptable.", "why": "Criticize the behavior, not the person." },
+      { "wrong": "I will tell the agency.", "right": "A formal complaint will be filed.", "why": "Passive voice sounds colder and more threatening." }
     ]
   },
   "pronunciation": {
-    "focus": "O sotaque Australiano (Aussie)",
-    "mouthTip": "O som do 'A' na Austrália é fechado e longo (Sydney = SÍD-ni, mas 'mate' soa como 'máit'). O 'R' no final é quase sempre omitido.",
-    "minimalPairs": [["Study", "Staddy"]]
+    "focus": "The 'Stiff Upper Lip' Tone",
+    "explanation": "In English, when you are angry in a formal setting, you speak LOWER and SLOWER. The 'Stiff Upper Lip' (British style) means you don't show emotion. Keep your voice flat.",
+    "minimalPairs": [["I am angry.", "I am filing a complaint."]]
   },
   "activities": [
-    { "type": "fill", "prompt": "Complete as respostas formais para a imigração:", "items": ["What is the ___ of your visit? (purpose)", "I have a student ___. (visa)", "I will be ___ with a host family. (staying)"], "answerKey": ["purpose", "visa", "staying"], "feedbackPt": "Use as palavras exatas da pergunta." },
-    { "type": "errorfix", "prompt": "Corrija as respostas informais demais para a imigração:", "items": ["I wanna study English.", "I'm crashing at a friend's place.", "I don't know where I'm staying."], "answerKey": ["I am going to study English.", "I will be staying at a friend's place.", "I have the address here."], "feedbackPt": "Nunca diga 'I don't know' para a imigração. Sempre tenha um papel com o endereço." }
+    {
+      "type": "reading",
+      "instruction": "VIRAL REDDIT POST: r/studyabroad",
+      "items": [
+        "User <b>@LostInLondon</b> posted:",
+        "<div style='background:#1a1a1b; color:#d7dadc; border-radius:8px; padding:16px; font-family:sans-serif; margin-top:10px; border:1px solid #343536;'>",
+        "<div style='font-size:0.8rem; color:#818384;'>Posted by u/LostInLondon • 4h</div>",
+        "<div style='font-size:1.2rem; font-weight:bold; margin:8px 0;'>My host mom locked the fridge and said I should 'learn to starve like the rest of the world'.</div>",
+        "<div style='font-size:0.9rem;'>I called my agency. They said they will move me to a new family. Don't let them gaslight you. DOCUMENT EVERYTHING.</div>",
+        "</div>"
+      ],
+      "feedback": "This is why you must always read your contract. The agency handles these cases if you have proof."
+    },
+    {
+      "type": "gap",
+      "instruction": "Formal Complaint Language:",
+      "items": [
+        "This incident is being ___. (documented)",
+        "I will file a formal ___. (complaint)",
+        "That behavior is ___. (unacceptable)"
+      ],
+      "answerKey": ["documented", "complaint", "unacceptable"]
+    }
   ],
   "roleplay": {
-    "setup": "Você está no guichê da imigração na Austrália. O oficial é muito rigoroso e faz muitas perguntas.",
-    "npcPersona": "Oficial da Australian Border Force, sério, formal e desconfiado.",
+    "setup": "You are confronting your Host Mom (the AI) in front of the Agency Representative.",
+    "npcPersona": "Mrs. Higgins, a passive-aggressive woman who plays the victim.",
     "complications": [
-      "O oficial pergunta 'Do you have a return ticket?'. Se você não tiver, ele vai falar que pode te deportar.",
-      "Ele pergunta o nome da sua host family e você precisa lembrar (ou soletrar)."
+      "The AI will cry and say you are 'attacking' her culture.",
+      "If you get emotional, the AI will use it against you."
     ],
     "successCriteria": [
-      "Use linguagem formal (sem gírias).",
-      "Responda 'What is the purpose of your visit?' de forma clara.",
-      "Tenha as informações do endereço em mãos."
+      "Stay completely calm.",
+      "Use the passive voice (The contract states...).",
+      "Demand a formal resolution."
     ],
-    "starterPrompt": "ROLE-PLAY: Australian Border Control (CEFR B1)\n\nYou are a strict Australian immigration officer. I am a student arriving in Sydney. My goal is to answer your questions about my visa, my host family, and my plans.\n\nRULES:\n1. Stay in character. Speak ONLY English at CEFR B1.\n2. Each turn: at most 2 sentences. End with ONE question.\n3. If I write in Portuguese, reply: \"In English, please.\"\n4. I must use formal language.\n5. Run exactly 8 turns.\n\nCOMPLICATIONS:\n- On turn 3, ask for my return ticket. If I say I don't have it, threaten deportation.\n- On turn 5, ask me to spell the name of my host family.\n\nSCORECARD:\n- Mission objectives: done / not done\n- 3 mistakes + corrections\n\nSTART NOW: speak first, in character."
+    "promptText": "ROLE-PLAY: Host Family Intervention (CEFR B2/C1)\n\nYou are Mrs. Higgins, a passive-aggressive host mom. I am an exchange student, and there is an agency representative listening. My goal is to confront you about your behavior using formal language and passive voice, without losing my temper.\n\nRULES:\n1. Stay in character. Speak ONLY English at CEFR B2/C1.\n2. Each turn: at most 3 sentences. End with ONE defensive question.\n3. If I write in Portuguese, reply: \"In English, please.\"\n4. I must use passive voice (The contract states... / It is unacceptable...).\n5. Run exactly 8 turns.\n\nCOMPLICATIONS:\n- On turn 1, deny everything and say I am lying.\n- On turn 3, cry and say I am being racist against her culture.\n\nSCORECARD:\n- Mission objectives: done / not done\n- 3 mistakes + corrections\n\nSTART NOW: speak first, in character."
   },
   "culturalPass": {
-    "work": "Border Security: Australia's Front Line", "type": "series", "year": "2004",
-    "whyA1": "É um reality show real sobre a imigração e alfândega australiana. Você vê exatamente como os oficiais falam e as perguntas que eles fazem.",
-    "listeningMission": "Assista a 5 minutos de um episódio e anote 3 perguntas que o oficial faz aos viajantes."
+    "series": {
+      "title": "The Chair",
+      "year": "2021",
+      "creator": "Amanda Peet",
+      "genre": "Comedy/Drama",
+      "difficulty": 3,
+      "why": "A série mostra como o ambiente acadêmico lida com microagressões, política e 'cancelamento'.",
+      "listeningMission": "Assista ao primeiro episódio e anote como os alunos justificam suas reclamações sobre a professora."
+    }
   }
 };
