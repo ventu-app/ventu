@@ -20,7 +20,6 @@
     <a href="biblioteca.html" class="btn-back">← Biblioteca</a>
     <span class="a4-toolbar-title" id="toolbar-title">Carregando…</span>
     
-    <!-- Toggle de Tema no Leitor -->
     <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema">
       <span class="icon-sun">☀️</span>
       <span class="icon-moon">🌙</span>
@@ -75,7 +74,7 @@
     const v = params.get('v') || '1';
     const c = params.get('c') || '01';
     
-    window.currentTier = n.charAt(0); // 'A', 'B' ou 'C'
+    window.currentTier = n.charAt(0);
     
     const stage = document.getElementById('a4-stage');
     const toolbar = document.getElementById('toolbar-title');
@@ -90,17 +89,37 @@
     s.onload = () => {
       const ch = window.VENTU_CHAPTER;
       if (!ch) { 
-        stage.innerHTML = '<p style="color:#ef4444; text-align:center; padding:40px;">Erro: Arquivo vazio.</p>'; 
+        renderComingSoon(n, v, c); 
         return; 
+      }
+      if (ch.meta?.format === 'coming-soon') {
+        renderComingSoon(n, v, c);
+        return;
       }
       toolbar.textContent = `${n}.${v} · Cap. ${c} — ${ch.meta?.title || ''}`;
       renderChapter(ch, { n, v, c });
     };
     
+    // A MÁGICA ACONTECE AQUI: Se o arquivo não existir, chama a tela bonita!
     s.onerror = () => {
-      stage.innerHTML = `<div class="a4-page" style="text-align:center; padding:60px 20px;"><h2 style="color:#111;">Capítulo não encontrado</h2><p style="color:#555;">O arquivo <code>${scriptPath}</code> não existe.</p></div>`;
+      renderComingSoon(n, v, c);
     };
     document.head.appendChild(s);
+
+    // Função que desenha a tela de "Em Breve"
+    function renderComingSoon(nivel, vol, cap) {
+      toolbar.textContent = `${nivel}.${vol} · Cap. ${cap} — Em Breve`;
+      stage.innerHTML = `
+        <article class="a4-page" style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
+          <img src="assets/logo.svg" height="80" alt="Ventu" style="margin-bottom: 24px;">
+          <h1 style="font-family:'Playfair Display',serif; font-size:3.5rem; color:#0b0f19; margin-bottom:12px;">Em Breve</h1>
+          <p style="color:#555; font-size:1.1rem; max-width: 400px; margin-bottom:32px;">
+            O Capítulo ${cap} do nível ${nivel}.${vol} está sendo preparado com muito carinho.
+          </p>
+          <a href="biblioteca.html" style="background:#fbbf24; color:#0b0f19; padding:14px 28px; border-radius:999px; text-decoration:none; font-weight:bold; font-size:1rem;">Voltar para Biblioteca</a>
+        </article>
+      `;
+    }
 
     function esc(str) {
       return String(str ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[ch]));
@@ -109,26 +128,6 @@
     function renderChapter(ch, ctx) {
       const m = ch.meta || {};
       
-      // ==========================================
-      // LÓGICA DO "EM BREVE" (CAPÍTULOS FUTUROS)
-      // ==========================================
-      if (m.format === 'coming-soon') {
-        stage.innerHTML = `
-          <article class="a4-page" style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
-            <img src="assets/logo.svg" height="80" alt="Ventu" style="margin-bottom: 24px;">
-            <h1 style="font-family:'Playfair Display',serif; font-size:3.5rem; color:#0b0f19; margin-bottom:12px;">Em Breve</h1>
-            <p style="color:#555; font-size:1.1rem; max-width: 400px; margin-bottom:32px;">
-              O Capítulo ${ctx.c} do nível ${ctx.n}.${ctx.v} está sendo preparado com muito carinho.
-            </p>
-            <a href="biblioteca.html" style="background:#fbbf24; color:#0b0f19; padding:14px 28px; border-radius:999px; text-decoration:none; font-weight:bold; font-size:1rem;">Voltar para Biblioteca</a>
-          </article>
-        `;
-        return;
-      }
-
-      // ==========================================
-      // RENDERIZAÇÃO NORMAL (CAPÍTULOS PRONTOS)
-      // ==========================================
       const coverIllust = {
         A1: `<svg viewBox="0 0 120 120" fill="none"><path d="M42 30 Q46 22 42 14" stroke="#10b981" stroke-width="3" stroke-linecap="round" opacity=".55"/><path d="M56 26 Q60 18 56 10" stroke="#10b981" stroke-width="3" stroke-linecap="round" opacity=".85"/><path d="M70 30 Q74 22 70 14" stroke="#10b981" stroke-width="3" stroke-linecap="round" opacity=".55"/><path d="M30 52 L34 88 Q35 96 44 96 L76 96 Q85 96 86 88 L90 52 Z" fill="#fff" opacity=".92"/><path d="M90 62 Q106 62 106 74 Q106 86 90 86" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity=".92"/><path d="M30 52 L90 52" stroke="#10b981" stroke-width="3" stroke-linecap="round" opacity=".6"/><rect x="52" y="72" width="56" height="30" rx="15" fill="#10b981"/><path d="M64 102 L60 112 L74 102 Z" fill="#10b981"/><circle cx="70" cy="87" r="2.4" fill="#0b0f19"/><circle cx="80" cy="87" r="2.4" fill="#0b0f19"/><circle cx="90" cy="87" r="2.4" fill="#0b0f19"/></svg>`
       }[ctx.n] || '';
@@ -250,7 +249,9 @@
       let crc = 0xFFFF;
       for (let i = 0; i < str.length; i++) {
         crc ^= str.charCodeAt(i) << 8;
-        for (let j = 0; j < 8; j++) crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+        for (let j = 0; j < 8; j++) {
+          crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+        }
       }
       return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
     }
