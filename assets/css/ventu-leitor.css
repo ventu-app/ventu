@@ -35,7 +35,10 @@ html[data-theme="light"] .icon-moon { display: none; }
 /* CAPA DO LIVRO */
 .a4-cover { display: flex; flex-direction: column; justify-content: space-between; background: linear-gradient(135deg, #0b0f19 0%, #151b2b 100%) !important; color: #fff !important; border: 10px solid #0b0f19; box-shadow: 0 30px 60px -15px rgba(0,0,0,.6); }
 .cover-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,.2); padding-bottom: 20px; }
-.cover-brand { display: flex; align-items: center; }
+
+/* Fundo escuro para o logo na capa */
+.cover-brand { display: flex; align-items: center; background: #0b0f19; padding: 6px 16px; border-radius: 8px; }
+
 .cover-level { background: rgba(251,191,36,.15); color: #fbbf24 !important; padding: 6px 16px; border-radius: 999px; font-weight: 800; letter-spacing: 1px; font-size: .9rem; border: 1px solid rgba(251,191,36,.3); }
 .cover-main { text-align: center; margin: auto 0; }
 .cover-eyebrow { color: #fbbf24 !important; text-transform: uppercase; letter-spacing: 4px; font-size: .8rem; font-weight: 700; margin-bottom: 20px; }
@@ -50,7 +53,10 @@ html[data-theme="light"] .icon-moon { display: none; }
 
 /* CONTEÚDO */
 .a4-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; margin-bottom: 24px; border-bottom: 2px solid #0b0f19; }
-.a4-brand { display: flex; align-items: center; }
+
+/* Fundo escuro para o logo no cabeçalho da folha */
+.a4-brand { display: flex; align-items: center; background: #0b0f19; padding: 4px 12px; border-radius: 6px; }
+
 .a4-chapter-info { display: flex; align-items: center; gap: 10px; font-size: .8rem; color: #555; }
 .a4-badge { background: #0b0f19; color: #fbbf24; padding: 3px 10px; border-radius: 6px; font-weight: 700; font-size: .75rem; }
 .a4-title { font-size: 26pt; margin-bottom: 6px; }

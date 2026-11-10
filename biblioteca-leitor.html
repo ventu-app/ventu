@@ -119,7 +119,12 @@
       toolbar.textContent = `${nivel}.${vol} · Cap. ${cap} — Em Breve`;
       stage.innerHTML = `
         <article class="a4-page" style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
-          <img src="assets/logo.svg" height="80" alt="Ventu" style="margin-bottom: 24px;">
+          
+          <!-- LOGO COM FUNDO ESCURO PARA FICAR VISÍVEL NO PAPEL BRANCO -->
+          <div style="background: #0b0f19; padding: 16px 32px; border-radius: 16px; display: inline-block; margin-bottom: 24px;">
+            <img src="assets/logo.svg" height="80" alt="Ventu">
+          </div>
+
           <h1 style="font-family:'Playfair Display',serif; font-size:3.5rem; color:#0b0f19; margin-bottom:12px;">Em Breve</h1>
           <p style="color:#555; font-size:1.1rem; max-width: 400px; margin-bottom:32px;">
             O Capítulo ${cap} do nível ${nivel}.${vol} está sendo preparado com muito carinho.
@@ -206,7 +211,6 @@
         const cp = ch.culturalPass;
         let cpHtml = '';
 
-        // Verifica se é a estrutura nova (com "work" ou "title" direto)
         if (cp.work || cp.title) {
           const icon = cp.type === 'film' ? '🎬' : cp.type === 'series' ? '📺' : cp.type === 'song' ? '🎵' : '🎧';
           cpHtml += `<div class="a4-cultural-item">
@@ -215,9 +219,7 @@
             <p>${esc(cp.why || cp.whyA1 || '')}</p>
             ${cp.listeningMission ? `<p><strong>Missão:</strong> ${esc(cp.listeningMission)}</p>` : ''}
           </div>`;
-        } 
-        // Verifica se é a estrutura antiga (com "film", "series", "song" separados)
-        else {
+        } else {
           const renderOld = (item, icon) => {
             if (!item || (!item.title && !item.work)) return '';
             return `<div class="a4-cultural-item">
