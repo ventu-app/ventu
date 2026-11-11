@@ -1,0 +1,46 @@
+/* assets/css/tokens.css */
+:root {
+  --bg: #0b0f19;
+  --panel: #151b2b;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --gold: #fbbf24;
+  --gold-ink: #fbbf24;
+  --line: rgba(255,255,255,.07);
+  
+  --bad: #f87171;
+  --good: #34d399;
+  
+  --maxw: 1240px;
+  --radius: 20px;
+  --radius-pill: 999px;
+  --shadow-cta: 0 8px 20px -6px rgba(251,191,36,.4);
+}
+
+html[data-theme="light"] {
+  --bg: #f8f9fb;
+  --panel: #ffffff;
+  --text: #0b0f19;
+  --muted: #555;
+  --gold-ink: #b45309;
+  --line: rgba(0,0,0,.08);
+  
+  --bad: #b91c1c;
+  --good: #047857;
+}
+
+/* Fallback do Fade-up e Acessibilidade Global */
+.js .fade-up { opacity: 0; transform: translateY(30px); transition: opacity .6s ease-out, transform .6s ease-out; }
+.js .fade-up.visible { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .js .fade-up { opacity: 1; transform: none; transition: none; }
+}
+
+a:focus-visible, button:focus-visible {
+  outline: 3px solid var(--gold-ink);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+section[id] { scroll-margin-top: 88px; }
