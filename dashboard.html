@@ -98,22 +98,13 @@
 
     .site-footer { background: var(--panel); border-top: 1px solid var(--border); padding: 30px 0; margin-top: auto; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
   </style>
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/header.css">
+  <script src="/assets/js/header.js" defer></script>
 </head>
 <body>
 
-  <header class="site-header">
-    <div class="container header-inner">
-      <a href="jogar.html" class="logo">
-        <span style="font-size: 2rem;">🦊</span> VENTU
-      </a>
-      <div class="header-nav">
-        <button id="theme-toggle" class="theme-toggle" aria-label="Alternar tema"><span class="icon-sun">☀️</span><span class="icon-moon">🌙</span></button>
-        <div id="auth-area" style="display:flex; align-items:center; gap:10px;">
-            <!-- Preenchido via JS -->
-        </div>
-      </div>
-    </div>
-  </header>
+  
 
   <main class="container">
     
@@ -212,11 +203,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
       
       /* --- TEMA --- */
-      document.getElementById('theme-toggle').addEventListener('click', () => {
-        const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', t);
-        try { localStorage.setItem('ventu-theme', t); } catch(e) {}
-      });
+      
 
       /* --- SUPABASE AUTH --- */
       const SUPABASE_URL = 'https://hbqjoadubrwuafbfykre.supabase.co';

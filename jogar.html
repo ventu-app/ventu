@@ -215,29 +215,15 @@
       html { scroll-behavior: auto; }
     }
   </style>
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/header.css">
+  <script src="/assets/js/header.js" defer></script>
 </head>
 <body>
 
   <a href="#conteudo" class="skip-link">Pular para o conteúdo</a>
 
-  <header class="site-header">
-    <div class="container header-inner">
-      <a href="/" class="logo" aria-label="Ventu, página inicial">
-        <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M 14 52 L 22 8 L 42 40 Z" fill="#fbbf24"/><path d="M 86 52 L 78 8 L 58 40 Z" fill="#fbbf24"/><path d="M 22 46 L 25 22 L 36 38 Z" fill="#ea580c"/><path d="M 78 46 L 75 22 L 64 38 Z" fill="#ea580c"/><path d="M 10 48 Q 10 78, 50 96 Q 90 78, 90 48 Q 90 38, 80 38 L 20 38 Q 10 38, 10 48 Z" fill="#fbbf24"/><path d="M 50 92 Q 35 84, 32 72 Q 40 76, 50 76 Q 60 76, 68 72 Q 65 84, 50 92 Z" fill="#fef3c7"/><ellipse cx="35" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><ellipse cx="65" cy="58" rx="3.5" ry="5" fill="#0b0f19"/><circle cx="36" cy="56" r="1.2" fill="#fff"/><circle cx="66" cy="56" r="1.2" fill="#fff"/><path d="M 46 72 L 54 72 L 50 78 Z" fill="#0b0f19"/></svg>
-        <span class="logo-text">VENTU</span>
-      </a>
-      <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="header-nav">☰</button>
-      <nav class="header-nav" id="header-nav" aria-label="Principal">
-        <button id="theme-toggle" class="theme-toggle" aria-label="Alternar tema claro/escuro"><span class="icon-sun">☀️</span><span class="icon-moon">🌙</span></button>
-        <button class="btn btn-support" id="btn-apoie" type="button">Apoiar <span aria-hidden="true">🦊</span></button>
-        <div id="auth-area" class="auth-area">
-            <a href="auth.html" class="nav-link" id="nav-login">Entrar</a>
-            <a href="auth.html" class="btn btn-primary" id="nav-register">Criar conta</a>
-        </div>
-        <a href="biblioteca.html">Biblioteca</a>
-      </nav>
-    </div>
-  </header>
+  
 
   <main id="conteudo">
     <section class="hero">
@@ -300,19 +286,6 @@
   <script src="src/data/levels.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      /* -------- 1. Menu mobile -------- */
-      try {
-        const menuToggle = document.getElementById('menu-toggle');
-        const headerNav = document.getElementById('header-nav');
-        if (menuToggle && headerNav) {
-          menuToggle.addEventListener('click', () => {
-            const isOpen = headerNav.classList.toggle('open');
-            menuToggle.setAttribute('aria-expanded', String(isOpen));
-            menuToggle.setAttribute('aria-label', isOpen ? 'Fechar menu' : 'Abrir menu');
-          });
-        }
-      } catch(e) { console.error('Erro menu mobile:', e); }
-
       /* -------- 2. Grid de níveis -------- */
       try {
         const grid = document.getElementById('levels-grid');
