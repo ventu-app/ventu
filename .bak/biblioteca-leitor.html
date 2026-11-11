@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leitor · Ventu</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=2">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/ventu-leitor.css">
+  <script>
+    const savedTheme = localStorage.getItem('ventu_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
+</head>
+<body>
+
+  <div class="a4-toolbar no-print">
+    <a href="biblioteca.html" class="btn-back">← Biblioteca</a>
+    <span class="a4-toolbar-title" id="toolbar-title">Carregando…</span>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema">
+      <span class="icon-sun">☀️</span>
+      <span class="icon-moon">🌙</span>
+    </button>
+    <button class="btn-print" type="button" onclick="openPrintGate()">🖨️ Imprimir / PDF</button>
+  </div>
+
+  <main class="a4-stage" id="a4-stage"></main>
+
+  <a href="#" id="next-chapter-btn" class="btn-next-chapter no-print" style="display: none;">
+    Próximo Capítulo <span style="margin-left: 8px;">→</span>
+  </a>
+
+  <!-- MODAL PIX -->
+  <div class="print-modal no-print" id="print-modal" hidden>
+    <div class="print-modal-backdrop" onclick="closePrintGate()"></div>
+    <div class="print-modal-card">
+      <h3>💛 Mantenha o Ventu Vivo</h3>
+      <p>O Ventu é 100% gratuito na web. Mas manter servidores e 120 capítulos no ar custa tempo e dinheiro. Se este PDF te ajuda a estudar offline, considere apoiar o projeto.</p>
+      
+      <div class="pix-values">
+        <button type="button" onclick="selectValue(5)">R$ 5</button>
+        <button type="button" onclick="selectValue(10)" class="active">R$ 10</button>
+        <button type="button" onclick="selectValue(20)">R$ 20</button>
+        <input type="number" id="custom-value" placeholder="Outro R$" oninput="selectCustom(this.value)">
+      </div>
+
+      <div class="pix-box">
+        <code id="pix-payload">Selecione um valor acima</code>
+        <button id="btn-copy-pix" onclick="copyPix(this)">Copiar</button>
+      </div>
+
+      <div class="print-modal-actions">
+        <button class="btn-ghost" onclick="closePrintGate()">Cancelar</button>
+        <button class="btn-gold" onclick="proceedToPrint()">Baixar PDF →</button>
+      </div>
+      
+      <div class="already-paid" style="margin-top: 16px; font-size: 0.8rem; color: #93a0b8; cursor: pointer; text-decoration: underline;" onclick="skipForAlreadyPaid()">
+        Já contribuí com este nível. Liberar acesso.
+      </div>
+    </div>
+  </div>
+
+  <script>
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('ventu_theme', next);
+  }
+
+  (function () {
+    // 🚨 SEGURANÇA: Sanitização de entrada (XSS e Path Traversal)
+    const rawN = new URLSearchParams(location.search).get('n') || 'A1';
+    const rawV = new URLSearchParams(location.search).get('v') || '1';
+    const rawC = new URLSearchParams(location.search).get('c') || '01';
+
+    const n = /^(A1|A2|B1|B2|C1|C2|ESPECIAIS)$/.test(rawN) ? rawN : 'A1';
+    const v = /^[a-zA-Z0-9-]{1,20}$/.test(rawV) ? rawV : '1';
+    const c = /^\d{1,2}$/.test(rawC) ? rawC.padStart(2, '0') : '01';
+    
+    window.currentTier = n.charAt(0) === 'E' ? n : n.charAt(0);
+    
+    const stage = document.getElementById('a4-stage');
+    const toolbar = document.getElementById('toolbar-title');
+    const nextBtn = document.getElementById('next-chapter-btn');
+
+    document.title = `Cap. ${c} · ${n} · Ventu`;
+
+    const cNum = parseInt(c, 10);
+    if (cNum < 10) {
+      const nextC = String(cNum + 1).padStart(2, '0');
+      nextBtn.href = `biblioteca-leitor.html?n=${n}&v=${v}&c=${nextC}`;
+      nextBtn.style.display = 'inline-flex';
+    } else if (cNum === 10) {
+      nextBtn.href = `biblioteca.html`;
+      nextBtn.innerHTML = `Finalizar Volume <span style="margin-left: 8px;">✔</span>`;
+      nextBtn.style.display = 'inline-flex';
+    }
+
+    let scriptPath = '';
+    if (n === 'ESPECIAIS') {
+      scriptPath = `content/biblioteca/ESPECIAIS/${v}/ch${c.padStart(2, '0')}.js`;
+    } else {
+      scriptPath = `content/biblioteca/${n}/vol-${v}/ch${c.padStart(2, '0')}.js`;
+    }
+    
+    const s = document.createElement('script');
+    s.src = scriptPath;
+    
+    s.onload = () => {
+      const ch = window.VENTU_CHAPTER;
+      if (!ch || ch.meta?.format === 'coming-soon') { 
+        renderComingSoon(n, v, c); 
+        return; 
+      }
+      toolbar.textContent = `${n}.${v} · Cap. ${c} — ${ch.meta?.title || ''}`;
+      renderChapter(ch, { n, v, c });
+    };
+    
+    // 🚨 ERRO: Estado de erro amigável (em vez de tela em branco)
+    s.onerror = () => renderError(n, v, c);
+    document.head.appendChild(s);
+
+    function renderError(nivel, vol, cap) {
+      nextBtn.style.display = 'none'; 
+      toolbar.textContent = `${nivel}.${vol} · Cap. ${cap} — Erro`;
+      stage.innerHTML = `
+        <article class="a4-page">
+          <div class="a4-error-state">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <h1>Ops, algo deu errado.</h1>
+            <p>Não conseguimos carregar o conteúdo deste capítulo. Verifique sua conexão com a internet ou tente novamente mais tarde.</p>
+            <a href="biblioteca.html">Voltar para Biblioteca</a>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderComingSoon(nivel, vol, cap) {
+      nextBtn.style.display = 'none'; 
+      toolbar.textContent = `${nivel}.${vol} · Cap. ${cap} — Em Breve`;
+      stage.innerHTML = `
+        <article class="a4-page" style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
+          <div style="background: #0b0f19; padding: 16px 32px; border-radius: 16px; display: inline-block; margin-bottom: 24px;">
+            <img src="assets/logo.svg" height="80" alt="Ventu">
+          </div>
+          <h1 style="font-family:'Playfair Display',serif; font-size:3.5rem; color:#0b0f19; margin-bottom:12px;">Em Breve</h1>
+          <p style="color:#555; font-size:1.1rem; max-width: 400px; margin-bottom:32px;">
+            O Capítulo ${esc(cap)} do nível ${esc(nivel)}.${esc(vol)} está sendo preparado com muito carinho.
+          </p>
+          <a href="biblioteca.html" style="background:#fbbf24; color:#0b0f19; padding:14px 28px; border-radius:999px; text-decoration:none; font-weight:bold; font-size:1rem;">Voltar para Biblioteca</a>
+        </article>
+      `;
+    }
+
+    function esc(str) {
+      return String(str ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[ch]));
+    }
+
+    function renderChapter(ch, ctx) {
+      const m = ch.meta || {};
+      
+      const coverIllust = {
+        A1: `<svg viewBox="0 0 120 120" fill="none"><path d="M42 30 Q46 22 42 14" stroke="#10b981" stroke-width="3" stroke-linecap="round" opacity=".55"/><path d="M56 26 Q60 18 56 10" stroke="#10b981" stroke-width="3" stroke-linecap="round" opacity=".85"/><path d="M70 30 Q74 22 70 14" stroke="#10b981" stroke-width="3" stroke-linecap="round" opacity=".55"/><path d="M30 52 L34 88 Q35 96 44 96 L76 96 Q85 96 86 88 L90 52 Z" fill="#fff" opacity=".92"/><path d="M90 62 Q106 62 106 74 Q106 86 90 86" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity=".92"/><path d="M30 52 L90 52" stroke="#10b981" stroke-width="3" stroke-linecap="round" opacity=".6"/><rect x="52" y="72" width="56" height="30" rx="15" fill="#10b981"/><path d="M64 102 L60 112 L74 102 Z" fill="#10b981"/><circle cx="70" cy="87" r="2.4" fill="#0b0f19"/><circle cx="80" cy="87" r="2.4" fill="#0b0f19"/><circle cx="90" cy="87" r="2.4" fill="#0b0f19"/></svg>`
+      }[ctx.n] || '';
+
+      const cover = `
+        <article class="a4-page a4-cover">
+          <header class="cover-header">
+            <div class="cover-brand"><img src="assets/logo.svg" height="48" alt="Ventu"></div>
+            <div class="cover-level">${esc(ctx.n)}.${esc(ctx.v)}</div>
+          </header>
+          
+          <div class="cover-main">
+            <p class="cover-eyebrow">Capítulo ${esc(ctx.c)}</p>
+            <h1 class="cover-title">${esc(m.title || '')}</h1>
+            <p class="cover-subtitle">${esc(m.subtitle || '')}</p>
+            <div class="cover-illust">${coverIllust}</div>
+          </div>
+
+          <footer class="cover-footer">
+            <div class="cover-pix">
+              <p><strong>Apoie o Ventu</strong><br>Este material é gratuito. Se ele te ajudar, considere colaborar.</p>
+              <div class="cover-pix-key"><code>cd5e70df-ddb5-4c74-8589-bee68ed718d0</code></div>
+            </div>
+            <p class="cover-credit">Criado por Brayam Porphirio</p>
+          </footer>
+        </article>
+      `;
+
+      let parts = [];
+      parts.push(`<header class="a4-header"><div class="a4-brand"><img src="assets/logo.svg" height="36" alt="Ventu"></div><div class="a4-chapter-info"><span class="a4-badge">${esc(m.sublevel || ctx.n + '.' + ctx.v)}</span><span>Cap. ${esc(ctx.c)} / 10</span></div></header>`);
+      parts.push(`<h1 class="a4-title">${esc(m.title || '')}</h1><p class="a4-subtitle">${esc(m.subtitle || '')}</p><p class="a4-meta">⏱ ${m.estimatedMinutes || 20} min · ${esc(m.format || '')}</p>`);
+
+      if (m.canDo?.length) {
+        parts.push(`<section class="a4-block"><h2 class="a4-block-title">🎯 Objetivos · I can…</h2><ul class="a4-list">${m.canDo.map(x => `<li>${esc(x)}</li>`).join('')}</ul></section>`);
+      }
+
+      if (ch.warmup) {
+        parts.push(`<section class="a4-block"><h2 class="a4-block-title">🔥 Warm-up</h2><p>${esc(ch.warmup.prompt || ch.warmup.hook)}</p>${ch.warmup.image_concept ? `<p class="a4-note">💡 ${esc(ch.warmup.image_concept)}</p>` : ''}</section>`);
+      }
+
+      if (ch.input?.lines?.length) {
+        parts.push(`<section class="a4-block"><h2 class="a4-block-title">📖 ${esc(ch.input.title || ch.input.scene || 'Input')}</h2><div class="a4-dialogue">${ch.input.lines.map(l => `<p class="a4-line"><strong>${esc(l.speaker)}:</strong> ${esc(l.text || l.en)}${l.ptHelp ? `<br><em class="a4-pt">${esc(l.ptHelp)}</em>` : ''}</p>`).join('')}</div></section>`);
+      }
+
+      if (ch.vocab?.length) {
+        // 🚨 CORREÇÃO: Adicionado <div class="a4-table-wrap"> para evitar overflow no mobile
+        parts.push(`<section class="a4-block"><h2 class="a4-block-title">📚 Vocabulário</h2><div class="a4-table-wrap"><table class="a4-table"><thead><tr><th>Termo</th><th>IPA</th><th>Como falar (BR)</th><th>Significado</th></tr></thead><tbody>${ch.vocab.map(v => `<tr><td><strong>${esc(v.term || v.en)}</strong></td><td class="a4-ipa">${esc(v.ipa || '')}</td><td class="a4-br">${esc(v.br || '')}</td><td>${esc(v.meaning || v.ptHelp)}</td></tr>`).join('')}</tbody></table></div></section>`);
+      }
+
+      if (ch.grammar?.focus || ch.grammar?.rule) {
+        parts.push(`<section class="a4-block"><h2 class="a4-block-title">🧩 Gramática · ${esc(ch.grammar.focus || '')}</h2>${ch.grammar.rule ? `<p><strong>Regra:</strong> ${esc(ch.grammar.rule)}</p>` : ''}${ch.grammar.examples?.length ? `<ul class="a4-list">${ch.grammar.examples.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}${ch.grammar.brazilianTraps?.length || ch.grammar.traps?.length ? `<h3 class="a4-subblock">⚠️ Armadilhas do brasileiro</h3><ul class="a4-list a4-traps">${(ch.grammar.brazilianTraps || ch.grammar.traps).map(t => `<li>❌ <s>${esc(t.wrong)}</s> → ✅ <strong>${esc(t.right)}</strong> <em>(${esc(t.why)})</em></li>`).join('')}</ul>` : ''}</section>`);
+      }
+
+      if (ch.pronunciation?.focus) {
+        // 🚨 CORREÇÃO: Adicionado <div class="a4-table-wrap"> para evitar overflow no mobile
+        parts.push(`<section class="a4-block"><h2 class="a4-block-title">🗣 Pronúncia · ${esc(ch.pronunciation.focus)}</h2>${ch.pronunciation.explanation || ch.pronunciation.mouthTip ? `<p>${esc(ch.pronunciation.explanation || ch.pronunciation.mouthTip)}</p>` : ''}${ch.pronunciation.minimalPairs?.length ? `<div class="a4-table-wrap"><table class="a4-table" style="max-width:400px"><thead><tr><th>Par A</th><th>IPA</th><th>Par B</th><th>IPA</th></tr></thead><tbody>${ch.pronunciation.minimalPairs.map(p => `<tr><td>${esc(p[0] || p.a)}</td><td class="a4-ipa">${esc(p.aIpa || '')}</td><td>${esc(p[1] || p.b)}</td><td class="a4-ipa">${esc(p.bIpa || '')}</td></tr>`).join('')}</tbody></table></div>` : ''}</section>`);
+      }
+
+      if (ch.activities?.length) {
+        parts.push(`<section class="a4-block"><h2 class="a4-block-title">✏️ Atividades Práticas</h2>${ch.activities.map((a, i) => `<div class="a4-activity"><p><strong>${i+1}. ${esc(a.instruction || a.prompt)}</strong></p>${a.items?.length ? `<ol class="a4-items">${a.items.map(it => `<li>${esc(typeof it === 'string' ? it : it.q)}</li>`).join('')}</ol>` : ''}</div>`).join('')}</section>`);
+      }
+
+      if (ch.roleplay?.title || ch.roleplay?.setup) {
+        const r = ch.roleplay;
+        parts.push(`<section class="a4-block a4-roleplay"><h2 class="a4-block-title">🎭 Missão de Roleplay com IA</h2><p><strong>Cenário:</strong> ${esc(r.scenario || r.setup)}</p><p><strong>A IA é:</strong> ${esc(r.aiCharacter || r.npcPersona)} · <strong>Você é:</strong> ${esc(r.studentRole || '')}</p><p><strong>Seu objetivo:</strong> ${esc(r.studentGoal || '')}</p><h3 class="a4-subblock">Checklist de Sucesso:</h3><ul class="a4-list">${(r.objectives || r.successCriteria || []).map(o => `<li>☐ ${esc(o)}</li>`).join('')}</ul>${r.promptText || r.starterPrompt ? `<details class="a4-prompt"><summary>Copiar Prompt para o ChatGPT/Claude</summary><pre>${esc(r.promptText || r.starterPrompt)}</pre></details>` : ''}</section>`);
+      }
+
+      if (ch.culturalPass) {
+        const cp = ch.culturalPass;
+        let cpHtml = '';
+
+        if (cp.work || cp.title) {
+          const icon = cp.type === 'film' ? '🎬' : cp.type === 'series' ? '📺' : cp.type === 'song' ? '🎵' : '🎧';
+          cpHtml += `<div class="a4-cultural-item">
+            <h4>${icon} ${esc(cp.title || cp.work)} (${esc(cp.year || '')})</h4>
+            <p><em>${esc(cp.creator || '')} ${cp.difficulty ? '· Dificuldade ' + esc(cp.difficulty) + '/5' : ''}</em></p>
+            <p>${esc(cp.why || cp.whyA1 || '')}</p>
+            ${cp.listeningMission ? `<p><strong>Missão:</strong> ${esc(cp.listeningMission)}</p>` : ''}
+          </div>`;
+        } else {
+          const renderOld = (item, icon) => {
+            if (!item || (!item.title && !item.work)) return '';
+            return `<div class="a4-cultural-item">
+              <h4>${icon} ${esc(item.title || item.work)} (${esc(item.year || '')})</h4>
+              <p><em>${esc(item.creator || '')} ${item.difficulty ? '· Dificuldade ' + esc(item.difficulty) + '/5' : ''}</em></p>
+              <p>${esc(item.why || item.whyA1 || '')}</p>
+              ${item.listeningMission ? `<p><strong>Missão:</strong> ${esc(item.listeningMission)}</p>` : ''}
+            </div>`;
+          };
+          cpHtml += renderOld(cp.film, '🎬');
+          cpHtml += renderOld(cp.series, '📺');
+          cpHtml += renderOld(cp.song, '🎵');
+        }
+
+        if (cpHtml) {
+          parts.push(`<section class="a4-block"><h2 class="a4-block-title">🌎 Cultural Pass</h2>${cpHtml}</section>`);
+        }
+      }
+
+      parts.push(`<footer class="a4-footer"><span>Ventu · ${esc(ctx.n)}.${esc(ctx.v)} · Cap. ${esc(ctx.c)}</span><span>Criado por Brayam Porphirio</span></footer>`);
+      stage.innerHTML = cover + `<article class="a4-page">${parts.join('')}</article>`;
+    }
+  })();
+
+  /* LÓGICA DO PIX */
+  let currentAmount = 10; 
+  function openPrintGate() {
+    if (localStorage.getItem('ventu_donated_' + window.currentTier) === 'true') {
+      window.print();
+    } else {
+      document.getElementById('print-modal').hidden = false;
+      selectValue(10);
+    }
+  }
+  function closePrintGate() { document.getElementById('print-modal').hidden = true; }
+  function proceedToPrint() {
+    localStorage.setItem('ventu_donated_' + window.currentTier, 'true');
+    closePrintGate();
+    setTimeout(() => window.print(), 300);
+  }
+  function skipForAlreadyPaid() { proceedToPrint(); }
+
+  function selectValue(val) {
+    currentAmount = val;
+    document.getElementById('custom-value').value = '';
+    updatePixPayload(val);
+    document.querySelectorAll('.pix-values button').forEach(b => b.classList.remove('active'));
+    if(event && event.target && event.target.tagName === 'BUTTON') event.target.classList.add('active');
+  }
+  function selectCustom(val) {
+    if (!val) return;
+    currentAmount = parseFloat(val).toFixed(2);
+    document.querySelectorAll('.pix-values button').forEach(b => b.classList.remove('active'));
+    updatePixPayload(currentAmount);
+  }
+
+  function updatePixPayload(amount) {
+    const key = 'cd5e70df-ddb5-4c74-8589-bee68ed718d0';
+    const name = 'Brayam Porphirio';
+    const city = 'Rio de Janeiro';
+    const amtStr = String(amount);
+
+    function crc16(str) {
+      let crc = 0xFFFF;
+      for (let i = 0; i < str.length; i++) {
+        crc ^= str.charCodeAt(i) << 8;
+        for (let j = 0; j < 8; j++) crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+      }
+      return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+    }
+    const tag = (id, val) => `${id}${String(val.length).padStart(2, '0')}${val}`;
+    const pix = tag('00', 'BR.GOV.BCB.PIX') + tag('01', key);
+    
+    let payload = '';
+    payload += tag('00', '01') + tag('26', pix) + tag('52', '0000') + tag('53', '986');
+    if (amtStr) payload += tag('54', amtStr); 
+    payload += tag('58', 'BR') + tag('59', name) + tag('60', city) + tag('62', tag('05', '***')) + '6304';
+    payload += crc16(payload);
+
+    document.getElementById('pix-payload').textContent = payload;
+  }
+
+  function copyPix(btn) {
+    const text = document.getElementById('pix-payload').textContent;
+    if(text === 'Selecione um valor acima') return;
+    navigator.clipboard.writeText(text).then(() => {
+      const old = btn.textContent;
+      btn.textContent = 'Copiado! ✓';
+      btn.style.background = '#10b981';
+      setTimeout(() => { btn.textContent = old; btn.style.background = ''; }, 2000);
+    });
+  }
+  </script>
+</body>
+</html>
