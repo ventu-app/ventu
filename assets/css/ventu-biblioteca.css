@@ -193,3 +193,9 @@ html[data-theme="light"] .icon-moon { display: none; }
   .adult-modal-card { padding: 24px; }
   .adult-modal-actions { flex-direction: column; }
 }
+/* Acessibilidade: Foco visível para navegação via teclado */
+a:focus-visible, button:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 8px;
+}

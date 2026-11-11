@@ -1,4 +1,4 @@
-﻿#requires -Version 5.1
+#requires -Version 5.1
 <#
 .SYNOPSIS
   Integra o botao flutuante Pix em TODAS as paginas HTML.
@@ -106,6 +106,7 @@ $bodyRegex = [regex]'(?is)</body>'
 $stats = [ordered]@{ pix = 0; skip = 0; warn = 0; errors = 0 }
 
 foreach ($file in $htmlFiles) {
+    if ($file.Name -like '*biblioteca-leitor.html*') { continue }
     $rel     = $file.FullName.Substring($Root.Length).TrimStart('\', '/').Replace('\', '/')
     $content = Read-Utf8 -Path $file.FullName
     $orig    = $content
