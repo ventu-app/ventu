@@ -25,6 +25,12 @@
         .btn-resend { background: transparent; border: 1px solid var(--error); color: var(--error); padding: 8px; font-size: 0.8rem; margin-top: 5px; }
         .btn-resend:hover { background: rgba(239, 68, 68, 0.1); }
     </style>
+  <link rel="manifest" href="/manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+    }
+  </script>
 </head>
 <body>
 <div class="auth-box">

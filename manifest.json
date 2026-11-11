@@ -1,0 +1,17 @@
+{
+  "name": "Ventu · Sobrevivência Linguística",
+  "short_name": "Ventu",
+  "description": "O RPG de mensagens para aprender inglês de verdade.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0f19",
+  "theme_color": "#0b0f19",
+  "icons": [
+    {
+      "src": "/assets/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

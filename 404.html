@@ -38,6 +38,12 @@
     .btn { background: var(--gold); color: var(--bg); padding: 15px 30px; border-radius: 12px; font-weight: bold; font-size: 1.1rem; transition: 0.2s; display: inline-block; }
     .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); filter: brightness(1.1); }
   </style>
+  <link rel="manifest" href="/manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+    }
+  </script>
 </head>
 <body>
   <div class="container">

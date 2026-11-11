@@ -67,6 +67,12 @@
     .error-msg { color: var(--error); margin-top: 10px; font-size: 0.9rem; font-weight: bold; }
     .success-msg { color: var(--success); margin-top: 10px; font-size: 0.9rem; font-weight: bold; }
   </style>
+  <link rel="manifest" href="/manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+    }
+  </script>
 </head>
 <body>
   <header class="site-header">

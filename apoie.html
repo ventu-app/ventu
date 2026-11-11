@@ -37,6 +37,12 @@
     .toast { position: fixed; bottom: -50px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; transition: bottom 0.3s; z-index: 1000; }
     .toast.show { bottom: 20px; }
   </style>
+  <link rel="manifest" href="/manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+    }
+  </script>
 </head>
 <body>
   <div class="container">

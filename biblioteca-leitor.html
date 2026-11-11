@@ -13,6 +13,12 @@
     const savedTheme = localStorage.getItem('ventu_theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
   </script>
+  <link rel="manifest" href="/manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+    }
+  </script>
 </head>
 <body>
 

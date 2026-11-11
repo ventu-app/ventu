@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu Deck · Ventu</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/header.css">
+  <script src="/assets/js/header.js" defer></script>
+  <style>
+    body { background: var(--bg); color: var(--text); font-family: var(--font-body, 'Inter', sans-serif); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding-top: 100px; }
+    
+    .deck-container { width: 100%; max-width: 400px; padding: 0 20px; text-align: center; }
+    .deck-title { font-family: 'Playfair Display', serif; font-size: 2rem; margin-bottom: 30px; }
+    
+    /* Cartão 3D */
+    .card-scene { width: 100%; height: 300px; perspective: 1000px; cursor: pointer; margin-bottom: 30px; }
+    .card { width: 100%; height: 100%; position: relative; transition: transform 0.6s; transform-style: preserve-3d; }
+    .card.is-flipped { transform: rotateY(180deg); }
+    
+    .card-face {
+      position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+      background: var(--panel); border: 1px solid var(--line); border-radius: 24px;
+      display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .card-back { transform: rotateY(180deg); background: rgba(251, 191, 36, 0.05); border-color: var(--gold); }
+    
+    .word-en { font-size: 2.5rem; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+    .word-hint { font-size: 0.9rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+    .word-pt { font-size: 1.5rem; color: var(--gold); margin-bottom: 10px; }
+    
+    /* Botões de Avaliação */
+    .actions { display: none; gap: 10px; width: 100%; }
+    .actions.show { display: grid; grid-template-columns: 1fr 1fr; }
+    .btn-review { padding: 15px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; font-family: inherit; }
+    .btn-again { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .btn-good { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .btn-again:hover { background: rgba(239, 68, 68, 0.2); }
+    .btn-good:hover { background: rgba(16, 185, 129, 0.2); }
+    
+    /* Estado Vazio */
+    .empty-state { display: none; flex-direction: column; align-items: center; gap: 20px; color: var(--muted); }
+    .empty-state svg { width: 64px; height: 64px; opacity: 0.5; }
+  </style>
+</head>
+<body>
+
+  <div class="deck-container">
+    <h1 class="deck-title">Seu Deck</h1>
+    
+    <!-- Área do Flashcard -->
+    <div class="card-scene" id="card-scene">
+      <div class="card" id="flashcard">
+        <div class="card-face card-front">
+          <div class="word-en" id="front-word">Hello</div>
+          <div class="word-hint">Clique para virar</div>
+        </div>
+        <div class="card-face card-back">
+          <div class="word-pt" id="back-word">Olá</div>
+          <div class="word-hint" id="back-context">Contexto da palavra</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ações -->
+    <div class="actions" id="actions">
+      <button class="btn-review btn-again" onclick="rateCard('again')">Errei / Difícil</button>
+      <button class="btn-review btn-good" onclick="rateCard('good')">Acertei / Fácil</button>
+    </div>
+
+    <!-- Estado Vazio -->
+    <div class="empty-state" id="empty-state">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+      <h2>Deck Vazio</h2>
+      <p>Você ainda não salvou nenhuma palavra. Jogue uma missão e clique nas palavras para adicioná-las ao seu deck.</p>
+      <a href="/jogar.html" class="btn btn-primary" style="margin-top: 20px;">Jogar Agora</a>
+    </div>
+  </div>
+
+  <script>
+    // Lógica dos Flashcards
+    let deck = [];
+    let currentIndex = 0;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Tenta carregar do VentuStorage (se existir) ou do localStorage direto
+      if (window.VentuStorage && window.VentuStorage.getWordBank) {
+        deck = window.VentuStorage.getWordBank();
+      } else {
+        const raw = localStorage.getItem('ventu_deck') || localStorage.getItem('ventu_word_bank');
+        deck = raw ? JSON.parse(raw) : [];
+      }
+
+      // Normaliza os dados (aceita array de strings ou de objetos)
+      deck = deck.map(item => {
+        if (typeof item === 'string') return { en: item, pt: 'Clique para revelar o significado', context: '' };
+        return { 
+          en: item.term || item.en || item.word || 'Palavra', 
+          pt: item.meaning || item.pt || item.translation || 'Significado', 
+          context: item.context || item.phrase || 'Contexto' 
+        };
+      });
+
+      if (deck.length === 0) {
+        document.getElementById('card-scene').style.display = 'none';
+        document.getElementById('empty-state').style.display = 'flex';
+        return;
+      }
+
+      // Embaralha o deck
+      deck.sort(() => Math.random() - 0.5);
+      renderCard();
+
+      // Clique para virar
+      document.getElementById('card-scene').addEventListener('click', () => {
+        const card = document.getElementById('flashcard');
+        if (!card.classList.contains('is-flipped')) {
+          card.classList.add('is-flipped');
+          document.getElementById('actions').classList.add('show');
+        }
+      });
+    });
+
+    function renderCard() {
+      if (currentIndex >= deck.length) {
+        // Terminou o deck
+        document.getElementById('card-scene').style.display = 'none';
+        document.getElementById('actions').classList.remove('show');
+        document.getElementById('empty-state').style.display = 'flex';
+        document.getElementById('empty-state').querySelector('h2').textContent = 'Sessão Concluída! 🎉';
+        document.getElementById('empty-state').querySelector('p').textContent = 'Você revisou todas as palavras do seu deck por hoje. Volte amanhã para não esquecer!';
+        return;
+      }
+
+      const cardData = deck[currentIndex];
+      document.getElementById('front-word').textContent = cardData.en;
+      document.getElementById('back-word').textContent = cardData.pt;
+      document.getElementById('back-context').textContent = cardData.context;
+      
+      const card = document.getElementById('flashcard');
+      card.classList.remove('is-flipped');
+      document.getElementById('actions').classList.remove('show');
+    }
+
+    window.rateCard = (rating) => {
+      // Aqui entraria o algoritmo SRS (Repetição Espaçada). 
+      // Por enquanto, se for 'again', a palavra volta para o fim da fila.
+      if (rating === 'again') {
+        const currentCard = deck[currentIndex];
+        deck.push(currentCard); // Joga para o final
+      }
+      
+      currentIndex++;
+      renderCard();
+    };
+  </script>
+</body>
+</html>
