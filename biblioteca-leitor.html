@@ -28,7 +28,6 @@
 
   <main class="a4-stage" id="a4-stage"></main>
 
-  <!-- Botão Flutuante: Próximo Capítulo -->
   <a href="#" id="next-chapter-btn" class="btn-next-chapter no-print" style="display: none;">
     Próximo Capítulo <span style="margin-left: 8px;">→</span>
   </a>
@@ -72,10 +71,14 @@
   }
 
   (function () {
-    const params = new URLSearchParams(location.search);
-    const n = params.get('n') || 'A1';
-    const v = params.get('v') || '1';
-    const c = params.get('c') || '01';
+    // 🚨 SEGURANÇA: Sanitização de entrada (XSS e Path Traversal)
+    const rawN = new URLSearchParams(location.search).get('n') || 'A1';
+    const rawV = new URLSearchParams(location.search).get('v') || '1';
+    const rawC = new URLSearchParams(location.search).get('c') || '01';
+
+    const n = /^(A1|A2|B1|B2|C1|C2|ESPECIAIS)$/.test(rawN) ? rawN : 'A1';
+    const v = /^[a-zA-Z0-9-]{1,20}$/.test(rawV) ? rawV : '1';
+    const c = /^\d{1,2}$/.test(rawC) ? rawC.padStart(2, '0') : '01';
     
     window.currentTier = n.charAt(0) === 'E' ? n : n.charAt(0);
     
@@ -96,16 +99,12 @@
       nextBtn.style.display = 'inline-flex';
     }
 
-    // =========================================================
-    // CORREÇÃO AQUI: Rota dinâmica para Níveis ou Especiais
-    // =========================================================
     let scriptPath = '';
     if (n === 'ESPECIAIS') {
       scriptPath = `content/biblioteca/ESPECIAIS/${v}/ch${c.padStart(2, '0')}.js`;
     } else {
       scriptPath = `content/biblioteca/${n}/vol-${v}/ch${c.padStart(2, '0')}.js`;
     }
-    // =========================================================
     
     const s = document.createElement('script');
     s.src = scriptPath;
@@ -120,22 +119,36 @@
       renderChapter(ch, { n, v, c });
     };
     
-    s.onerror = () => renderComingSoon(n, v, c);
+    // 🚨 ERRO: Estado de erro amigável (em vez de tela em branco)
+    s.onerror = () => renderError(n, v, c);
     document.head.appendChild(s);
+
+    function renderError(nivel, vol, cap) {
+      nextBtn.style.display = 'none'; 
+      toolbar.textContent = `${nivel}.${vol} · Cap. ${cap} — Erro`;
+      stage.innerHTML = `
+        <article class="a4-page">
+          <div class="a4-error-state">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <h1>Ops, algo deu errado.</h1>
+            <p>Não conseguimos carregar o conteúdo deste capítulo. Verifique sua conexão com a internet ou tente novamente mais tarde.</p>
+            <a href="biblioteca.html">Voltar para Biblioteca</a>
+          </div>
+        </article>
+      `;
+    }
 
     function renderComingSoon(nivel, vol, cap) {
       nextBtn.style.display = 'none'; 
       toolbar.textContent = `${nivel}.${vol} · Cap. ${cap} — Em Breve`;
       stage.innerHTML = `
         <article class="a4-page" style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
-          
           <div style="background: #0b0f19; padding: 16px 32px; border-radius: 16px; display: inline-block; margin-bottom: 24px;">
             <img src="assets/logo.svg" height="80" alt="Ventu">
           </div>
-
           <h1 style="font-family:'Playfair Display',serif; font-size:3.5rem; color:#0b0f19; margin-bottom:12px;">Em Breve</h1>
           <p style="color:#555; font-size:1.1rem; max-width: 400px; margin-bottom:32px;">
-            O Capítulo ${cap} do nível ${nivel}.${vol} está sendo preparado com muito carinho.
+            O Capítulo ${esc(cap)} do nível ${esc(nivel)}.${esc(vol)} está sendo preparado com muito carinho.
           </p>
           <a href="biblioteca.html" style="background:#fbbf24; color:#0b0f19; padding:14px 28px; border-radius:999px; text-decoration:none; font-weight:bold; font-size:1rem;">Voltar para Biblioteca</a>
         </article>
@@ -157,11 +170,11 @@
         <article class="a4-page a4-cover">
           <header class="cover-header">
             <div class="cover-brand"><img src="assets/logo.svg" height="48" alt="Ventu"></div>
-            <div class="cover-level">${ctx.n}.${ctx.v}</div>
+            <div class="cover-level">${esc(ctx.n)}.${esc(ctx.v)}</div>
           </header>
           
           <div class="cover-main">
-            <p class="cover-eyebrow">Capítulo ${ctx.c}</p>
+            <p class="cover-eyebrow">Capítulo ${esc(ctx.c)}</p>
             <h1 class="cover-title">${esc(m.title || '')}</h1>
             <p class="cover-subtitle">${esc(m.subtitle || '')}</p>
             <div class="cover-illust">${coverIllust}</div>
@@ -178,7 +191,7 @@
       `;
 
       let parts = [];
-      parts.push(`<header class="a4-header"><div class="a4-brand"><img src="assets/logo.svg" height="36" alt="Ventu"></div><div class="a4-chapter-info"><span class="a4-badge">${esc(m.sublevel || ctx.n + '.' + ctx.v)}</span><span>Cap. ${ctx.c} / 10</span></div></header>`);
+      parts.push(`<header class="a4-header"><div class="a4-brand"><img src="assets/logo.svg" height="36" alt="Ventu"></div><div class="a4-chapter-info"><span class="a4-badge">${esc(m.sublevel || ctx.n + '.' + ctx.v)}</span><span>Cap. ${esc(ctx.c)} / 10</span></div></header>`);
       parts.push(`<h1 class="a4-title">${esc(m.title || '')}</h1><p class="a4-subtitle">${esc(m.subtitle || '')}</p><p class="a4-meta">⏱ ${m.estimatedMinutes || 20} min · ${esc(m.format || '')}</p>`);
 
       if (m.canDo?.length) {
@@ -194,7 +207,8 @@
       }
 
       if (ch.vocab?.length) {
-        parts.push(`<section class="a4-block"><h2 class="a4-block-title">📚 Vocabulário</h2><table class="a4-table"><thead><tr><th>Termo</th><th>IPA</th><th>Como falar (BR)</th><th>Significado</th></tr></thead><tbody>${ch.vocab.map(v => `<tr><td><strong>${esc(v.term || v.en)}</strong></td><td class="a4-ipa">${esc(v.ipa || '')}</td><td class="a4-br">${esc(v.br || '')}</td><td>${esc(v.meaning || v.ptHelp)}</td></tr>`).join('')}</tbody></table></section>`);
+        // 🚨 CORREÇÃO: Adicionado <div class="a4-table-wrap"> para evitar overflow no mobile
+        parts.push(`<section class="a4-block"><h2 class="a4-block-title">📚 Vocabulário</h2><div class="a4-table-wrap"><table class="a4-table"><thead><tr><th>Termo</th><th>IPA</th><th>Como falar (BR)</th><th>Significado</th></tr></thead><tbody>${ch.vocab.map(v => `<tr><td><strong>${esc(v.term || v.en)}</strong></td><td class="a4-ipa">${esc(v.ipa || '')}</td><td class="a4-br">${esc(v.br || '')}</td><td>${esc(v.meaning || v.ptHelp)}</td></tr>`).join('')}</tbody></table></div></section>`);
       }
 
       if (ch.grammar?.focus || ch.grammar?.rule) {
@@ -202,7 +216,8 @@
       }
 
       if (ch.pronunciation?.focus) {
-        parts.push(`<section class="a4-block"><h2 class="a4-block-title">🗣 Pronúncia · ${esc(ch.pronunciation.focus)}</h2>${ch.pronunciation.explanation || ch.pronunciation.mouthTip ? `<p>${esc(ch.pronunciation.explanation || ch.pronunciation.mouthTip)}</p>` : ''}${ch.pronunciation.minimalPairs?.length ? `<table class="a4-table" style="max-width:400px"><thead><tr><th>Par A</th><th>IPA</th><th>Par B</th><th>IPA</th></tr></thead><tbody>${ch.pronunciation.minimalPairs.map(p => `<tr><td>${esc(p[0] || p.a)}</td><td class="a4-ipa">${esc(p.aIpa || '')}</td><td>${esc(p[1] || p.b)}</td><td class="a4-ipa">${esc(p.bIpa || '')}</td></tr>`).join('')}</tbody></table>` : ''}</section>`);
+        // 🚨 CORREÇÃO: Adicionado <div class="a4-table-wrap"> para evitar overflow no mobile
+        parts.push(`<section class="a4-block"><h2 class="a4-block-title">🗣 Pronúncia · ${esc(ch.pronunciation.focus)}</h2>${ch.pronunciation.explanation || ch.pronunciation.mouthTip ? `<p>${esc(ch.pronunciation.explanation || ch.pronunciation.mouthTip)}</p>` : ''}${ch.pronunciation.minimalPairs?.length ? `<div class="a4-table-wrap"><table class="a4-table" style="max-width:400px"><thead><tr><th>Par A</th><th>IPA</th><th>Par B</th><th>IPA</th></tr></thead><tbody>${ch.pronunciation.minimalPairs.map(p => `<tr><td>${esc(p[0] || p.a)}</td><td class="a4-ipa">${esc(p.aIpa || '')}</td><td>${esc(p[1] || p.b)}</td><td class="a4-ipa">${esc(p.bIpa || '')}</td></tr>`).join('')}</tbody></table></div>` : ''}</section>`);
       }
 
       if (ch.activities?.length) {
@@ -214,7 +229,6 @@
         parts.push(`<section class="a4-block a4-roleplay"><h2 class="a4-block-title">🎭 Missão de Roleplay com IA</h2><p><strong>Cenário:</strong> ${esc(r.scenario || r.setup)}</p><p><strong>A IA é:</strong> ${esc(r.aiCharacter || r.npcPersona)} · <strong>Você é:</strong> ${esc(r.studentRole || '')}</p><p><strong>Seu objetivo:</strong> ${esc(r.studentGoal || '')}</p><h3 class="a4-subblock">Checklist de Sucesso:</h3><ul class="a4-list">${(r.objectives || r.successCriteria || []).map(o => `<li>☐ ${esc(o)}</li>`).join('')}</ul>${r.promptText || r.starterPrompt ? `<details class="a4-prompt"><summary>Copiar Prompt para o ChatGPT/Claude</summary><pre>${esc(r.promptText || r.starterPrompt)}</pre></details>` : ''}</section>`);
       }
 
-      // CULTURAL PASS
       if (ch.culturalPass) {
         const cp = ch.culturalPass;
         let cpHtml = '';
@@ -222,8 +236,8 @@
         if (cp.work || cp.title) {
           const icon = cp.type === 'film' ? '🎬' : cp.type === 'series' ? '📺' : cp.type === 'song' ? '🎵' : '🎧';
           cpHtml += `<div class="a4-cultural-item">
-            <h4>${icon} ${esc(cp.title || cp.work)} (${cp.year || ''})</h4>
-            <p><em>${esc(cp.creator || '')} ${cp.difficulty ? '· Dificuldade ' + cp.difficulty + '/5' : ''}</em></p>
+            <h4>${icon} ${esc(cp.title || cp.work)} (${esc(cp.year || '')})</h4>
+            <p><em>${esc(cp.creator || '')} ${cp.difficulty ? '· Dificuldade ' + esc(cp.difficulty) + '/5' : ''}</em></p>
             <p>${esc(cp.why || cp.whyA1 || '')}</p>
             ${cp.listeningMission ? `<p><strong>Missão:</strong> ${esc(cp.listeningMission)}</p>` : ''}
           </div>`;
@@ -231,8 +245,8 @@
           const renderOld = (item, icon) => {
             if (!item || (!item.title && !item.work)) return '';
             return `<div class="a4-cultural-item">
-              <h4>${icon} ${esc(item.title || item.work)} (${item.year || ''})</h4>
-              <p><em>${esc(item.creator || '')} ${item.difficulty ? '· Dificuldade ' + item.difficulty + '/5' : ''}</em></p>
+              <h4>${icon} ${esc(item.title || item.work)} (${esc(item.year || '')})</h4>
+              <p><em>${esc(item.creator || '')} ${item.difficulty ? '· Dificuldade ' + esc(item.difficulty) + '/5' : ''}</em></p>
               <p>${esc(item.why || item.whyA1 || '')}</p>
               ${item.listeningMission ? `<p><strong>Missão:</strong> ${esc(item.listeningMission)}</p>` : ''}
             </div>`;
@@ -247,7 +261,7 @@
         }
       }
 
-      parts.push(`<footer class="a4-footer"><span>Ventu · ${esc(ctx.n)}.${ctx.v} · Cap. ${ctx.c}</span><span>Criado por Brayam Porphirio</span></footer>`);
+      parts.push(`<footer class="a4-footer"><span>Ventu · ${esc(ctx.n)}.${esc(ctx.v)} · Cap. ${esc(ctx.c)}</span><span>Criado por Brayam Porphirio</span></footer>`);
       stage.innerHTML = cover + `<article class="a4-page">${parts.join('')}</article>`;
     }
   })();
